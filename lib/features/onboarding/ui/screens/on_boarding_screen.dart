@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_carousel_intro/flutter_carousel_intro.dart';
 import 'package:flutter_carousel_intro/slider_item_model.dart';
+import 'package:plan_z/core/theming/text_stayls.dart';
 
 class OnBoardingScreen extends StatelessWidget {
   const OnBoardingScreen({super.key});
@@ -36,57 +37,33 @@ class OnBoardingScreen extends StatelessWidget {
           SliderItem(
             title: 'Create Your Event in Minutes',
             titleTextAlign: TextAlign.center,
-            titleTextStyle: TextStyle(
-              fontSize: 30,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF21225B),
-            ),
+            titleTextStyle: AppTextStyles.title,
             subtitle: Text(
               "Pick your event type, set a budget, explore vendors, and preview your event before booking.",
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w400,
-                color: Color(0xFF21225B),
-              ),
+              style: AppTextStyles.subtitle,
             ),
             widget: Image.asset('assets/images/owner.jpg'),
           ),
           SliderItem(
             title: 'Grow Your Business',
             titleTextAlign: TextAlign.center,
-            titleTextStyle: TextStyle(
-              fontSize: 30,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF21225B),
-            ),
+            titleTextStyle: AppTextStyles.title,
             subtitle: Text(
               "Add packages, set prices, and get discovered by event organizers looking for your services.",
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w400,
-                color: Color(0xFF21225B),
-              ),
+              style: AppTextStyles.subtitle,
             ),
             widget: Image.asset('assets/images/vendor.jpg'),
           ),
           SliderItem(
             title: 'Stay Connected',
             titleTextAlign: TextAlign.center,
-            titleTextStyle: TextStyle(
-              fontSize: 30,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF21225B),
-            ),
+            titleTextStyle: AppTextStyles.title,
             subtitle: Text(
               "Receive invitations, RSVP instantly, and get reminders — never miss an event.",
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w400,
-                color: Color(0xFF21225B),
-              ),
+              style: AppTextStyles.subtitle,
             ),
             widget: Image.asset('assets/images/attandee.jpg'),
           ),
@@ -120,7 +97,7 @@ class OnBoardingScreen extends StatelessWidget {
                       children: [
                         Text(
                           "Get Started",
-                          style: TextStyle(fontSize: 23, color: Color(0xFF21225B)),
+                          style: AppTextStyles.button,
                         ),
                         SizedBox(width: 45),
                         Icon(
