@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:plan_z/core/theming/text_stayls.dart';
 
 class WelcomeWidget extends StatelessWidget {
@@ -6,19 +7,36 @@ class WelcomeWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Text(
-          "Welcome to",
-          style: AppTextStyles.headline1.copyWith(color: Colors.black),
-        ),
-        Text("EventFlow", style: AppTextStyles.headline1),
-        SizedBox(height: 10),
-        Text(
-          "Seamless event management at your fingertips.",
-          style: AppTextStyles.subtitle,
-        ),
-      ],
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 30),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text(
+            "Welcome to",
+            style: AppTextStyles.headline1.copyWith(color: Colors.black),
+          ),
+          Text(
+            "EventFlow",
+            style: AppTextStyles.headline1.copyWith(color: Color(0xFF21225b)),
+          ),
+          SizedBox(height: 10),
+          Text(
+            "Seamless event management at your",
+            style: AppTextStyles.caption.copyWith(
+              color: Color(0xFF565d6d),
+              fontSize: 16,
+            ),
+          ),
+          Text(
+            "fingertips.",
+            style: AppTextStyles.caption.copyWith(
+              color: Color(0xFF565d6d),
+              fontSize: 16,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

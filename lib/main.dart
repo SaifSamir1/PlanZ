@@ -11,11 +11,8 @@ class PlanZ extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Plan Z',
-      home: Scaffold(
-        appBar: AppBar(title: const Text('Plan Z')),
-        body: StakeholdersSelectionScreen(),
-      ),
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(body: StakeholdersSelectionScreen()),
     );
   }
 }
