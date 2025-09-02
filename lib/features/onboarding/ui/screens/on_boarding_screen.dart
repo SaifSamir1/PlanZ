@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_carousel_intro/flutter_carousel_intro.dart';
 import 'package:flutter_carousel_intro/slider_item_model.dart';
 import 'package:plan_z/core/theming/text_stayls.dart';
+import 'package:plan_z/core/utils/app_colors.dart';
 
 class OnBoardingScreen extends StatelessWidget {
   const OnBoardingScreen({super.key});
@@ -18,19 +19,11 @@ class OnBoardingScreen extends StatelessWidget {
           SliderItem(
             title: 'Welcome to Plan Z',
             titleTextAlign: TextAlign.center,
-            titleTextStyle: TextStyle(
-              fontSize: 30,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF21225B),
-            ),
+            titleTextStyle: AppTextStyles.title,
             subtitle: Text(
               'Your Vision, Our Mission',
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w400,
-                color: Color(0xFF21225B),
-              ),
+              style: AppTextStyles.subtitle
             ),
             widget: Image.asset('assets/images/Frame_3.png'),
           ),
@@ -80,7 +73,7 @@ class OnBoardingScreen extends StatelessWidget {
                   width: 300,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xFFE3C100),
+                      backgroundColor: AppColors.primaryGold,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -103,7 +96,7 @@ class OnBoardingScreen extends StatelessWidget {
                         Icon(
                           size: 30,
                           Icons.arrow_forward,
-                          color: Color(0xFF21225B),
+                          color: AppColors.primaryDark,
                         ),
                       ],
                     ),
