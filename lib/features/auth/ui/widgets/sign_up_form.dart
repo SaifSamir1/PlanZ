@@ -6,8 +6,8 @@ import 'package:plan_z/features/auth/ui/widgets/password_text_form_filed.dart';
 
 class SignUpForm extends StatefulWidget {
   final UserType userType;
-
-  const SignUpForm({super.key, required this.userType});
+  final GlobalKey<FormState> formKey;
+  const SignUpForm({super.key, required this.userType, required this.formKey});
 
   @override
   // ignore: library_private_types_in_public_api
@@ -15,7 +15,6 @@ class SignUpForm extends StatefulWidget {
 }
 
 class _SignUpFormState extends State<SignUpForm> {
-  final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _phoneController = TextEditingController();
@@ -25,7 +24,7 @@ class _SignUpFormState extends State<SignUpForm> {
   @override
   Widget build(BuildContext context) {
     return Form(
-      key: _formKey,
+      key: widget.formKey,
       child: Column(
         children: [
           // Name field

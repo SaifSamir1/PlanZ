@@ -3,6 +3,7 @@ import 'package:flutter_carousel_intro/flutter_carousel_intro.dart';
 import 'package:flutter_carousel_intro/slider_item_model.dart';
 import 'package:plan_z/core/theming/text_stayls.dart';
 import 'package:plan_z/core/utils/app_colors.dart';
+import 'package:plan_z/features/onboarding/ui/screens/stakeholders_selection_screen.dart';
 
 class OnBoardingScreen extends StatelessWidget {
   const OnBoardingScreen({super.key});
@@ -23,7 +24,7 @@ class OnBoardingScreen extends StatelessWidget {
             subtitle: Text(
               'Your Vision, Our Mission',
               textAlign: TextAlign.center,
-              style: AppTextStyles.subtitle
+              style: AppTextStyles.subtitle,
             ),
             widget: Image.asset('assets/images/Frame_3.png'),
           ),
@@ -64,11 +65,12 @@ class OnBoardingScreen extends StatelessWidget {
             widget: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Image.asset('assets/images/event.jpg',
+                Image.asset(
+                  'assets/images/event.jpg',
                   fit: BoxFit.cover,
                   height: 450,
                 ),
-                 SizedBox(height: 120),
+                SizedBox(height: 120),
                 SizedBox(
                   width: 300,
                   child: ElevatedButton(
@@ -83,15 +85,17 @@ class OnBoardingScreen extends StatelessWidget {
                       ),
                     ),
                     onPressed: () {
-                      // Navigate to the next screen 
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => StakeholdersSelectionScreen(),
+                        ),
+                      );
                     },
-                    child:  Row(
+                    child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(
-                          "Get Started",
-                          style: AppTextStyles.button,
-                        ),
+                        Text("Get Started", style: AppTextStyles.button),
                         SizedBox(width: 45),
                         Icon(
                           size: 30,

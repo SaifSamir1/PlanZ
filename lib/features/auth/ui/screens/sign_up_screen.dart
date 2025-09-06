@@ -7,11 +7,33 @@ import 'package:plan_z/features/auth/ui/widgets/app_logo.dart';
 import 'package:plan_z/features/auth/ui/widgets/login_redirect.dart';
 import 'package:plan_z/features/auth/ui/widgets/sign_up_form.dart';
 import 'package:plan_z/features/auth/ui/widgets/welcom_message.dart';
+import 'package:plan_z/features/vendor_features/vendor_home/ui/screens/vendor_home_screen.dart';
 
-class SignUpScreen extends StatelessWidget {
+class SignUpScreen extends StatefulWidget {
   final UserType userType;
 
   const SignUpScreen({super.key, required this.userType});
+
+  @override
+  State<SignUpScreen> createState() => _SignUpScreenState();
+}
+
+class _SignUpScreenState extends State<SignUpScreen> {
+  final _formKey = GlobalKey<FormState>();
+
+  void _attemptSignUp() {
+    if (_formKey.currentState!.validate()) {
+      if (widget.userType == UserType.vendor) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const VendorHomeScreen()),
+        );
+      } else {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Comming Soon')));
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,21 +57,24 @@ class SignUpScreen extends StatelessWidget {
                 FadeInLeft(
                   duration: const Duration(milliseconds: 800),
                   delay: const Duration(milliseconds: 100),
-                  child: WelcomeMessage(userType: userType),
+                  child: WelcomeMessage(userType: widget.userType),
                 ),
                 const SizedBox(height: 32.0),
                 // نموذج التسجيل مع تأثير حركي
                 FadeInUp(
                   duration: const Duration(milliseconds: 1000),
                   delay: const Duration(milliseconds: 200),
-                  child: SignUpForm(userType: userType),
+                  child: SignUpForm(
+                    userType: widget.userType,
+                    formKey: _formKey,
+                  ),
                 ),
                 const SizedBox(height: 16.0),
                 // الانتقال لتسجيل الدخول مع تأثير حركي
                 FadeIn(
                   duration: const Duration(milliseconds: 1200),
                   delay: const Duration(milliseconds: 400),
-                  child: LoginRedirect(userType: userType),
+                  child: LoginRedirect(userType: widget.userType),
                 ),
                 const SizedBox(height: 24.0),
                 // زر إنشاء الحساب مع تأثير حركي
@@ -59,7 +84,7 @@ class SignUpScreen extends StatelessWidget {
                   child: AppButton(
                     text: 'Create Account',
                     onPressed: () {
-                      // منطق إنشاء الحساب
+                      _attemptSignUp();
                     },
                   ),
                 ),

@@ -5,7 +5,7 @@ import 'package:animate_do/animate_do.dart';
 import 'package:plan_z/core/theming/text_stayls.dart';
 import 'package:plan_z/core/utils/app_colors.dart';
 import 'package:plan_z/core/widgets/custom_text_form.dart';
-import 'package:plan_z/features/packages_mangment/data/models/package_model.dart';
+import 'package:plan_z/features/vendor_features/packages_mangment/data/models/package_model.dart';
 
 class PackagesScreen extends StatelessWidget {
   final List<PackageModel> packages;

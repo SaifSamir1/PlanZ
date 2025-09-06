@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:plan_z/core/theming/text_stayls.dart';
 
-import '../core/utils/app_colors.dart';
+import '../../../../../../core/utils/app_colors.dart';
 
 class NotificationScreen extends StatelessWidget {
   const NotificationScreen({super.key});
@@ -19,14 +19,9 @@ class NotificationScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Divider(
-              thickness: 0.5,
-            ),
-            Text(
-              'Recent Notifications',
-              style: AppTextStyles.headline3,
-            ),
-            SizedBox(height: 12,),
+            Divider(thickness: 0.5),
+            Text('Recent Notifications', style: AppTextStyles.headline3),
+            SizedBox(height: 12),
             Align(
               alignment: Alignment.topRight,
               child: Text(
@@ -34,25 +29,25 @@ class NotificationScreen extends StatelessWidget {
                 style: TextStyle(color: AppColors.primaryDark),
               ),
             ),
-            SizedBox(height: 15,),
+            SizedBox(height: 15),
             Expanded(
               child: ListView(
                 children: [
-                  SizedBox(height: 12,),
+                  SizedBox(height: 12),
                   _buildNotificationItem(
                     icon: Icons.notifications_none,
                     title: 'New Booking Confirmed',
                     description: 'Client "Harmony Events" confirmed',
                     timeAgo: '2 hours ago',
                   ),
-                  SizedBox(height: 12,),
+                  SizedBox(height: 12),
                   _buildNotificationItem(
                     icon: Icons.notifications_none,
                     title: 'Service Update Required',
                     description: 'Your "Photography Package" requires a',
                     timeAgo: '1 day ago',
                   ),
-                  SizedBox(height: 12,),
+                  SizedBox(height: 12),
                   _buildNotificationItem(
                     icon: Icons.notifications_none,
                     title: 'Payment Processed',
@@ -68,7 +63,6 @@ class NotificationScreen extends StatelessWidget {
     );
   }
 
-
   Widget _buildNotificationItem({
     required IconData icon,
     required String title,
@@ -76,9 +70,8 @@ class NotificationScreen extends StatelessWidget {
     required String timeAgo,
   }) {
     return Container(
-     // padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-      decoration: BoxDecoration(
-      ),
+      // padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+      decoration: BoxDecoration(),
       child: Row(
         children: [
           Container(
@@ -87,7 +80,8 @@ class NotificationScreen extends StatelessWidget {
             alignment: Alignment.center,
             child: Align(
               alignment: Alignment.topCenter,
-                child: Icon(icon, size: 20, color: AppColors.primaryGold,)),
+              child: Icon(icon, size: 20, color: AppColors.primaryGold),
+            ),
           ),
           Expanded(
             child: Column(
@@ -95,7 +89,7 @@ class NotificationScreen extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: TextStyle( fontSize: 15,color: AppColors.primaryDark),
+                  style: TextStyle(fontSize: 15, color: AppColors.primaryDark),
                 ),
                 Text(
                   description,

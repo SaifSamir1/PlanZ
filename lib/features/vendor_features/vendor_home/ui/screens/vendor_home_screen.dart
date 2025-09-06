@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
-import '../core/theming/text_stayls.dart';
-import '../core/utils/app_colors.dart';
+import 'package:plan_z/features/vendor_features/packages_mangment/data/models/package_model.dart';
+import 'package:plan_z/features/vendor_features/packages_mangment/ui/screens/all_packages_screen.dart';
+import 'package:plan_z/features/vendor_features/vendor_home/ui/screens/notification_screen.dart';
+import '../../../../../../core/theming/text_stayls.dart';
+import '../../../../../../core/utils/app_colors.dart';
 
 class VendorHomeScreen extends StatelessWidget {
   const VendorHomeScreen({super.key});
@@ -21,7 +24,13 @@ class VendorHomeScreen extends StatelessWidget {
                 Icons.notifications_none,
                 color: AppColors.primaryGold,
               ),
-              onPressed: () {},
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const NotificationScreen(),
+                  ),
+                );
+              },
             ),
             const Padding(
               padding: EdgeInsets.only(right: 12.0),
@@ -47,7 +56,7 @@ class VendorHomeScreen extends StatelessWidget {
                 style: TextStyle(color: AppColors.primaryDark),
               ),
               const SizedBox(height: 24),
-      
+
               // Quick Actions
               Text("Quick Actions", style: AppTextStyles.headline3),
               const SizedBox(height: 12),
@@ -58,22 +67,65 @@ class VendorHomeScreen extends StatelessWidget {
                     title: 'Update Availability',
                   ),
                   const SizedBox(width: 12),
-                  buildActionCard(icon: Icons.attach_money, title: 'Manage Packeges'),
+                  InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => PackagesScreen(
+                            packages: [
+                              PackageModel(
+                                id: '1',
+                                name: 'Wedding Photography',
+                                description:
+                                    'Full-day wedding photography with album and digital copies.',
+                                price: '\$1500',
+                                type: 'Photography',
+                                status: 'Active',
+                              ),
+                              PackageModel(
+                                id: '2',
+                                name: 'Luxury Catering',
+                                description:
+                                    'Gourmet meal service for 100 guests, including appetizers and desserts.',
+                                price: '\$3000',
+                                type: 'Catering',
+                                status: 'Active',
+                              ),
+                              PackageModel(
+                                id: '3',
+                                name: 'Event Decoration',
+                                description:
+                                    'Elegant floral arrangements and lighting for large events.',
+                                price: '\$1200',
+                                type: 'Decoration',
+                                status: 'Pending',
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                    child: buildActionCard(
+                      icon: Icons.attach_money,
+                      title: 'Manage Packeges',
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 24),
-      
+
               // Overview
               Text("Overview", style: AppTextStyles.headline3),
               const SizedBox(height: 12),
-      
+
               buildOverviewCard(
                 icon: Icons.calendar_today_outlined,
                 title: '12 Events',
                 subTitle: 'Next event in 3 days',
                 trailing: 'Upcoming Bookings',
               ),
-      
+
               buildOverviewCard(
                 icon: Icons.attach_money,
                 title: "\$2,450",
@@ -147,7 +199,6 @@ class VendorHomeScreen extends StatelessWidget {
               ),
             ],
           ),
-          
         ],
       ),
     );
@@ -157,16 +208,13 @@ class VendorHomeScreen extends StatelessWidget {
     return Expanded(
       child: SizedBox(
         height: 100,
-        child: GestureDetector(
-          onTap: () {},
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(icon, color: AppColors.primaryGold),
-              SizedBox(height: 5),
-              Text(title, style: TextStyle(color: AppColors.primaryDark)),
-            ],
-          ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, color: AppColors.primaryGold),
+            SizedBox(height: 5),
+            Text(title, style: TextStyle(color: AppColors.primaryDark)),
+          ],
         ),
       ),
     );
