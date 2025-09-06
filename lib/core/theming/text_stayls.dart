@@ -9,7 +9,7 @@ class AppTextStyles {
   static const double _sizeTitle = 18.0;
   static const double _sizeSubtitle = 16.0;
   static const double _sizeBody = 14.0;
-  static const double _sizeCaption = 12.0;
+  static const double _sizeCaption = 14.0;
   static const double _sizeOverline = 10.0;
 
   // أوزان الخطوط القياسية
