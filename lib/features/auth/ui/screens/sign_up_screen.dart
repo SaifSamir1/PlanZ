@@ -19,6 +19,7 @@ class SignUpScreen extends StatelessWidget {
       backgroundColor: AppColors.background,
       body: SafeArea(
         child: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
           child: Padding(
             padding: const EdgeInsets.all(24.0),
             child: Column(
@@ -26,28 +27,28 @@ class SignUpScreen extends StatelessWidget {
                 const SizedBox(height: 20.0),
                 // الشعار مع تأثير حركي
                 FadeInDown(
-                  duration: const Duration(milliseconds: 800),
+                  duration: const Duration(milliseconds: 600),
                   child: const AppLogo(),
                 ),
                 const SizedBox(height: 24.0),
                 // الرسالة الترحيبية مع تأثير حركي
                 FadeInLeft(
-                  duration: const Duration(milliseconds: 1000),
-                  delay: const Duration(milliseconds: 200),
+                  duration: const Duration(milliseconds: 800),
+                  delay: const Duration(milliseconds: 100),
                   child: WelcomeMessage(userType: userType),
                 ),
                 const SizedBox(height: 32.0),
                 // نموذج التسجيل مع تأثير حركي
                 FadeInUp(
-                  duration: const Duration(milliseconds: 1200),
-                  delay: const Duration(milliseconds: 400),
+                  duration: const Duration(milliseconds: 1000),
+                  delay: const Duration(milliseconds: 200),
                   child: SignUpForm(userType: userType),
                 ),
                 const SizedBox(height: 16.0),
                 // الانتقال لتسجيل الدخول مع تأثير حركي
                 FadeIn(
-                  duration: const Duration(milliseconds: 1600),
-                  delay: const Duration(milliseconds: 800),
+                  duration: const Duration(milliseconds: 1200),
+                  delay: const Duration(milliseconds: 400),
                   child: LoginRedirect(userType: userType),
                 ),
                 const SizedBox(height: 24.0),
@@ -56,7 +57,7 @@ class SignUpScreen extends StatelessWidget {
                   duration: const Duration(milliseconds: 1400),
                   delay: const Duration(milliseconds: 600),
                   child: AppButton(
-                    text: 'إنشاء حساب',
+                    text: 'Create Account',
                     onPressed: () {
                       // منطق إنشاء الحساب
                     },

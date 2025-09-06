@@ -9,9 +9,13 @@ class AppLogo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 100.0,
-      height: 100.0,
+      width: 150.0,
+      height: 150.0,
       decoration: BoxDecoration(
+        image: DecorationImage(
+          image: AssetImage('assets/images/app_logo.jpg'),
+          fit: BoxFit.contain,
+        ),
         color: AppColors.primaryGold,
         shape: BoxShape.circle,
         boxShadow: [
@@ -27,7 +31,6 @@ class AppLogo extends StatelessWidget {
           ),
         ],
       ),
-      child: Image.asset('assets/images/app_logo.jpg', fit: BoxFit.contain),
     );
   }
 }

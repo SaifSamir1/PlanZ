@@ -61,10 +61,14 @@ class _LoginFormState extends State<LoginForm> {
             alignment: Alignment.centerRight,
             child: Text(
               'Forgot Password?',
-              style: AppTextStyles.withColor(
-                AppTextStyles.caption,
-                AppColors.primaryGold,
-              ).copyWith(decoration: TextDecoration.underline),
+              style:
+                  AppTextStyles.withColor(
+                    AppTextStyles.caption,
+                    AppColors.primaryGold,
+                  ).copyWith(
+                    decoration: TextDecoration.underline,
+                    decorationColor: AppColors.primaryGold,
+                  ),
             ),
           ),
         ],
