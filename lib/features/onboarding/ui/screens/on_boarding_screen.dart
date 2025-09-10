@@ -6,110 +6,97 @@ import 'package:plan_z/core/utils/app_colors.dart';
 import 'package:plan_z/features/onboarding/ui/screens/stakeholders_selection_screen.dart';
 
 class OnBoardingScreen extends StatelessWidget {
-  const OnBoardingScreen({super.key});
+  OnBoardingScreen({super.key});
+
+  final List<SliderItem> slides = [
+    SliderItem(
+      title: 'Create Your Event in Minutes',
+      titleTextAlign: TextAlign.center,
+      titleTextStyle: AppTextStyles.title,
+      subtitle: Text(
+        "Pick your event type, set a budget, explore vendors, and preview your event before booking.",
+        textAlign: TextAlign.center,
+        style: AppTextStyles.subtitle,
+      ),
+      widget: ClipRRect(
+        borderRadius: BorderRadius.circular(100),
+        child: Image.asset('assets/images/owner.jpg'),
+      ),
+    ),
+    SliderItem(
+      title: 'Grow Your Business',
+      titleTextAlign: TextAlign.center,
+      titleTextStyle: AppTextStyles.title,
+      subtitle: Text(
+        "Add packages, set prices, and get discovered by event organizers looking for your services.",
+        textAlign: TextAlign.center,
+        style: AppTextStyles.subtitle,
+      ),
+      widget: ClipRRect(
+        borderRadius: BorderRadius.circular(100),
+        child: Image.asset('assets/images/vendor.jpg'),
+      ),
+    ),
+    SliderItem(
+      title: 'Stay Connected',
+      titleTextAlign: TextAlign.center,
+      titleTextStyle: AppTextStyles.title,
+      subtitle: Text(
+        "Receive invitations, RSVP instantly, and get reminders — never miss an event.",
+        textAlign: TextAlign.center,
+        style: AppTextStyles.subtitle,
+      ),
+      widget: ClipRRect(
+        borderRadius: BorderRadius.circular(100),
+        child: Image.asset('assets/images/attandee.jpg'),
+      ),
+    ),
+  ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: FlutterCarouselIntro(
-        animatedOpacity: true,
-        animatedRotateX: true,
-        autoPlay: true,
-        autoPlaySlideDuration: Duration(seconds: 5),
-        slides: [
-          SliderItem(
-            title: 'Welcome to Plan Z',
-            titleTextAlign: TextAlign.center,
-            titleTextStyle: AppTextStyles.title,
-            subtitle: Text(
-              'Your Vision, Our Mission',
-              textAlign: TextAlign.center,
-              style: AppTextStyles.subtitle,
+      body: SafeArea(
+        child: Stack(
+          children: [
+            FlutterCarouselIntro(
+              animatedOpacity: true,
+              animatedRotateX: true,
+              autoPlay: true,
+              autoPlaySlideDuration: Duration(seconds: 5),
+              slides: slides,
             ),
-            widget: Image.asset('assets/images/Frame_3.png'),
-          ),
-          SliderItem(
-            title: 'Create Your Event in Minutes',
-            titleTextAlign: TextAlign.center,
-            titleTextStyle: AppTextStyles.title,
-            subtitle: Text(
-              "Pick your event type, set a budget, explore vendors, and preview your event before booking.",
-              textAlign: TextAlign.center,
-              style: AppTextStyles.subtitle,
-            ),
-            widget: Image.asset('assets/images/owner.jpg'),
-          ),
-          SliderItem(
-            title: 'Grow Your Business',
-            titleTextAlign: TextAlign.center,
-            titleTextStyle: AppTextStyles.title,
-            subtitle: Text(
-              "Add packages, set prices, and get discovered by event organizers looking for your services.",
-              textAlign: TextAlign.center,
-              style: AppTextStyles.subtitle,
-            ),
-            widget: Image.asset('assets/images/vendor.jpg'),
-          ),
-          SliderItem(
-            title: 'Stay Connected',
-            titleTextAlign: TextAlign.center,
-            titleTextStyle: AppTextStyles.title,
-            subtitle: Text(
-              "Receive invitations, RSVP instantly, and get reminders — never miss an event.",
-              textAlign: TextAlign.center,
-              style: AppTextStyles.subtitle,
-            ),
-            widget: Image.asset('assets/images/attandee.jpg'),
-          ),
-          SliderItem(
-            widget: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Image.asset(
-                  'assets/images/event.jpg',
-                  fit: BoxFit.cover,
-                  height: 450,
-                ),
-                SizedBox(height: 120),
-                SizedBox(
-                  width: 300,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primaryGold,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 12,
-                        horizontal: 24,
-                      ),
+            Positioned(
+              top: 10,
+              right: 10,
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => StakeholdersSelectionScreen(),
                     ),
-                    onPressed: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => StakeholdersSelectionScreen(),
+                  );
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Text(
+                        'Skip',
+                        style: AppTextStyles.subtitle.copyWith(
+                          color: AppColors.primaryGold,
                         ),
-                      );
-                    },
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text("Get Started", style: AppTextStyles.button),
-                        SizedBox(width: 45),
-                        Icon(
-                          size: 30,
-                          Icons.arrow_forward,
-                          color: AppColors.primaryDark,
-                        ),
-                      ],
-                    ),
+                      ),
+                      SizedBox(width: 5),
+                      Icon(Icons.arrow_forward, color: AppColors.primaryGold),
+                    ],
                   ),
                 ),
-              ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
