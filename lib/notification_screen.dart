@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:plan_z/core/theming/text_stayls.dart';
 
-import '../core/utils/app_colors.dart';
+import 'core/utils/app_colors.dart';
 
 class NotificationScreen extends StatelessWidget {
   const NotificationScreen({super.key});
@@ -11,6 +11,7 @@ class NotificationScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
+        backgroundColor: Colors.white,
         centerTitle: true,
         title: Text('Notifications', style: AppTextStyles.headline2),
       ),

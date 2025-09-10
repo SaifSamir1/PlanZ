@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../core/theming/text_stayls.dart';
-import '../core/utils/app_colors.dart';
+import 'core/theming/text_stayls.dart';
+import 'core/utils/app_colors.dart';
 
 class VendorHomeScreen extends StatelessWidget {
   const VendorHomeScreen({super.key});
