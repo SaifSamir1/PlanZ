@@ -68,7 +68,7 @@ class OnBoardingScreen extends StatelessWidget {
                 Image.asset(
                   'assets/images/event.jpg',
                   fit: BoxFit.cover,
-                  height: 450,
+                  height: 300,
                 ),
                 SizedBox(height: 120),
                 SizedBox(
