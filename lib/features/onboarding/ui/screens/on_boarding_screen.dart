@@ -62,51 +62,53 @@ class OnBoardingScreen extends StatelessWidget {
             widget: Image.asset('assets/images/attandee.jpg'),
           ),
           SliderItem(
-            widget: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Image.asset(
-                  'assets/images/event.jpg',
-                  fit: BoxFit.cover,
-                  height: 450,
-                ),
-                SizedBox(height: 120),
-                SizedBox(
-                  width: 300,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primaryGold,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 12,
-                        horizontal: 24,
-                      ),
-                    ),
-                    onPressed: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => StakeholdersSelectionScreen(),
+            widget: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Image.asset(
+                    'assets/images/event.jpg',
+                    fit: BoxFit.cover,
+                    height: 450,
+                  ),
+                  SizedBox(height: 50),
+                  SizedBox(
+                    width: 300,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primaryGold,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                      );
-                    },
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text("Get Started", style: AppTextStyles.button),
-                        SizedBox(width: 45),
-                        Icon(
-                          size: 30,
-                          Icons.arrow_forward,
-                          color: AppColors.primaryDark,
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 12,
+                          horizontal: 24,
                         ),
-                      ],
+                      ),
+                      onPressed: () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => StakeholdersSelectionScreen(),
+                          ),
+                        );
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text("Get Started", style: AppTextStyles.button),
+                          SizedBox(width: 40),
+                          Icon(
+                            size: 20,
+                            Icons.arrow_forward,
+                            color: AppColors.primaryDark,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ],
