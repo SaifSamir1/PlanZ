@@ -74,6 +74,7 @@ class OnBoardingScreen extends StatelessWidget {
                   Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (context) => StakeholdersSelectionScreen(),
+
                     ),
                   );
                 },
