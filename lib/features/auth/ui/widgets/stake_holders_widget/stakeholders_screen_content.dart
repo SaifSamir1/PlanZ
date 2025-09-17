@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:plan_z/features/auth/data/models/stakeholder_model.dart';
 import 'package:plan_z/features/auth/data/models/user_model.dart';
 import 'package:plan_z/features/auth/ui/screens/login_screen.dart';
-import 'package:plan_z/features/auth/ui/widgets/stakeholder_card.dart';
-import 'package:plan_z/features/auth/ui/widgets/welcome_widget.dart';
+import 'package:plan_z/features/auth/ui/widgets/stake_holders_widget/stakeholder_card.dart';
+import 'package:plan_z/features/auth/ui/widgets/stake_holders_widget/welcome_widget.dart';
 
 class StakeholdersScreenContent extends StatelessWidget {
   const StakeholdersScreenContent({super.key});
