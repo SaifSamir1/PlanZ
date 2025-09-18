@@ -101,22 +101,6 @@ class _AppTextFieldState extends State<AppTextField>
           return Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12.0),
-              boxShadow: _isFocused
-                  ? [
-                      BoxShadow(
-                        // ignore: deprecated_member_use
-                        color: AppColors.primaryGold.withOpacity(0.2),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ]
-                  : [
-                      BoxShadow(
-                        color: AppColors.shadow,
-                        blurRadius: 2,
-                        offset: const Offset(0, 1),
-                      ),
-                    ],
             ),
             child: TextFormField(
               controller: widget.controller,
@@ -180,7 +164,7 @@ class _AppTextFieldState extends State<AppTextField>
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12.0),
                   borderSide: BorderSide(
-                    color: AppColors.primaryDark, // أزرق داكن بدلاً من ذهبي
+                    color: AppColors.blue300, // أزرق داكن بدلاً من ذهبي
                     width: _borderAnimation.value,
                   ),
                 ),

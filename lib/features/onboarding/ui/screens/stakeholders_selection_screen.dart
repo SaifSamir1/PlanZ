@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:plan_z/core/utils/app_colors.dart';
-import 'package:plan_z/features/auth/ui/widgets/stake_holders_widget/stakeholders_screen_content.dart';
+import 'package:plan_z/features/onboarding/stake_holders_widget/stakeholders_screen_content.dart';
 
 class StakeholdersSelectionScreen extends StatelessWidget {
   const StakeholdersSelectionScreen({super.key});

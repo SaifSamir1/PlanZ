@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:plan_z/features/new_owner_features/chat_bot/cubits/chat_cubit.dart';
-import 'package:plan_z/features/new_owner_features/chat_bot/ui/chat_bot_screen.dart';
+import 'package:plan_z/features/new_owner_features/create_event_screen/ui/screens/create_event_screen.dart';
 
 
 void main() async {
@@ -24,7 +24,7 @@ class PlanZ extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       home: BlocProvider(
         create: (context) => ChatCubit(),
-        child: const ChatScreen(),
+        child: const CreateEventScreen(),
       ),
     );
   }
