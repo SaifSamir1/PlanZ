@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:plan_z/core/utils/app_colors.dart';
 import 'package:plan_z/core/widgets/custom_app_button.dart';
+import 'package:plan_z/features/attandee_features/attendee_home/ui/attende_home_screen.dart';
 import 'package:plan_z/features/auth/data/models/user_model.dart';
 import 'package:plan_z/features/auth/ui/widgets/app_logo.dart';
 import 'package:plan_z/features/auth/ui/widgets/login_form.dart';
 import 'package:plan_z/features/auth/ui/widgets/login_welcom_method.dart';
 import 'package:plan_z/features/auth/ui/widgets/sign_up_redirect.dart';
-import 'package:plan_z/features/vendor_features/vendor_home/ui/screens/vendor_home_screen.dart';
+import 'package:plan_z/features/new_owner_features/event_owner_home/ui/screens/owner_home_screen.dart';
+ import 'package:plan_z/features/vendor_features/vendor_home/ui/screens/vendor_home_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   final UserType userType;
@@ -27,7 +29,15 @@ class _LoginScreenState extends State<LoginScreen> {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (context) => const VendorHomeScreen()),
         );
-      } else {
+      } 
+      else if(widget.userType == UserType.attendee){
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const AttendeHomeScreen()));
+      }else if(widget.userType == UserType.eventOwner){
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const OwnerHomeScreen()));
+      }
+       else {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text('Comming Soon')));
