@@ -4,7 +4,7 @@ import 'package:plan_z/core/utils/app_colors.dart';
 import 'package:plan_z/features/new_owner_features/event_owner_home/ui/widgets/dialogue_widget.dart';
 
 class ServiceWidget extends StatelessWidget {
-  ServiceWidget({super.key, required this.service});
+  const ServiceWidget({super.key, required this.service});
 
   final Map<String, dynamic> service;
 

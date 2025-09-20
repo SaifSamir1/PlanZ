@@ -1,6 +1,9 @@
 import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_notch_bottom_bar.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:plan_z/features/new_owner_features/user_info/ui/screens/profile_screen.dart';
+import 'package:plan_z/features/new_owner_features/chat_bot/cubits/chat_cubit.dart';
 import 'package:plan_z/features/new_owner_features/chat_bot/ui/chat_bot_screen.dart';
 import 'package:plan_z/features/new_owner_features/create_event_screen/ui/screens/create_event_screen.dart';
 import '../../../../../../../core/utils/app_colors.dart';
@@ -15,13 +18,15 @@ class NavigationScreen extends StatefulWidget {
 
 class _NavigationScreenState extends State<NavigationScreen> {
   final _pageController = PageController();
-  final NotchBottomBarController _controller = NotchBottomBarController(index: 0);
+  final NotchBottomBarController _controller = NotchBottomBarController(
+    index: 0,
+  );
 
   final List<Widget> _screens = [
     const OwnerHomeScreen(),
-    const ChatScreen(),
+    BlocProvider(create: (context) => ChatCubit(), child: const ChatScreen()),
     const CreateEventScreen(),
-    const Screen(title: "Profile 👤"),
+    const ProfileScreen(),
   ];
 
   @override
@@ -57,10 +62,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
                 Icons.home_outlined,
                 color: AppColors.primaryDark,
               ),
-              activeItem: const Icon(
-                Icons.home_rounded,
-                color: Colors.white,
-              ),
+              activeItem: const Icon(Icons.home_rounded, color: Colors.white),
               itemLabelWidget: Text(
                 'Home',
                 style: TextStyle(
@@ -90,7 +92,6 @@ class _NavigationScreenState extends State<NavigationScreen> {
             ),
             BottomBarItem(
               inActiveItem: Container(
-                padding: const EdgeInsets.all(2),
                 decoration: BoxDecoration(
                   color: AppColors.primaryGold.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(8),
@@ -120,10 +121,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
                 Icons.person_outline_rounded,
                 color: AppColors.primaryDark,
               ),
-              activeItem: const Icon(
-                Icons.person_rounded,
-                color: Colors.white,
-              ),
+              activeItem: const Icon(Icons.person_rounded, color: Colors.white),
               itemLabelWidget: Text(
                 'Profile',
                 style: TextStyle(

@@ -1,6 +1,7 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:plan_z/core/utils/app_colors.dart';
+import 'package:plan_z/features/new_owner_features/event_owner_home/ui/screens/services_screen.dart';
 import '../../../../../../../core/theming/text_stayls.dart';
 import 'owner_notification_screen.dart';
 
@@ -19,7 +20,7 @@ class OwnerHomeScreen extends StatelessWidget {
           children: [
             _buildWelcomeCard(),
             const SizedBox(height: 28),
-            _buildQuickActionsSection(),
+            _buildQuickActionsSection(context),
             const SizedBox(height: 28),
             _buildUpcomingEventsSection(),
             const SizedBox(height: 28),
@@ -34,7 +35,6 @@ class OwnerHomeScreen extends StatelessWidget {
     return AppBar(
       backgroundColor: Colors.white,
       elevation: 0,
-      centerTitle: true,
       title: FadeInDown(
         duration: const Duration(milliseconds: 600),
         child: Text("Home", style: AppTextStyles.headline2),
@@ -65,16 +65,11 @@ class OwnerHomeScreen extends StatelessWidget {
             margin: const EdgeInsets.only(right: 16),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                color: Colors.grey.shade300,
-                width: 1.5,
-              ),
+              border: Border.all(color: Colors.grey.shade300, width: 1.5),
             ),
             child: const CircleAvatar(
               radius: 18,
-              backgroundImage: NetworkImage(
-                "https://i.pravatar.cc/150?img=3",
-              ),
+              backgroundImage: NetworkImage("https://i.pravatar.cc/150?img=3"),
             ),
           ),
         ),
@@ -90,10 +85,7 @@ class OwnerHomeScreen extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: Colors.grey.shade200,
-            width: 1,
-          ),
+          border: Border.all(color: Colors.grey.shade200, width: 1),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.02),
@@ -125,10 +117,7 @@ class OwnerHomeScreen extends StatelessWidget {
               padding: const EdgeInsets.all(3),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(24),
-                border: Border.all(
-                  color: Colors.grey.shade300,
-                  width: 1.5,
-                ),
+                border: Border.all(color: Colors.grey.shade300, width: 1.5),
               ),
               child: const CircleAvatar(
                 radius: 22,
@@ -143,7 +132,7 @@ class OwnerHomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildQuickActionsSection() {
+  Widget _buildQuickActionsSection(context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -162,21 +151,39 @@ class OwnerHomeScreen extends StatelessWidget {
           children: [
             SlideInLeft(
               duration: const Duration(milliseconds: 700),
-              child: _quickAction(Icons.auto_awesome_outlined, "Plan New Event"),
+              child: _quickAction(
+                Icons.auto_awesome_outlined,
+                "Plan New Event",
+              ),
             ),
             SlideInRight(
               duration: const Duration(milliseconds: 700),
-              child: _quickAction(Icons.emoji_events_outlined, "Review Vendors"),
+              child: _quickAction(
+                Icons.emoji_events_outlined,
+                "Review Vendors",
+              ),
             ),
             SlideInLeft(
               duration: const Duration(milliseconds: 800),
               delay: const Duration(milliseconds: 100),
               child: _quickAction(Icons.group_outlined, "Manage Guests"),
             ),
-            SlideInRight(
-              duration: const Duration(milliseconds: 800),
-              delay: const Duration(milliseconds: 100),
-              child: _quickAction(Icons.calendar_month_outlined, "My Events"),
+            GestureDetector(
+              onTap: () {
+                print('nfnvkdnfjknvjkf');
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => ServicesScreen()),
+                  );
+              },
+              child: SlideInRight(
+                duration: const Duration(milliseconds: 800),
+                delay: const Duration(milliseconds: 100),
+                child: _quickAction(
+                  Icons.calendar_month_outlined,
+                  "My Events",
+                ),
+              ),
             ),
           ],
         ),
@@ -235,10 +242,7 @@ class OwnerHomeScreen extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: Colors.grey.shade200,
-            width: 1,
-          ),
+          border: Border.all(color: Colors.grey.shade200, width: 1),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.02),
@@ -281,7 +285,7 @@ class OwnerHomeScreen extends StatelessWidget {
                       color: AppColors.primaryDark.withOpacity(0.6),
                       fontSize: 13,
                     ),
-                  )
+                  ),
                 ],
               ),
             ),
@@ -291,7 +295,10 @@ class OwnerHomeScreen extends StatelessWidget {
                 onTap: () {},
                 borderRadius: BorderRadius.circular(20),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 10,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.primaryGold,
                     borderRadius: BorderRadius.circular(20),
@@ -313,62 +320,56 @@ class OwnerHomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _quickAction(IconData icon, String label) {
+  Widget _quickAction(IconData icon, String label, ) {
     return Material(
       color: Colors.transparent,
-      child: InkWell(
-        onTap: () {},
-        borderRadius: BorderRadius.circular(16),
-        child: Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: Colors.grey.shade200,
-              width: 1,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.grey.shade200, width: 1),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.02),
+              blurRadius: 6,
+              offset: const Offset(0, 2),
             ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.02),
-                blurRadius: 6,
-                offset: const Offset(0, 2),
+          ],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade100,
+                borderRadius: BorderRadius.circular(12),
               ),
-            ],
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade100,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(
-                  icon,
-                  color: AppColors.primaryDark.withOpacity(0.7),
-                  size: 26,
-                ),
+              child: Icon(
+                icon,
+                color: AppColors.primaryDark.withOpacity(0.7),
+                size: 26,
               ),
-              const SizedBox(height: 12),
-              Text(
-                label,
-                style: const TextStyle(
-                  fontWeight: FontWeight.w500,
-                  color: AppColors.primaryDark,
-                  fontSize: 13,
-                ),
-                textAlign: TextAlign.center,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              label,
+              style: const TextStyle(
+                fontWeight: FontWeight.w500,
+                color: AppColors.primaryDark,
+                fontSize: 13,
               ),
-            ],
-          ),
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
         ),
       ),
     );
   }
+
   Widget _eventCard({
     required String title,
     required String date,
@@ -381,10 +382,7 @@ class OwnerHomeScreen extends StatelessWidget {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
           color: Colors.white,
-          border: Border.all(
-            color: Colors.grey.shade200,
-            width: 1,
-          ),
+          border: Border.all(color: Colors.grey.shade200, width: 1),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.02),

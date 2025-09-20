@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
-import 'package:plan_z/features/auth/ui/screens/profile_screen.dart';
-import 'package:plan_z/features/new_owner_features/chat_bot/cubits/chat_cubit.dart';
-import 'package:plan_z/features/new_owner_features/event_owner_home/ui/screens/navigation_screen.dart';
+import 'package:plan_z/features/attandee_features/attendee_home/ui/attende_home_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,15 +16,16 @@ class PlanZ extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: ProfileScreen(),
-      // title: 'PlanZ Chat',
-      debugShowCheckedModeBanner: false,
-      home: BlocProvider(
-        create: (context) => ChatCubit(),
-        child: const NavigationScreen(),
+    return ScreenUtilInit(
+      designSize: const Size(360, 690),
+      minTextAdapt: true,
+      splitScreenMode: true,
+      child: MaterialApp(
+        home: AttendeHomeScreen(),
+        // title: 'PlanZ Chat',
+        debugShowCheckedModeBanner: false,
+      
       ),
-
     );
   }
 }

@@ -7,6 +7,7 @@
 // ignore_for_file: deprecated_member_use
 
 // lib/screens/create_event_screen.dart
+import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:plan_z/core/utils/app_colors.dart';
@@ -115,15 +116,118 @@ class EventTypesGrid extends StatelessWidget {
       itemCount: eventTypes.length,
       itemBuilder: (context, index) {
         final eventType = eventTypes[index];
+        
+        // تحديد نوع الـ animation حسب الموضع
+        Widget animatedCard;
+        
+        if (index.isEven) {
+          // الكاردات اللي في اليسار (0, 2, 4...) تيجي من الشمال
+          animatedCard = SlideInLeft(
+            duration: Duration(milliseconds: 600 + (index * 100)),
+            delay: Duration(milliseconds: index * 50),
+            child: EventTypeCard(
+              key: ValueKey(eventType.id),
+              eventType: eventType,
+              onTap: () {
+                context.read<CreateEventCubit>().selectEventType(eventType.id);
+              },
+            ),
+          );
+        } else {
+          // الكاردات اللي في اليمين (1, 3, 5...) تيجي من اليمين
+          animatedCard = SlideInRight(
+            duration: Duration(milliseconds: 600 + (index * 100)),
+            delay: Duration(milliseconds: index * 50),
+            child: EventTypeCard(
+              key: ValueKey(eventType.id),
+              eventType: eventType,
+              onTap: () {
+                context.read<CreateEventCubit>().selectEventType(eventType.id);
+              },
+            ),
+          );
+        }
+        
+        return animatedCard;
+      },
+    );
+  }
+}
 
-        return EventTypeCard(
-          key: ValueKey(eventType.id),
-          eventType: eventType,
-          onTap: () {
-            context.read<CreateEventCubit>().selectEventType(eventType.id);
-          },
+class EventTypeCard extends StatelessWidget {
+  final EventType eventType;
+  final VoidCallback onTap;
+
+  const EventTypeCard({
+    super.key,
+    required this.eventType,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<CreateEventCubit, CreateEventState>(
+      buildWhen: (previous, current) {
+        if (current is! CreateEventSelectionChanged) return false;
+        
+        final cubit = context.read<CreateEventCubit>();
+        final wasSelected = cubit.isEventTypeSelected(eventType.id);
+        
+        if (previous is CreateEventSelectionChanged) {
+          final previouslySelected = previous.selectedEventTypeId == eventType.id;
+          return wasSelected != previouslySelected;
+        }
+        
+        return wasSelected;
+      },
+      builder: (context, state) {
+        final isSelected = context.read<CreateEventCubit>().isEventTypeSelected(eventType.id);
+        
+        return GestureDetector(
+          onTap: onTap,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+            decoration: _buildCardDecoration(isSelected),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  flex: 7,
+                  child: EventCardImage(
+                    eventType: eventType,
+                    isSelected: isSelected,
+                  ),
+                ),
+                Expanded(
+                  flex: 5,
+                  child: EventCardContent(eventType: eventType),
+                ),
+              ],
+            ),
+          ),
         );
       },
+    );
+  }
+
+  BoxDecoration _buildCardDecoration(bool isSelected) {
+    return BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(16),
+      border: Border.all(
+        color: isSelected ? AppColors.primaryGold : Colors.grey.shade200,
+        width: isSelected ? 2 : 1,
+      ),
+      boxShadow: [
+        BoxShadow(
+          color: isSelected
+              ? AppColors.primaryGold.withOpacity(0.15)
+              : Colors.black.withOpacity(0.04),
+          blurRadius: isSelected ? 12 : 6,
+          offset: Offset(0, isSelected ? 4 : 2),
+        ),
+      ],
     );
   }
 }
@@ -210,11 +314,14 @@ class CreateEventAppBar extends StatelessWidget implements PreferredSizeWidget {
         icon: const Icon(Icons.arrow_back_ios_rounded, size: 20),
         color: AppColors.textPrimary,
       ),
-      title: Text(
-        'Create Event',
-        style: AppTextStyles.title,
+      title: FadeInDown(
+                duration: const Duration(milliseconds: 600),
+
+        child: Text(
+          'Create Event',
+          style: AppTextStyles.title,
+        ),
       ),
-      centerTitle: true,
     );
   }
 
@@ -262,84 +369,6 @@ class CreateEventHeader extends StatelessWidget {
     );
   }
 }
-
-class EventTypeCard extends StatelessWidget {
-  final EventType eventType;
-  final VoidCallback onTap;
-
-  const EventTypeCard({
-    super.key,
-    required this.eventType,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<CreateEventCubit, CreateEventState>(
-      buildWhen: (previous, current) {
-        if (current is! CreateEventSelectionChanged) return false;
-        
-        final cubit = context.read<CreateEventCubit>();
-        final wasSelected = cubit.isEventTypeSelected(eventType.id);
-        
-        if (previous is CreateEventSelectionChanged) {
-          final previouslySelected = previous.selectedEventTypeId == eventType.id;
-          return wasSelected != previouslySelected;
-        }
-        
-        return wasSelected;
-      },
-      builder: (context, state) {
-        final isSelected = context.read<CreateEventCubit>().isEventTypeSelected(eventType.id);
-        
-        return GestureDetector(
-          onTap: onTap,
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 250),
-            decoration: _buildCardDecoration(isSelected),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  flex: 7,
-                  child: EventCardImage(
-                    eventType: eventType,
-                    isSelected: isSelected,
-                  ),
-                ),
-                Expanded(
-                  flex: 5,
-                  child: EventCardContent(eventType: eventType),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  BoxDecoration _buildCardDecoration(bool isSelected) {
-    return BoxDecoration(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(16),
-      border: Border.all(
-        color: isSelected ? AppColors.primaryGold : AppColors.blue100,
-        width: isSelected ? 2.5 : 1,
-      ),
-      boxShadow: [
-        BoxShadow(
-          color: isSelected
-              ? AppColors.primaryGold.withOpacity(0.2)
-              : AppColors.shadow.withOpacity(0.1),
-          blurRadius: isSelected ? 16 : 8,
-          offset: Offset(0, isSelected ? 6 : 3),
-        ),
-      ],
-    );
-  }
-}
-
 
 class EventCardImage extends StatelessWidget {
   final EventType eventType;

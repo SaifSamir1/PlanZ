@@ -41,11 +41,11 @@ class _PaymentAndInvitationsScreenState
             _buildEventDetailsSection(),
             const SizedBox(height: 28),
             _buildInvitationTemplatesSection(),
-            const SizedBox(height: 100),
+            const SizedBox(height: 30),
+            _buildBottomButtons(),
           ],
         ),
       ),
-      bottomNavigationBar: _buildBottomButtons(),
     );
   }
 
@@ -53,7 +53,6 @@ class _PaymentAndInvitationsScreenState
     return AppBar(
       backgroundColor: Colors.white,
       elevation: 0,
-      centerTitle: true,
       leading: FadeInLeft(
         duration: const Duration(milliseconds: 600),
         child: IconButton(
@@ -67,7 +66,7 @@ class _PaymentAndInvitationsScreenState
       ),
       title: FadeInDown(
         duration: const Duration(milliseconds: 700),
-        child: Text("Payment & Invitations", style: AppTextStyles.headline2),
+        child: Text("Payment & Invitations", style: AppTextStyles.title),
       ),
     );
   }
@@ -78,7 +77,7 @@ class _PaymentAndInvitationsScreenState
       children: [
         FadeInUp(
           duration: const Duration(milliseconds: 600),
-          child: Text('Payment Options', style: AppTextStyles.headline3),
+          child: Text('Payment Options', style: AppTextStyles.title),
         ),
         const SizedBox(height: 16),
         SlideInLeft(
@@ -117,7 +116,7 @@ class _PaymentAndInvitationsScreenState
       children: [
         FadeInUp(
           duration: const Duration(milliseconds: 600),
-          child: Text('Event Details', style: AppTextStyles.headline3),
+          child: Text('Event Details', style: AppTextStyles.title),
         ),
         const SizedBox(height: 16),
         SlideInRight(
@@ -175,7 +174,7 @@ class _PaymentAndInvitationsScreenState
       children: [
         FadeInUp(
           duration: const Duration(milliseconds: 600),
-          child: Text('Invitation Templates', style: AppTextStyles.headline3),
+          child: Text('Invitation Templates', style: AppTextStyles.title),
         ),
         const SizedBox(height: 16),
         SlideInUp(
@@ -379,7 +378,7 @@ class _PaymentAndInvitationsScreenState
                         title,
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
-                          fontSize: 16,
+                          fontSize: 14,
                           color: AppColors.primaryDark,
                         ),
                       ),
@@ -388,7 +387,7 @@ class _PaymentAndInvitationsScreenState
                         description,
                         style: TextStyle(
                           color: AppColors.primaryDark.withOpacity(0.6),
-                          fontSize: 13,
+                          fontSize: 12,
                           height: 1.4,
                         ),
                         maxLines: 3,

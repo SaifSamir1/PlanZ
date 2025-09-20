@@ -9,70 +9,86 @@ class EventCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 150,
+    return Container(
+      height: 130,
+      margin: const EdgeInsets.only(bottom: 12),
       child: Card(
-        elevation: 0.3,
+        elevation: 1,
         color: AppColors.background,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
-          side: BorderSide(color: Colors.grey[200]!, width: 0.5),
+          side: BorderSide(color: Colors.grey[200]!, width: 1),
         ),
-
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+          padding: const EdgeInsets.all(12),
           child: Row(
             children: [
-              Container(
-                height: 90,
-                width: 60,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  image: DecorationImage(
-                    image: AssetImage(event.imageURL),
-                    fit: BoxFit.cover,
+              ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Container(
+                  height: 80,
+                  width: 80,
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: AssetImage(event.imageURL),
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 ),
               ),
-              SizedBox(width: 10),
+              const SizedBox(width: 16),
               Expanded(
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
                       event.title,
-                      style: AppTextStyles.headline3.copyWith(fontSize: 14),
+                      style: AppTextStyles.headline3.copyWith(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    SizedBox(height: 10),
+                    const SizedBox(height: 8),
                     Row(
                       children: [
                         Icon(
-                          Icons.timer_outlined,
+                          Icons.schedule_rounded,
                           color: AppColors.buttonPrimary,
+                          size: 16,
                         ),
-
+                        const SizedBox(width: 6),
                         Expanded(
                           child: Text(
                             event.date.toString(),
                             style: AppTextStyles.body.copyWith(
-                              color: AppColors.primaryDark,
+                              color: AppColors.primaryDark.withOpacity(0.7),
                               fontSize: 12,
                             ),
                           ),
                         ),
                       ],
                     ),
-                    SizedBox(height: 10),
+                    const SizedBox(height: 4),
                     Row(
                       children: [
-                        Icon(Icons.location_on, color: AppColors.buttonPrimary),
+                        Icon(
+                          Icons.location_on_rounded,
+                          color: AppColors.buttonPrimary,
+                          size: 16,
+                        ),
+                        const SizedBox(width: 6),
                         Expanded(
                           child: Text(
                             event.location,
                             style: AppTextStyles.body.copyWith(
                               fontSize: 12,
-                              color: AppColors.primaryDark,
+                              color: AppColors.primaryDark.withOpacity(0.7),
                             ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                       ],
@@ -80,20 +96,19 @@ class EventCard extends StatelessWidget {
                   ],
                 ),
               ),
-              SizedBox(width: 5),
+              const SizedBox(width: 12),
               Container(
-                height: 25,
-                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(16),
                   color: AppColors.buttonPrimary,
                 ),
-                child: Center(
-                  child: Text(
-                    event.status,
-                    style: AppTextStyles.body.copyWith(
-                      color: AppColors.background,
-                    ),
+                child: Text(
+                  event.status,
+                  style: AppTextStyles.body.copyWith(
+                    color: AppColors.background,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ),
@@ -104,3 +119,4 @@ class EventCard extends StatelessWidget {
     );
   }
 }
+

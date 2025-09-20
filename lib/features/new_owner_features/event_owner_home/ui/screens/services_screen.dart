@@ -3,10 +3,17 @@ import 'package:plan_z/core/theming/text_stayls.dart';
 import 'package:plan_z/core/utils/app_colors.dart';
 import 'package:plan_z/features/new_owner_features/event_owner_home/ui/widgets/service_widget.dart';
 
-class ServicesScreen extends StatelessWidget {
-   ServicesScreen({super.key});
+class ServicesScreen extends StatefulWidget {
+   const ServicesScreen({super.key});
 
-  final List<Map<String, dynamic>> services = const [
+  @override
+  State<ServicesScreen> createState() => _ServicesScreenState();
+}
+
+class _ServicesScreenState extends State<ServicesScreen> {
+
+  
+ List<Map<String, dynamic>> services = const [
     {
       'Service Vendor': 'Elegant Affairs Catering',
       'image': 'assets/images/food_catering.png',

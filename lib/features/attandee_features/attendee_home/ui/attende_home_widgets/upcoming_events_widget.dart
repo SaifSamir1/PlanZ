@@ -1,3 +1,4 @@
+import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:plan_z/core/theming/text_stayls.dart';
 import 'package:plan_z/features/auth/data/models/event_model.dart';
@@ -42,16 +43,28 @@ class UpComingEventsWidget extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text("Upcoming Events", style: AppTextStyles.headline3),
+        FadeInUp(
+          duration: const Duration(milliseconds: 600),
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 16),
+            child: Text("Upcoming Events", style: AppTextStyles.headline3),
+          ),
+        ),
         ListView.builder(
           shrinkWrap: true,
-          physics: NeverScrollableScrollPhysics(),
+          physics: const NeverScrollableScrollPhysics(),
           itemCount: events.length,
           itemBuilder: (context, index) {
-            return EventCard(event: events[index]);
+            return SlideInUp(
+              duration: Duration(milliseconds: 600 + (index * 100)),
+              delay: Duration(milliseconds: index * 100),
+              child: EventCard(event: events[index]),
+            );
           },
         ),
       ],
     );
   }
 }
+
+
