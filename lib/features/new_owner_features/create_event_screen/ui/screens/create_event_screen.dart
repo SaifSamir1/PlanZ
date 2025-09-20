@@ -82,11 +82,11 @@ class CreateEventBody extends StatelessWidget {
                   const SizedBox(height: 32),
                   const BudgetSection(),
                   const SizedBox(height: 24),
+                  const CreateEventContinueButton(),
                 ],
               ),
             ),
           ),
-          const CreateEventContinueButton(),
         ],
       ),
     );
