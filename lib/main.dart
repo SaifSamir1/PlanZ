@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:plan_z/features/auth/ui/screens/profile_screen.dart';
 import 'package:plan_z/features/new_owner_features/chat_bot/cubits/chat_cubit.dart';
-import 'package:plan_z/features/new_owner_features/create_event_screen/ui/screens/create_event_screen.dart';
+import 'package:plan_z/features/new_owner_features/event_owner_home/ui/screens/navigation_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,10 +22,11 @@ class PlanZ extends StatelessWidget {
       home: ProfileScreen(),
       // title: 'PlanZ Chat',
       debugShowCheckedModeBanner: false,
-      // home: BlocProvider(
-      //   create: (context) => ChatCubit(),
-      //   child: const CreateEventScreen(),
-      // ),
+      home: BlocProvider(
+        create: (context) => ChatCubit(),
+        child: const NavigationScreen(),
+      ),
+
     );
   }
 }

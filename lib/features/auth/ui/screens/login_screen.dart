@@ -8,6 +8,7 @@ import 'package:plan_z/features/auth/ui/widgets/app_logo.dart';
 import 'package:plan_z/features/auth/ui/widgets/login_form.dart';
 import 'package:plan_z/features/auth/ui/widgets/login_welcom_method.dart';
 import 'package:plan_z/features/auth/ui/widgets/sign_up_redirect.dart';
+import 'package:plan_z/features/new_owner_features/event_owner_home/ui/screens/navigation_screen.dart';
 import 'package:plan_z/features/new_owner_features/event_owner_home/ui/screens/owner_home_screen.dart';
  import 'package:plan_z/features/vendor_features/vendor_home/ui/screens/vendor_home_screen.dart';
 
@@ -35,7 +36,7 @@ class _LoginScreenState extends State<LoginScreen> {
           MaterialPageRoute(builder: (context) => const AttendeHomeScreen()));
       }else if(widget.userType == UserType.eventOwner){
         Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const OwnerHomeScreen()));
+          MaterialPageRoute(builder: (context) => const NavigationScreen()));
       }
        else {
         ScaffoldMessenger.of(
