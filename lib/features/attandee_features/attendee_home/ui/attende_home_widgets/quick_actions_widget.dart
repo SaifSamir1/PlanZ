@@ -1,6 +1,6 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
-import 'package:plan_z/core/theming/text_stayls.dart';
+import 'package:plan_z/core/theming/text_styles.dart';
 import 'package:plan_z/features/attandee_features/attendee_home/ui/attende_home_widgets/quick_action_card.dart';
 import 'package:plan_z/features/attandee_features/invitations/ui/screens/invitation_screen.dart';
 

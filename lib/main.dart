@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:plan_z/features/attandee_features/attendee_home/ui/attende_home_screen.dart';
+import 'package:plan_z/features/vendor_features/packages_mangment/ui/screens/edit_package_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,7 +22,7 @@ class PlanZ extends StatelessWidget {
       minTextAdapt: true,
       splitScreenMode: true,
       child: MaterialApp(
-        home: AttendeHomeScreen(),
+        home: EditPackageScreen(),
         // title: 'PlanZ Chat',
         debugShowCheckedModeBanner: false,
       
