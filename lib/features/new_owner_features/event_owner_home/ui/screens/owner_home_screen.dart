@@ -2,7 +2,7 @@ import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:plan_z/core/utils/app_colors.dart';
 import 'package:plan_z/features/new_owner_features/event_owner_home/ui/screens/services_screen.dart';
-import '../../../../../../../core/theming/text_stayls.dart';
+import '../../../../../core/theming/text_styles.dart';
 import 'owner_notification_screen.dart';
 
 class OwnerHomeScreen extends StatelessWidget {

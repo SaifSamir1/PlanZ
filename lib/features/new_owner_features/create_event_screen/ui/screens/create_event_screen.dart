@@ -11,7 +11,7 @@ import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:plan_z/core/utils/app_colors.dart';
-import 'package:plan_z/core/theming/text_stayls.dart';
+import 'package:plan_z/core/theming/text_styles.dart';
 import 'package:plan_z/core/widgets/custom_app_button.dart';
 import 'package:plan_z/core/widgets/custom_text_form.dart';
 import 'package:plan_z/features/auth/data/models/event_model.dart';

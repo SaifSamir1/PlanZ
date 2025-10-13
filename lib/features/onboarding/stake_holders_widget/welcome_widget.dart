@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:plan_z/core/theming/text_stayls.dart';
+import 'package:plan_z/core/theming/text_styles.dart';
 
 class WelcomeWidget extends StatelessWidget {
   const WelcomeWidget({super.key});

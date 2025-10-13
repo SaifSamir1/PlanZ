@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:plan_z/core/theming/text_stayls.dart';
+import 'package:plan_z/core/theming/text_styles.dart';
 import 'package:plan_z/core/utils/app_colors.dart';
 
 class SystemNotificationCard extends StatelessWidget {

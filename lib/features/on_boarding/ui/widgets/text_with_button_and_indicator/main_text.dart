@@ -1,7 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:plan_z/core/theming/text_stayls.dart';
+import 'package:plan_z/core/theming/text_styles.dart';
 
 class MainText extends StatelessWidget {
   const MainText({

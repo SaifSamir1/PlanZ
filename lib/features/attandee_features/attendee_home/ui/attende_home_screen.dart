@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:plan_z/core/theming/text_stayls.dart';
+import 'package:plan_z/core/theming/text_styles.dart';
 import 'package:plan_z/core/utils/app_colors.dart';
 import 'package:plan_z/features/attandee_features/attendee_home/ui/attende_home_widgets/attende_home_screen_content.dart';
 import 'package:animate_do/animate_do.dart';

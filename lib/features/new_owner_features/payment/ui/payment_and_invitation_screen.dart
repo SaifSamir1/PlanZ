@@ -1,7 +1,7 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:plan_z/core/utils/app_colors.dart';
-import 'package:plan_z/core/theming/text_stayls.dart';
+import 'package:plan_z/core/theming/text_styles.dart';
 
 enum PaymentOption { creditCard, paypal, applePay }
 enum InvitationTemplate { elegant, geometric, rustic, vibrant }

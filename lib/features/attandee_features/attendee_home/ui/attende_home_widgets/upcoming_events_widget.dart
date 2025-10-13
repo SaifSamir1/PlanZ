@@ -1,6 +1,6 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
-import 'package:plan_z/core/theming/text_stayls.dart';
+import 'package:plan_z/core/theming/text_styles.dart';
 import 'package:plan_z/features/auth/data/models/event_model.dart';
 import 'package:plan_z/features/attandee_features/attendee_home/ui/attende_home_widgets/event_card.dart';
 

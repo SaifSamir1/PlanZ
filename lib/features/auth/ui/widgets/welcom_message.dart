@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:plan_z/core/theming/text_stayls.dart';
+import 'package:plan_z/core/theming/text_styles.dart';
 import 'package:plan_z/features/auth/data/models/user_model.dart';
 
 class WelcomeMessage extends StatelessWidget {
