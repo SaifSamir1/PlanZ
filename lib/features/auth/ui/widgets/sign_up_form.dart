@@ -7,7 +7,14 @@ import 'package:plan_z/features/auth/ui/widgets/password_text_form_filed.dart';
 class SignUpForm extends StatefulWidget {
   final UserType userType;
   final GlobalKey<FormState> formKey;
-  const SignUpForm({super.key, required this.userType, required this.formKey});
+  final TextEditingController nameController ;
+  final TextEditingController emailController ;
+  final TextEditingController phoneController ;
+  final TextEditingController passwordController ;
+  final TextEditingController confirmPasswordController ;
+
+
+  const SignUpForm({super.key, required this.userType, required this.formKey, required this.nameController, required this.emailController, required this.phoneController, required this.passwordController, required this.confirmPasswordController});
 
   @override
   // ignore: library_private_types_in_public_api
@@ -15,11 +22,7 @@ class SignUpForm extends StatefulWidget {
 }
 
 class _SignUpFormState extends State<SignUpForm> {
-  final _nameController = TextEditingController();
-  final _emailController = TextEditingController();
-  final _phoneController = TextEditingController();
-  final _passwordController = TextEditingController();
-  final _confirmPasswordController = TextEditingController();
+
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +33,7 @@ class _SignUpFormState extends State<SignUpForm> {
           // Name field
           AppTextField(
             hintText: 'Full Name',
-            controller: _nameController,
+            controller: widget.nameController,
             prefixIcon: const Icon(Icons.person, color: AppColors.textHint),
             validator: (value) {
               if (value == null || value.isEmpty) {
@@ -43,7 +46,7 @@ class _SignUpFormState extends State<SignUpForm> {
           // Email field
           AppTextField(
             hintText: 'Email',
-            controller: _emailController,
+            controller: widget.emailController,
             keyboardType: TextInputType.emailAddress,
             prefixIcon: const Icon(Icons.email, color: AppColors.textHint),
             validator: (value) {
@@ -62,7 +65,7 @@ class _SignUpFormState extends State<SignUpForm> {
           // Phone field
           AppTextField(
             hintText: 'Phone Number',
-            controller: _phoneController,
+            controller: widget.phoneController,
             keyboardType: TextInputType.phone,
             prefixIcon: const Icon(Icons.phone, color: AppColors.textHint),
             validator: (value) {
@@ -75,7 +78,7 @@ class _SignUpFormState extends State<SignUpForm> {
           const SizedBox(height: 16.0),
           // Password field
           AppPasswordTextField(
-            controller: _passwordController,
+            controller: widget.passwordController,
             validator: (value) {
               if (value == null || value.isEmpty) {
                 return 'Please enter your password';
@@ -90,12 +93,12 @@ class _SignUpFormState extends State<SignUpForm> {
           // Confirm password field
           AppPasswordTextField(
             hintText: 'Confirm Password',
-            controller: _confirmPasswordController,
+            controller: widget.confirmPasswordController,
             validator: (value) {
               if (value == null || value.isEmpty) {
                 return 'Please confirm your password';
               }
-              if (value != _passwordController.text) {
+              if (value != widget.passwordController.text) {
                 return 'Passwords do not match';
               }
               return null;
