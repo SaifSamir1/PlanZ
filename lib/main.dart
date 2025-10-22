@@ -2,11 +2,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
- import 'package:plan_z/features/attandee_features/attendee_home/ui/attende_home_screen.dart';
-import 'package:plan_z/features/attandee_features/invitations/ui/screens/invitation_template.dart';
 import 'package:plan_z/features/new_owner_features/event_owner_home/ui/screens/navigation_screen.dart';
-import 'package:plan_z/features/vendor_features/packages_mangment/ui/screens/edit_package_screen.dart';
- import 'package:plan_z/features/new_owner_features/create_event_screen/ui/screens/select_event_type_screen.dart';
+import 'package:plan_z/features/vendor_features/vendor_home/ui/screens/vendor_home_screen.dart';
 import 'package:plan_z/firebase_options.dart';
  
 void main() async {

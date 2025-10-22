@@ -2,6 +2,7 @@ import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_not
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:plan_z/features/new_owner_features/create_event_screen/ui/screens/select_event_type_screen.dart';
 import 'package:plan_z/features/new_owner_features/event_owner_home/ui/screens/payment_history.dart';
 import 'package:plan_z/features/new_owner_features/user_info/ui/screens/profile_screen.dart';
 import 'package:plan_z/features/new_owner_features/chat_bot/cubits/chat_cubit.dart';
@@ -26,7 +27,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
   final List<Widget> _screens = [
     const OwnerHomeScreen(),
     BlocProvider(create: (context) => ChatCubit(), child: const ChatScreen()),
-    const CreateEventScreen(),
+    const SelectEventTypeScreen(),
     const ProfileScreen(),
     const PaymentHistory(),
   ];
