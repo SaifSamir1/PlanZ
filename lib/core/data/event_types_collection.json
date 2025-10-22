@@ -1,0 +1,1011 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2025-10-09",
+  "eventTypes": [
+    {
+      "eventTypeId": "evt_wedding",
+      "eventTypeName": "Wedding",
+      "eventTypeNameAr": "حفل زفاف",
+      "icon": "assets/icons/wedding.png",
+      "description": "Plan your perfect wedding day with all the essential services you need",
+      "descriptionAr": "خطط ليوم زفافك المثالي مع جميع الخدمات الأساسية التي تحتاجها",
+      "popularityRank": 1,
+      "isActive": true,
+      
+      "services": [
+        {
+          "serviceId": "srv_venue",
+          "serviceName": "Venue & Spaces",
+          "serviceNameAr": "الأماكن والقاعات",
+          "required": true,
+          "priority": 1,
+          "suggestedBudgetPercentage": 30,
+          "minBudgetPercentage": 25,
+          "maxBudgetPercentage": 40,
+          "description": "Wedding venue, banquet hall, or outdoor space",
+          "descriptionAr": "قاعة الأفراح أو المكان المخصص للحفل"
+        },
+        {
+          "serviceId": "srv_catering",
+          "serviceName": "Catering & Food",
+          "serviceNameAr": "الطعام والمشروبات",
+          "required": true,
+          "priority": 2,
+          "suggestedBudgetPercentage": 25,
+          "minBudgetPercentage": 20,
+          "maxBudgetPercentage": 35,
+          "description": "Food and beverage services for your wedding",
+          "descriptionAr": "خدمات الطعام والمشروبات لحفل زفافك"
+        },
+        {
+          "serviceId": "srv_photography",
+          "serviceName": "Photography & Videography",
+          "serviceNameAr": "التصوير الفوتوغرافي والفيديو",
+          "required": true,
+          "priority": 3,
+          "suggestedBudgetPercentage": 15,
+          "minBudgetPercentage": 10,
+          "maxBudgetPercentage": 20,
+          "description": "Professional photography and video coverage",
+          "descriptionAr": "تصوير احترافي وتغطية فيديو للحفل"
+        },
+        {
+          "serviceId": "srv_decoration",
+          "serviceName": "Decoration & Flowers",
+          "serviceNameAr": "الديكور والزهور",
+          "required": true,
+          "priority": 4,
+          "suggestedBudgetPercentage": 15,
+          "minBudgetPercentage": 10,
+          "maxBudgetPercentage": 25,
+          "description": "Wedding decoration, floral arrangements, and styling",
+          "descriptionAr": "ديكور الزفاف وتنسيق الزهور والتصميم"
+        },
+        {
+          "serviceId": "srv_entertainment",
+          "serviceName": "Music & Entertainment",
+          "serviceNameAr": "الموسيقى والترفيه",
+          "required": false,
+          "priority": 5,
+          "suggestedBudgetPercentage": 8,
+          "minBudgetPercentage": 5,
+          "maxBudgetPercentage": 15,
+          "description": "DJ, live band, or entertainment services",
+          "descriptionAr": "دي جي أو فرقة موسيقية حية أو خدمات ترفيه"
+        },
+        {
+          "serviceId": "srv_cake",
+          "serviceName": "Wedding Cake & Desserts",
+          "serviceNameAr": "كيك الزفاف والحلويات",
+          "required": false,
+          "priority": 6,
+          "suggestedBudgetPercentage": 3,
+          "minBudgetPercentage": 2,
+          "maxBudgetPercentage": 8,
+          "description": "Wedding cake and dessert services",
+          "descriptionAr": "كيك الزفاف وخدمات الحلويات"
+        },
+        {
+          "serviceId": "srv_invitations",
+          "serviceName": "Invitations & Printing",
+          "serviceNameAr": "الدعوات والطباعة",
+          "required": false,
+          "priority": 7,
+          "suggestedBudgetPercentage": 2,
+          "minBudgetPercentage": 1,
+          "maxBudgetPercentage": 5,
+          "description": "Wedding invitations and printing services",
+          "descriptionAr": "دعوات الزفاف وخدمات الطباعة"
+        },
+        {
+          "serviceId": "srv_makeup",
+          "serviceName": "Hair & Makeup",
+          "serviceNameAr": "الشعر والمكياج",
+          "required": false,
+          "priority": 8,
+          "suggestedBudgetPercentage": 4,
+          "minBudgetPercentage": 2,
+          "maxBudgetPercentage": 8,
+          "description": "Bridal hair styling and makeup services",
+          "descriptionAr": "تصفيف الشعر ومكياج العروس"
+        },
+        {
+          "serviceId": "srv_transportation",
+          "serviceName": "Transportation",
+          "serviceNameAr": "المواصلات",
+          "required": false,
+          "priority": 9,
+          "suggestedBudgetPercentage": 3,
+          "minBudgetPercentage": 2,
+          "maxBudgetPercentage": 7,
+          "description": "Wedding transportation and vehicle services",
+          "descriptionAr": "خدمات النقل والسيارات للزفاف"
+        },
+        {
+          "serviceId": "srv_wedding_planner",
+          "serviceName": "Wedding Planner",
+          "serviceNameAr": "منظم حفلات الزفاف",
+          "required": false,
+          "priority": 10,
+          "suggestedBudgetPercentage": 5,
+          "minBudgetPercentage": 3,
+          "maxBudgetPercentage": 10,
+          "description": "Professional wedding planning and coordination",
+          "descriptionAr": "تخطيط وتنسيق احترافي للزفاف"
+        }
+      ],
+      
+      "estimatedBudget": {
+        "min": 50000,
+        "max": 500000,
+        "average": 150000,
+        "currency": "EGP",
+        "note": "Prices vary based on guest count and service quality"
+      },
+      
+      "commonQuestions": [
+        {
+          "questionId": "q_guest_count",
+          "question": "Expected number of guests?",
+          "questionAr": "عدد الضيوف المتوقع؟",
+          "type": "number",
+          "required": true,
+          "min": 50,
+          "max": 1000,
+          "placeholder": "e.g., 300"
+        },
+        {
+          "questionId": "q_venue_capacity",
+          "question": "Preferred venue capacity?",
+          "questionAr": "سعة القاعة المفضلة؟",
+          "type": "number",
+          "required": false,
+          "min": 50,
+          "max": 1000,
+          "placeholder": "e.g., 350"
+        },
+        {
+          "questionId": "q_venue_type",
+          "question": "Venue preference?",
+          "questionAr": "نوع المكان المفضل؟",
+          "type": "select",
+          "required": false,
+          "options": ["Indoor Hall", "Outdoor Garden", "Hotel", "Beach", "No Preference"],
+          "optionsAr": ["قاعة داخلية", "حديقة خارجية", "فندق", "شاطئ", "لا يوجد تفضيل"]
+        },
+        {
+          "questionId": "q_wedding_style",
+          "question": "Wedding style preference?",
+          "questionAr": "نمط الزفاف المفضل؟",
+          "type": "select",
+          "required": false,
+          "options": ["Traditional", "Modern", "Luxury", "Simple", "Themed"],
+          "optionsAr": ["تقليدي", "عصري", "فاخر", "بسيط", "بثيمة معينة"]
+        }
+      ],
+      
+      "tips": [
+        "Book your venue 6-12 months in advance",
+        "Set a realistic budget and stick to it",
+        "Create a priority list for essential services",
+        "Don't forget to allocate budget for unexpected expenses"
+      ],
+      "tipsAr": [
+        "احجز القاعة قبل 6-12 شهر من الموعد",
+        "حدد ميزانية واقعية والتزم بها",
+        "أنشئ قائمة أولويات للخدمات الأساسية",
+        "لا تنسى تخصيص ميزانية للمصاريف غير المتوقعة"
+      ]
+    },
+    
+    {
+      "eventTypeId": "evt_birthday",
+      "eventTypeName": "Birthday Party",
+      "eventTypeNameAr": "حفلة عيد ميلاد",
+      "icon": "assets/icons/birthday.png",
+      "description": "Celebrate your special day with unforgettable birthday party",
+      "descriptionAr": "احتفل بيومك الخاص مع حفلة عيد ميلاد لا تُنسى",
+      "popularityRank": 2,
+      "isActive": true,
+      
+      "services": [
+        {
+          "serviceId": "srv_venue",
+          "serviceName": "Venue & Spaces",
+          "serviceNameAr": "الأماكن والقاعات",
+          "required": true,
+          "priority": 1,
+          "suggestedBudgetPercentage": 25,
+          "minBudgetPercentage": 20,
+          "maxBudgetPercentage": 35,
+          "description": "Party venue or entertainment center",
+          "descriptionAr": "مكان الحفلة أو مركز الترفيه"
+        },
+        {
+          "serviceId": "srv_catering",
+          "serviceName": "Catering & Food",
+          "serviceNameAr": "الطعام والمشروبات",
+          "required": true,
+          "priority": 2,
+          "suggestedBudgetPercentage": 30,
+          "minBudgetPercentage": 25,
+          "maxBudgetPercentage": 40,
+          "description": "Food, snacks, and beverages for the party",
+          "descriptionAr": "الطعام والوجبات الخفيفة والمشروبات للحفلة"
+        },
+        {
+          "serviceId": "srv_cake",
+          "serviceName": "Birthday Cake & Desserts",
+          "serviceNameAr": "كيك عيد الميلاد والحلويات",
+          "required": true,
+          "priority": 3,
+          "suggestedBudgetPercentage": 10,
+          "minBudgetPercentage": 8,
+          "maxBudgetPercentage": 15,
+          "description": "Birthday cake and dessert services",
+          "descriptionAr": "كيك عيد الميلاد وخدمات الحلويات"
+        },
+        {
+          "serviceId": "srv_entertainment",
+          "serviceName": "Entertainment & Activities",
+          "serviceNameAr": "الترفيه والأنشطة",
+          "required": false,
+          "priority": 4,
+          "suggestedBudgetPercentage": 20,
+          "minBudgetPercentage": 15,
+          "maxBudgetPercentage": 30,
+          "description": "Entertainers, animators, magicians, or DJ",
+          "descriptionAr": "منشطون، ساحر، أو دي جي"
+        },
+        {
+          "serviceId": "srv_decoration",
+          "serviceName": "Decoration & Theme",
+          "serviceNameAr": "الديكور والثيمة",
+          "required": false,
+          "priority": 5,
+          "suggestedBudgetPercentage": 12,
+          "minBudgetPercentage": 8,
+          "maxBudgetPercentage": 20,
+          "description": "Party decoration and themed styling",
+          "descriptionAr": "ديكور الحفلة والتصميم بثيمة معينة"
+        },
+        {
+          "serviceId": "srv_photography",
+          "serviceName": "Photography & Videography",
+          "serviceNameAr": "التصوير الفوتوغرافي والفيديو",
+          "required": false,
+          "priority": 6,
+          "suggestedBudgetPercentage": 8,
+          "minBudgetPercentage": 5,
+          "maxBudgetPercentage": 15,
+          "description": "Photo and video coverage of the party",
+          "descriptionAr": "تصوير وتغطية فيديو للحفلة"
+        },
+        {
+          "serviceId": "srv_party_favors",
+          "serviceName": "Party Favors & Gifts",
+          "serviceNameAr": "هدايا الضيوف",
+          "required": false,
+          "priority": 7,
+          "suggestedBudgetPercentage": 5,
+          "minBudgetPercentage": 3,
+          "maxBudgetPercentage": 10,
+          "description": "Party favors and gift bags for guests",
+          "descriptionAr": "هدايا وأكياس تذكارية للضيوف"
+        }
+      ],
+      
+      "estimatedBudget": {
+        "min": 5000,
+        "max": 100000,
+        "average": 25000,
+        "currency": "EGP",
+        "note": "Prices vary based on age group and party size"
+      },
+      
+      "commonQuestions": [
+        {
+          "questionId": "q_guest_count",
+          "question": "Expected number of guests?",
+          "questionAr": "عدد الضيوف المتوقع؟",
+          "type": "number",
+          "required": true,
+          "min": 10,
+          "max": 200,
+          "placeholder": "e.g., 50"
+        },
+        {
+          "questionId": "q_age_group",
+          "question": "Age group of the birthday person?",
+          "questionAr": "الفئة العمرية لصاحب عيد الميلاد؟",
+          "type": "select",
+          "required": true,
+          "options": ["Kids (1-12)", "Teens (13-17)", "Adults (18-30)", "Adults (30+)"],
+          "optionsAr": ["أطفال (1-12)", "مراهقون (13-17)", "بالغون (18-30)", "بالغون (30+)"]
+        },
+        {
+          "questionId": "q_party_theme",
+          "question": "Party theme preference?",
+          "questionAr": "ثيمة الحفلة المفضلة؟",
+          "type": "text",
+          "required": false,
+          "placeholder": "e.g., Superhero, Princess, Sports"
+        },
+        {
+          "questionId": "q_venue_type",
+          "question": "Venue preference?",
+          "questionAr": "نوع المكان المفضل؟",
+          "type": "select",
+          "required": false,
+          "options": ["Indoor Hall", "Entertainment Center", "Restaurant", "Home", "Outdoor"],
+          "optionsAr": ["قاعة داخلية", "مركز ترفيه", "مطعم", "المنزل", "خارجي"]
+        }
+      ],
+      
+      "tips": [
+        "Plan 4-6 weeks in advance for best availability",
+        "Choose age-appropriate entertainment",
+        "Consider dietary restrictions when planning the menu",
+        "Don't forget to capture special moments with a photographer"
+      ],
+      "tipsAr": [
+        "خطط قبل 4-6 أسابيع لأفضل توفر",
+        "اختر ترفيه مناسب للعمر",
+        "ضع في اعتبارك القيود الغذائية عند التخطيط للقائمة",
+        "لا تنسى التقاط اللحظات الخاصة مع مصور"
+      ]
+    },
+    
+    {
+      "eventTypeId": "evt_corporate",
+      "eventTypeName": "Corporate Event",
+      "eventTypeNameAr": "حدث شركات",
+      "icon": "assets/icons/corporate.png",
+      "description": "Organize professional corporate events, conferences, and business gatherings",
+      "descriptionAr": "نظم فعاليات شركات احترافية ومؤتمرات واجتماعات عمل",
+      "popularityRank": 3,
+      "isActive": true,
+      
+      "services": [
+        {
+          "serviceId": "srv_venue",
+          "serviceName": "Venue & Conference Hall",
+          "serviceNameAr": "القاعة وصالة المؤتمرات",
+          "required": true,
+          "priority": 1,
+          "suggestedBudgetPercentage": 35,
+          "minBudgetPercentage": 30,
+          "maxBudgetPercentage": 45,
+          "description": "Conference hall, meeting room, or event space",
+          "descriptionAr": "صالة مؤتمرات أو غرفة اجتماعات أو مكان للفعاليات"
+        },
+        {
+          "serviceId": "srv_av_equipment",
+          "serviceName": "Audio Visual Equipment",
+          "serviceNameAr": "المعدات الصوتية والمرئية",
+          "required": true,
+          "priority": 2,
+          "suggestedBudgetPercentage": 20,
+          "minBudgetPercentage": 15,
+          "maxBudgetPercentage": 28,
+          "description": "Sound systems, projectors, screens, microphones",
+          "descriptionAr": "أنظمة صوت، بروجكتورات، شاشات، ميكروفونات"
+        },
+        {
+          "serviceId": "srv_catering",
+          "serviceName": "Catering & Refreshments",
+          "serviceNameAr": "الطعام والمشروبات",
+          "required": true,
+          "priority": 3,
+          "suggestedBudgetPercentage": 25,
+          "minBudgetPercentage": 20,
+          "maxBudgetPercentage": 35,
+          "description": "Coffee breaks, meals, and refreshments",
+          "descriptionAr": "استراحات قهوة، وجبات، ومشروبات"
+        },
+        {
+          "serviceId": "srv_stage_setup",
+          "serviceName": "Stage & Set Design",
+          "serviceNameAr": "المسرح والديكور",
+          "required": false,
+          "priority": 4,
+          "suggestedBudgetPercentage": 10,
+          "minBudgetPercentage": 5,
+          "maxBudgetPercentage": 15,
+          "description": "Stage setup and event branding",
+          "descriptionAr": "إعداد المسرح والعلامة التجارية للحدث"
+        },
+        {
+          "serviceId": "srv_photography",
+          "serviceName": "Photography & Videography",
+          "serviceNameAr": "التصوير الفوتوغرافي والفيديو",
+          "required": false,
+          "priority": 5,
+          "suggestedBudgetPercentage": 8,
+          "minBudgetPercentage": 5,
+          "maxBudgetPercentage": 12,
+          "description": "Event photography and video coverage",
+          "descriptionAr": "تصوير وتغطية فيديو للحدث"
+        },
+        {
+          "serviceId": "srv_registration",
+          "serviceName": "Registration & Check-in",
+          "serviceNameAr": "التسجيل والدخول",
+          "required": false,
+          "priority": 6,
+          "suggestedBudgetPercentage": 5,
+          "minBudgetPercentage": 3,
+          "maxBudgetPercentage": 8,
+          "description": "Registration desk and attendee management",
+          "descriptionAr": "مكتب التسجيل وإدارة الحضور"
+        },
+        {
+          "serviceId": "srv_transportation",
+          "serviceName": "Transportation",
+          "serviceNameAr": "المواصلات",
+          "required": false,
+          "priority": 7,
+          "suggestedBudgetPercentage": 7,
+          "minBudgetPercentage": 5,
+          "maxBudgetPercentage": 12,
+          "description": "Transportation for attendees and VIPs",
+          "descriptionAr": "نقل للحضور وكبار الشخصيات"
+        },
+        {
+          "serviceId": "srv_event_planner",
+          "serviceName": "Event Management",
+          "serviceNameAr": "إدارة الفعاليات",
+          "required": false,
+          "priority": 8,
+          "suggestedBudgetPercentage": 10,
+          "minBudgetPercentage": 5,
+          "maxBudgetPercentage": 15,
+          "description": "Professional event planning and coordination",
+          "descriptionAr": "تخطيط وتنسيق احترافي للحدث"
+        }
+      ],
+      
+      "estimatedBudget": {
+        "min": 30000,
+        "max": 1000000,
+        "average": 200000,
+        "currency": "EGP",
+        "note": "Prices vary based on attendee count and event duration"
+      },
+      
+      "commonQuestions": [
+        {
+          "questionId": "q_attendee_count",
+          "question": "Expected number of attendees?",
+          "questionAr": "عدد الحضور المتوقع؟",
+          "type": "number",
+          "required": true,
+          "min": 20,
+          "max": 2000,
+          "placeholder": "e.g., 150"
+        },
+        {
+          "questionId": "q_event_duration",
+          "question": "Event duration (in hours)?",
+          "questionAr": "مدة الحدث (بالساعات)؟",
+          "type": "number",
+          "required": true,
+          "min": 2,
+          "max": 12,
+          "placeholder": "e.g., 6"
+        },
+        {
+          "questionId": "q_event_type",
+          "question": "Type of corporate event?",
+          "questionAr": "نوع الحدث؟",
+          "type": "select",
+          "required": true,
+          "options": ["Conference", "Seminar", "Team Building", "Product Launch", "Annual Meeting", "Training"],
+          "optionsAr": ["مؤتمر", "ندوة", "بناء فريق", "إطلاق منتج", "اجتماع سنوي", "تدريب"]
+        },
+        {
+          "questionId": "q_av_requirements",
+          "question": "Audio-visual requirements?",
+          "questionAr": "متطلبات الصوت والصورة؟",
+          "type": "multiselect",
+          "required": false,
+          "options": ["Projector", "Sound System", "Microphones", "Video Recording", "Live Streaming"],
+          "optionsAr": ["بروجكتور", "نظام صوت", "ميكروفونات", "تسجيل فيديو", "بث مباشر"]
+        }
+      ],
+      
+      "tips": [
+        "Book venue 3-6 months in advance for large events",
+        "Test all AV equipment before the event",
+        "Prepare backup plans for technical issues",
+        "Coordinate with speakers and presenters early"
+      ],
+      "tipsAr": [
+        "احجز القاعة قبل 3-6 أشهر للفعاليات الكبيرة",
+        "اختبر جميع المعدات السمعية والبصرية قبل الحدث",
+        "جهز خطط بديلة للمشاكل التقنية",
+        "نسق مع المتحدثين والمقدمين مبكراً"
+      ]
+    },
+    
+    {
+      "eventTypeId": "evt_engagement",
+      "eventTypeName": "Engagement Party",
+      "eventTypeNameAr": "حفلة خطوبة",
+      "icon": "assets/icons/engagement.png",
+      "description": "Celebrate your engagement with an unforgettable party",
+      "descriptionAr": "احتفل بخطوبتك مع حفلة لا تُنسى",
+      "popularityRank": 4,
+      "isActive": true,
+      
+      "services": [
+        {
+          "serviceId": "srv_venue",
+          "serviceName": "Venue & Spaces",
+          "serviceNameAr": "الأماكن والقاعات",
+          "required": true,
+          "priority": 1,
+          "suggestedBudgetPercentage": 30,
+          "minBudgetPercentage": 25,
+          "maxBudgetPercentage": 40,
+          "description": "Engagement party venue or banquet hall",
+          "descriptionAr": "مكان حفلة الخطوبة أو قاعة الاحتفالات"
+        },
+        {
+          "serviceId": "srv_catering",
+          "serviceName": "Catering & Food",
+          "serviceNameAr": "الطعام والمشروبات",
+          "required": true,
+          "priority": 2,
+          "suggestedBudgetPercentage": 28,
+          "minBudgetPercentage": 22,
+          "maxBudgetPercentage": 35,
+          "description": "Food and beverage services",
+          "descriptionAr": "خدمات الطعام والمشروبات"
+        },
+        {
+          "serviceId": "srv_decoration",
+          "serviceName": "Decoration & Flowers",
+          "serviceNameAr": "الديكور والزهور",
+          "required": true,
+          "priority": 3,
+          "suggestedBudgetPercentage": 18,
+          "minBudgetPercentage": 12,
+          "maxBudgetPercentage": 25,
+          "description": "Engagement decoration and floral arrangements",
+          "descriptionAr": "ديكور الخطوبة وتنسيق الزهور"
+        },
+        {
+          "serviceId": "srv_photography",
+          "serviceName": "Photography & Videography",
+          "serviceNameAr": "التصوير الفوتوغرافي والفيديو",
+          "required": true,
+          "priority": 4,
+          "suggestedBudgetPercentage": 12,
+          "minBudgetPercentage": 8,
+          "maxBudgetPercentage": 18,
+          "description": "Professional engagement photography",
+          "descriptionAr": "تصوير احترافي لحفل الخطوبة"
+        },
+        {
+          "serviceId": "srv_entertainment",
+          "serviceName": "Music & Entertainment",
+          "serviceNameAr": "الموسيقى والترفيه",
+          "required": false,
+          "priority": 5,
+          "suggestedBudgetPercentage": 8,
+          "minBudgetPercentage": 5,
+          "maxBudgetPercentage": 15,
+          "description": "DJ or live music entertainment",
+          "descriptionAr": "دي جي أو موسيقى حية"
+        },
+        {
+          "serviceId": "srv_cake",
+          "serviceName": "Engagement Cake",
+          "serviceNameAr": "كيك الخطوبة",
+          "required": false,
+          "priority": 6,
+          "suggestedBudgetPercentage": 4,
+          "minBudgetPercentage": 2,
+          "maxBudgetPercentage": 8,
+          "description": "Engagement cake and desserts",
+          "descriptionAr": "كيك الخطوبة والحلويات"
+        },
+        {
+          "serviceId": "srv_invitations",
+          "serviceName": "Invitations",
+          "serviceNameAr": "الدعوات",
+          "required": false,
+          "priority": 7,
+          "suggestedBudgetPercentage": 3,
+          "minBudgetPercentage": 1,
+          "maxBudgetPercentage": 5,
+          "description": "Engagement invitations and printing",
+          "descriptionAr": "دعوات الخطوبة والطباعة"
+        },
+        {
+          "serviceId": "srv_makeup",
+          "serviceName": "Hair & Makeup",
+          "serviceNameAr": "الشعر والمكياج",
+          "required": false,
+          "priority": 8,
+          "suggestedBudgetPercentage": 5,
+          "minBudgetPercentage": 3,
+          "maxBudgetPercentage": 10,
+          "description": "Hair styling and makeup for the couple",
+          "descriptionAr": "تصفيف الشعر والمكياج للعروسين"
+        }
+      ],
+      
+      "estimatedBudget": {
+        "min": 30000,
+        "max": 200000,
+        "average": 80000,
+        "currency": "EGP",
+        "note": "Prices vary based on guest count and venue"
+      },
+      
+      "commonQuestions": [
+        {
+          "questionId": "q_guest_count",
+          "question": "Expected number of guests?",
+          "questionAr": "عدد الضيوف المتوقع؟",
+          "type": "number",
+          "required": true,
+          "min": 30,
+          "max": 500,
+          "placeholder": "e.g., 150"
+        },
+        {
+          "questionId": "q_party_style",
+          "question": "Engagement party style?",
+          "questionAr": "نمط حفلة الخطوبة؟",
+          "type": "select",
+          "required": false,
+          "options": ["Traditional", "Modern", "Elegant", "Casual", "Themed"],
+          "optionsAr": ["تقليدي", "عصري", "أنيق", "غير رسمي", "بثيمة"]
+        },
+        {
+          "questionId": "q_venue_type",
+          "question": "Venue preference?",
+          "questionAr": "نوع المكان المفضل؟",
+          "type": "select",
+          "required": false,
+          "options": ["Banquet Hall", "Restaurant", "Hotel", "Outdoor Garden", "Home"],
+          "optionsAr": ["قاعة احتفالات", "مطعم", "فندق", "حديقة خارجية", "المنزل"]
+        }
+      ],
+      
+      "tips": [
+        "Book 2-4 months in advance",
+        "Coordinate colors with your partner",
+        "Keep the guest list intimate if budget is limited",
+        "Don't forget to enjoy your special day!"
+      ],
+      "tipsAr": [
+        "احجز قبل 2-4 أشهر",
+        "نسق الألوان مع شريكك",
+        "حافظ على قائمة الضيوف محدودة إذا كانت الميزانية محدودة",
+        "لا تنسى الاستمتاع بيومك الخاص!"
+      ]
+    },
+    
+    {
+      "eventTypeId": "evt_baby_shower",
+      "eventTypeName": "Baby Shower / Gender Reveal",
+      "eventTypeNameAr": "حفلة استقبال المولود",
+      "icon": "assets/icons/baby_shower.png",
+      "description": "Celebrate the arrival of your little one with a memorable baby shower",
+      "descriptionAr": "احتفل بقدوم مولودك الصغير مع حفلة لا تُنسى",
+      "popularityRank": 5,
+      "isActive": true,
+      
+      "services": [
+        {
+          "serviceId": "srv_venue",
+          "serviceName": "Venue & Spaces",
+          "serviceNameAr": "الأماكن والقاعات",
+          "required": true,
+          "priority": 1,
+          "suggestedBudgetPercentage": 25,
+          "minBudgetPercentage": 20,
+          "maxBudgetPercentage": 35,
+          "description": "Baby shower venue or party space",
+          "descriptionAr": "مكان حفلة استقبال المولود"
+        },
+        {
+          "serviceId": "srv_decoration",
+          "serviceName": "Themed Decoration",
+          "serviceNameAr": "الديكور بثيمة",
+          "required": true,
+          "priority": 2,
+          "suggestedBudgetPercentage": 28,
+          "minBudgetPercentage": 22,
+          "maxBudgetPercentage": 38,
+          "description": "Baby shower themed decoration and styling",
+          "descriptionAr": "ديكور بثيمة لحفلة استقبال المولود"
+        },
+        {
+          "serviceId": "srv_catering",
+          "serviceName": "Catering & Refreshments",
+          "serviceNameAr": "الطعام والمشروبات",
+          "required": true,
+          "priority": 3,
+          "suggestedBudgetPercentage": 25,
+          "minBudgetPercentage": 20,
+          "maxBudgetPercentage": 32,
+          "description": "Food, snacks, and beverages",
+          "descriptionAr": "الطعام والوجبات الخفيفة والمشروبات"
+        },
+        {
+          "serviceId": "srv_cake",
+          "serviceName": "Cake & Desserts",
+          "serviceNameAr": "الكيك والحلويات",
+          "required": false,
+          "priority": 4,
+          "suggestedBudgetPercentage": 12,
+          "minBudgetPercentage": 8,
+          "maxBudgetPercentage": 18,
+          "description": "Baby shower cake and desserts",
+          "descriptionAr": "كيك وحلويات الحفلة"
+        },
+        {
+          "serviceId": "srv_photography",
+          "serviceName": "Photography",
+          "serviceNameAr": "التصوير",
+          "required": false,
+          "priority": 5,
+          "suggestedBudgetPercentage": 10,
+          "minBudgetPercentage": 6,
+          "maxBudgetPercentage": 15,
+          "description": "Professional photography services",
+          "descriptionAr": "خدمات التصوير الاحترافي"
+        },
+        {
+          "serviceId": "srv_entertainment",
+          "serviceName": "Games & Activities",
+          "serviceNameAr": "الألعاب والأنشطة",
+          "required": false,
+          "priority": 6,
+          "suggestedBudgetPercentage": 8,
+          "minBudgetPercentage": 5,
+          "maxBudgetPercentage": 12,
+          "description": "Baby shower games and entertainment",
+          "descriptionAr": "ألعاب وترفيه للحفلة"
+        },
+        {
+          "serviceId": "srv_party_favors",
+          "serviceName": "Party Favors",
+          "serviceNameAr": "هدايا الضيوف",
+          "required": false,
+          "priority": 7,
+          "suggestedBudgetPercentage": 5,
+          "minBudgetPercentage": 3,
+          "maxBudgetPercentage": 10,
+          "description": "Party favors and thank you gifts",
+          "descriptionAr": "هدايا وتذكارات للضيوف"
+        }
+      ],
+      
+      "estimatedBudget": {
+        "min": 8000,
+        "max": 80000,
+        "average": 25000,
+        "currency": "EGP",
+        "note": "Prices vary based on guest count and decoration complexity"
+      },
+      
+      "commonQuestions": [
+        {
+          "questionId": "q_guest_count",
+          "question": "Expected number of guests?",
+          "questionAr": "عدد الضيوف المتوقع؟",
+          "type": "number",
+          "required": true,
+          "min": 15,
+          "max": 100,
+          "placeholder": "e.g., 40"
+        },
+        {
+          "questionId": "q_party_type",
+          "question": "Type of celebration?",
+          "questionAr": "نوع الاحتفال؟",
+          "type": "select",
+          "required": true,
+          "options": ["Baby Shower", "Gender Reveal", "Both"],
+          "optionsAr": ["استقبال المولود", "كشف الجنس", "كلاهما"]
+        },
+        {
+          "questionId": "q_theme",
+          "question": "Theme preference?",
+          "questionAr": "الثيمة المفضلة؟",
+          "type": "select",
+          "required": false,
+          "options": ["Pink (Girl)", "Blue (Boy)", "Neutral (Surprise)", "Custom Theme"],
+          "optionsAr": ["وردي (بنت)", "أزرق (ولد)", "محايد (مفاجأة)", "ثيمة مخصصة"]
+        },
+        {
+          "questionId": "q_venue_type",
+          "question": "Venue preference?",
+          "questionAr": "نوع المكان المفضل؟",
+          "type": "select",
+          "required": false,
+          "options": ["Indoor Hall", "Restaurant", "Outdoor Garden", "Home"],
+          "optionsAr": ["قاعة داخلية", "مطعم", "حديقة خارجية", "المنزل"]
+        }
+      ],
+      
+      "tips": [
+        "Plan 4-6 weeks in advance",
+        "Choose a theme that reflects your style",
+        "Keep activities short and engaging",
+        "Consider the comfort of the expecting mother"
+      ],
+      "tipsAr": [
+        "خطط قبل 4-6 أسابيع",
+        "اختر ثيمة تعكس ذوقك",
+        "اجعل الأنشطة قصيرة ومشوقة",
+        "ضع راحة الأم الحامل في الاعتبار"
+      ]
+    },
+    
+    {
+      "eventTypeId": "evt_graduation",
+      "eventTypeName": "Graduation Party",
+      "eventTypeNameAr": "حفلة تخرج",
+      "icon": "assets/icons/graduation.png",
+      "description": "Celebrate your academic achievement with a memorable graduation party",
+      "descriptionAr": "احتفل بإنجازك الأكاديمي مع حفلة تخرج لا تُنسى",
+      "popularityRank": 6,
+      "isActive": true,
+      
+      "services": [
+        {
+          "serviceId": "srv_venue",
+          "serviceName": "Venue & Spaces",
+          "serviceNameAr": "الأماكن والقاعات",
+          "required": true,
+          "priority": 1,
+          "suggestedBudgetPercentage": 30,
+          "minBudgetPercentage": 25,
+          "maxBudgetPercentage": 40,
+          "description": "Graduation party venue",
+          "descriptionAr": "مكان حفلة التخرج"
+        },
+        {
+          "serviceId": "srv_catering",
+          "serviceName": "Catering & Food",
+          "serviceNameAr": "الطعام والمشروبات",
+          "required": true,
+          "priority": 2,
+          "suggestedBudgetPercentage": 28,
+          "minBudgetPercentage": 22,
+          "maxBudgetPercentage": 35,
+          "description": "Food and beverage services",
+          "descriptionAr": "خدمات الطعام والمشروبات"
+        },
+        {
+          "serviceId": "srv_photography",
+          "serviceName": "Photography & Videography",
+          "serviceNameAr": "التصوير الفوتوغرافي والفيديو",
+          "required": true,
+          "priority": 3,
+          "suggestedBudgetPercentage": 18,
+          "minBudgetPercentage": 12,
+          "maxBudgetPercentage": 25,
+          "description": "Professional graduation photography",
+          "descriptionAr": "تصوير احترافي لحفل التخرج"
+        },
+        {
+          "serviceId": "srv_decoration",
+          "serviceName": "Decoration & Theme",
+          "serviceNameAr": "الديكور والثيمة",
+          "required": false,
+          "priority": 4,
+          "suggestedBudgetPercentage": 15,
+          "minBudgetPercentage": 10,
+          "maxBudgetPercentage": 22,
+          "description": "Graduation themed decoration",
+          "descriptionAr": "ديكور بثيمة التخرج"
+        },
+        {
+          "serviceId": "srv_entertainment",
+          "serviceName": "Entertainment",
+          "serviceNameAr": "الترفيه",
+          "required": false,
+          "priority": 5,
+          "suggestedBudgetPercentage": 10,
+          "minBudgetPercentage": 6,
+          "maxBudgetPercentage": 15,
+          "description": "DJ or live entertainment",
+          "descriptionAr": "دي جي أو ترفيه حي"
+        },
+        {
+          "serviceId": "srv_cake",
+          "serviceName": "Graduation Cake",
+          "serviceNameAr": "كيك التخرج",
+          "required": false,
+          "priority": 6,
+          "suggestedBudgetPercentage": 6,
+          "minBudgetPercentage": 4,
+          "maxBudgetPercentage": 10,
+          "description": "Graduation cake and desserts",
+          "descriptionAr": "كيك التخرج والحلويات"
+        },
+        {
+          "serviceId": "srv_invitations",
+          "serviceName": "Invitations",
+          "serviceNameAr": "الدعوات",
+          "required": false,
+          "priority": 7,
+          "suggestedBudgetPercentage": 3,
+          "minBudgetPercentage": 2,
+          "maxBudgetPercentage": 6,
+          "description": "Graduation invitations and printing",
+          "descriptionAr": "دعوات التخرج والطباعة"
+        }
+      ],
+      
+      "estimatedBudget": {
+        "min": 15000,
+        "max": 150000,
+        "average": 50000,
+        "currency": "EGP",
+        "note": "Prices vary based on guest count and venue choice"
+      },
+      
+      "commonQuestions": [
+        {
+          "questionId": "q_guest_count",
+          "question": "Expected number of guests?",
+          "questionAr": "عدد الضيوف المتوقع؟",
+          "type": "number",
+          "required": true,
+          "min": 20,
+          "max": 300,
+          "placeholder": "e.g., 100"
+        },
+        {
+          "questionId": "q_graduation_level",
+          "question": "Graduation level?",
+          "questionAr": "مستوى التخرج؟",
+          "type": "select",
+          "required": true,
+          "options": ["High School", "Bachelor's Degree", "Master's Degree", "PhD"],
+          "optionsAr": ["الثانوية العامة", "بكالوريوس", "ماجستير", "دكتوراه"]
+        },
+        {
+          "questionId": "q_party_style",
+          "question": "Party style preference?",
+          "questionAr": "نمط الحفلة المفضل؟",
+          "type": "select",
+          "required": false,
+          "options": ["Formal", "Casual", "Themed", "Elegant"],
+          "optionsAr": ["رسمي", "غير رسمي", "بثيمة", "أنيق"]
+        },
+        {
+          "questionId": "q_venue_type",
+          "question": "Venue preference?",
+          "questionAr": "نوع المكان المفضل؟",
+          "type": "select",
+          "required": false,
+          "options": ["Banquet Hall", "Restaurant", "Hotel", "Outdoor", "Home"],
+          "optionsAr": ["قاعة احتفالات", "مطعم", "فندق", "خارجي", "المنزل"]
+        }
+      ],
+      
+      "tips": [
+        "Plan 2-3 months in advance",
+        "Capture professional photos in graduation gown",
+        "Create a memorable slideshow of your academic journey",
+        "Don't forget to thank your supporters and mentors"
+      ],
+      "tipsAr": [
+        "خطط قبل 2-3 أشهر",
+        "التقط صوراً احترافية بروب التخرج",
+        "أنشئ عرض شرائح لا يُنسى لرحلتك الأكاديمية",
+        "لا تنسى شكر داعميك ومرشديك"
+      ]
+    }
+  ]
+}

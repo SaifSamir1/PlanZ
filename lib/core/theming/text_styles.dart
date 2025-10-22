@@ -9,7 +9,7 @@ class AppTextStyles {
   static const double _sizeTitle = 18.0;
   static const double _sizeSubtitle = 16.0;
   static const double _sizeBody = 14.0;
-  static const double _sizeCaption = 12.0;
+  static const double _sizeCaption = 14.0;
   static const double _sizeOverline = 10.0;
 
   // أوزان الخطوط القياسية
@@ -53,7 +53,7 @@ class AppTextStyles {
   static TextStyle get subtitle => TextStyle(
     fontSize: _sizeSubtitle,
     fontWeight: _medium,
-    color: AppColors.textSecondary,
+    color: AppColors.textPrimary,
     height: 1.4,
   );
 
@@ -61,14 +61,14 @@ class AppTextStyles {
   static TextStyle get body => TextStyle(
     fontSize: _sizeBody,
     fontWeight: _regular,
-    color: AppColors.textSecondary,
+    color: AppColors.textPrimary,
     height: 1.5,
   );
 
   static TextStyle get bodyBold => TextStyle(
     fontSize: _sizeBody,
     fontWeight: _medium,
-    color: AppColors.textSecondary,
+    color: AppColors.textPrimary,
     height: 1.5,
   );
 
