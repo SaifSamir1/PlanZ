@@ -1,5 +1,6 @@
 class PackageModel {
-  final String id;
+  final String packageId;
+  //final String vendorId;
   final String name;
   final String status;
   final String description;
@@ -11,7 +12,8 @@ class PackageModel {
     required this.status,
     required this.description,
     required this.price,
-    required this.id,
+    required this.packageId,
+   // required this.vendorId,
     required this.type,
   });
 
@@ -21,8 +23,9 @@ class PackageModel {
       status: json['status'],
       description: json['description'] ?? '',
       price: json['price'] ?? '',
-      id: json['id'],
-      type: json['type'],
+      packageId: json['id']??"",
+     // vendorId: json['vendorId']??"",
+      type: json['type']??"",
     );
   }
 
@@ -32,7 +35,8 @@ class PackageModel {
       'status': status,
       'description': description,
       'price': price,
-      'id': id,
+      'id': packageId,
+      //'vendorId': vendorId,
       'type': type,
     };
   }

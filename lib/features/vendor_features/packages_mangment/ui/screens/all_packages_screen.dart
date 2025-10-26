@@ -230,7 +230,9 @@ class _PackageCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FadeInUp(
-      duration: Duration(milliseconds: 300 + (package.id.hashCode % 10) * 80),
+      duration: Duration(
+        milliseconds: 300 + (package.packageId.hashCode % 10) * 80,
+      ),
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20.0),
@@ -488,12 +490,14 @@ class EnhancedPackageDialog extends StatelessWidget {
   final bool isEditing;
   final PackageModel? package;
   final Function(PackageModel) onSave;
+  
 
   const EnhancedPackageDialog({
     super.key,
     required this.isEditing,
     this.package,
     required this.onSave,
+    
   });
 
   @override
@@ -677,7 +681,10 @@ class _EnhancedPackageFormState extends State<EnhancedPackageForm> {
   void _savePackage() {
     if (_formKey.currentState!.validate()) {
       final package = PackageModel(
-        id: widget.isEditing ? widget.package!.id : DateTime.now().toString(),
+        packageId: widget.isEditing
+            ? widget.package!.packageId
+            : DateTime.now().toString(),
+            
         name: _nameController.text.trim(),
         description: _descriptionController.text.trim(),
         price: _priceController.text.trim(),

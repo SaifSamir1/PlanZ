@@ -75,7 +75,8 @@ class VendorHomeScreen extends StatelessWidget {
                           builder: (context) => PackagesScreen(
                             packages: [
                               PackageModel(
-                                id: '1',
+                                packageId: '1',
+                                
                                 name: 'Wedding Photography',
                                 description:
                                     'Full-day wedding photography with album and digital copies.',
@@ -84,7 +85,8 @@ class VendorHomeScreen extends StatelessWidget {
                                 status: 'Active',
                               ),
                               PackageModel(
-                                id: '2',
+                                packageId: '2',
+                               
                                 name: 'Luxury Catering',
                                 description:
                                     'Gourmet meal service for 100 guests, including appetizers and desserts.',
@@ -93,7 +95,8 @@ class VendorHomeScreen extends StatelessWidget {
                                 status: 'Active',
                               ),
                               PackageModel(
-                                id: '3',
+                                packageId: '3',
+                               
                                 name: 'Event Decoration',
                                 description:
                                     'Elegant floral arrangements and lighting for large events.',
