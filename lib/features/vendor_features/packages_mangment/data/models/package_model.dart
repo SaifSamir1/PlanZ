@@ -13,23 +13,23 @@ class PackageModel {
     required this.description,
     required this.price,
     required this.packageId,
-   // required this.vendorId,
+    // required this.vendorId,
     required this.type,
   });
 
-  factory PackageModel.fromJson(Map<String, dynamic> json) {
+  factory PackageModel.fromMap(Map<String, dynamic> json) {
     return PackageModel(
       name: json['name'],
       status: json['status'],
       description: json['description'] ?? '',
       price: json['price'] ?? '',
-      packageId: json['id']??"",
-     // vendorId: json['vendorId']??"",
-      type: json['type']??"",
+      packageId: json['id'] ?? "",
+      // vendorId: json['vendorId']??"",
+      type: json['type'] ?? "",
     );
   }
 
-  Map<String, dynamic> toJson() {
+  Map<String, dynamic> toMap() {
     return {
       'name': name,
       'status': status,
