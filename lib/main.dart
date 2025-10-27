@@ -4,10 +4,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:plan_z/features/app_owner/ui/screens/owner_dashboard_screen.dart';
-import 'package:plan_z/features/auth/data/auth_repo/auth_repo.dart';
 import 'package:plan_z/features/auth/data/auth_repo/auth_repo_impl.dart';
 import 'package:plan_z/features/auth/logic/auth_cubit/auth_cubit.dart';
-import 'package:plan_z/features/on_boarding/ui/stakeholders_selection_screen.dart';
+import 'package:plan_z/features/vendor_features/packages_mangment/data/models/vendor_model.dart';
+import 'package:plan_z/features/vendor_features/packages_mangment/data/repos/vendor_repository_impl.dart';
 import 'package:plan_z/firebase_options.dart';
 
 void main() async {
