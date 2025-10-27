@@ -34,6 +34,8 @@ class WelcomeMessage extends StatelessWidget {
         return 'Welcome Event Owner';
       case UserType.attendee:
         return 'Welcome Attendee';
+      case UserType.admin:
+        return 'Welcome Admin';
     }
   }
 }

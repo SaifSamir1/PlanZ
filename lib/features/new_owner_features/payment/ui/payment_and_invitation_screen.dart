@@ -2,6 +2,7 @@ import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:plan_z/core/utils/app_colors.dart';
 import 'package:plan_z/core/theming/text_styles.dart';
+import 'package:plan_z/core/widgets/custom_app_bar.dart';
 
 enum PaymentOption { creditCard, paypal, applePay }
 enum InvitationTemplate { elegant, geometric, rustic, vibrant }
@@ -30,7 +31,7 @@ class _PaymentAndInvitationsScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: _buildAppBar(context),
+      appBar: CustomAppBar(title: "Payment & Invitations",showBackButton: true,),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -49,27 +50,7 @@ class _PaymentAndInvitationsScreenState
     );
   }
 
-  PreferredSizeWidget _buildAppBar(BuildContext context) {
-    return AppBar(
-      backgroundColor: Colors.white,
-      elevation: 0,
-      leading: FadeInLeft(
-        duration: const Duration(milliseconds: 600),
-        child: IconButton(
-          onPressed: () => Navigator.pop(context),
-          icon: Icon(
-            Icons.arrow_back_ios_rounded,
-            color: AppColors.primaryDark.withOpacity(0.7),
-            size: 20,
-          ),
-        ),
-      ),
-      title: FadeInDown(
-        duration: const Duration(milliseconds: 700),
-        child: Text("Payment & Invitations", style: AppTextStyles.title),
-      ),
-    );
-  }
+ 
 
   Widget _buildPaymentSection() {
     return Column(

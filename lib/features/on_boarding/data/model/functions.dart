@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:plan_z/features/onboarding/ui/screens/stakeholders_selection_screen.dart';
+import 'package:plan_z/features/on_boarding/ui/stakeholders_selection_screen.dart';
 
 Icon getProperIcon(int currentIndex) => currentIndex != 2
     ? const Icon(

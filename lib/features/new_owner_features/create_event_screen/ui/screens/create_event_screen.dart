@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:plan_z/core/utils/app_colors.dart';
 import 'package:plan_z/core/theming/text_styles.dart';
+import 'package:plan_z/core/widgets/custom_app_bar.dart';
 import 'package:plan_z/core/widgets/custom_app_button.dart';
 import 'package:plan_z/core/widgets/custom_text_form.dart';
 import 'package:plan_z/features/auth/data/models/event_model.dart';
@@ -305,7 +306,22 @@ class CreateEventAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AppBar(
+    return  CustomAppBar(
+        title: 'Payment History',
+        showBackButton: true,
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 16),
+            child: CircleAvatar(
+              backgroundImage: const AssetImage(
+                'assets/images/undraw_female-avatar_7t6k.png',
+              ),
+              radius: 18,
+              backgroundColor: AppColors.primaryGold.withOpacity(0.2),
+            ),
+          ),
+        ],
+      ); AppBar(
       elevation: 0,
       backgroundColor: AppColors.background,
       surfaceTintColor: Colors.transparent,

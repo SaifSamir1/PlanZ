@@ -10,6 +10,7 @@ class OwnerNotificationScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+      
       appBar: _buildAppBar(context),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:plan_z/core/utils/app_colors.dart';
+import 'package:plan_z/core/widgets/custom_app_bar.dart';
 import 'package:plan_z/features/new_owner_features/create_event_screen/ui/screens/basic_event_info_screen.dart';
 
 class SelectEventTypeScreen extends StatelessWidget {
@@ -11,43 +12,24 @@ class SelectEventTypeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(
-        backgroundColor: AppColors.primaryDark,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back_ios,
-            color: AppColors.textLight,
-          ),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: const Text(
-          'Select Event Type',
-          style: TextStyle(
-            color: AppColors.textLight,
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        centerTitle: true,
+      appBar: CustomAppBar(
+        title: 'Select Event Type',
       ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Intro Text Section
-              _buildIntroSection(),
-
-              const SizedBox(height: 24),
-
-              // Event Types Grid
-              Expanded(
-                child: _buildEventTypesGrid(context),
-              ),
-            ],
-          ),
+      body: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Intro Text Section
+            _buildIntroSection(),
+      
+            const SizedBox(height: 24),
+      
+            // Event Types Grid
+            Expanded(
+              child: _buildEventTypesGrid(context),
+            ),
+          ],
         ),
       ),
     );
@@ -61,7 +43,7 @@ class SelectEventTypeScreen extends StatelessWidget {
         Text(
           'Choose Your Event',
           style: TextStyle(
-            fontSize: 28,
+            fontSize: 22,
             fontWeight: FontWeight.bold,
             color: AppColors.textPrimary,
           ),
@@ -70,7 +52,7 @@ class SelectEventTypeScreen extends StatelessWidget {
         Text(
           'Select the type of event you want to create and we\'ll help you plan every detail',
           style: TextStyle(
-            fontSize: 16,
+            fontSize: 14,
             color: AppColors.textSecondary,
             height: 1.5,
           ),

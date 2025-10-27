@@ -225,15 +225,17 @@ class AuthRepositoryImpl implements AuthRepository {
 
   // دالة مساعدة لتحديد اسم الكولكشن حسب نوع المستخدم
   String _getCollectionName(UserType userType) {
-    switch (userType) {
-      case UserType.vendor:
-        return FirebaseCollections.vendors;
-      case UserType.eventOwner:
-        return FirebaseCollections.eventOwners;
-      case UserType.attendee:
-        return FirebaseCollections.attendees;
-    }
+  switch (userType) {
+    case UserType.vendor:
+      return FirebaseCollections.vendors;
+    case UserType.eventOwner:
+      return FirebaseCollections.eventOwners;
+    case UserType.attendee:
+      return FirebaseCollections.attendees;
+    case UserType.admin:
+      return FirebaseCollections.admins; // ✅ Add this
   }
+}
 
   // دالة مساعدة لتحويل أخطاء Firebase Auth إلى رسائل مفهومة
   String _getAuthErrorMessage(String errorCode) {

@@ -1,6 +1,8 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:plan_z/core/utils/app_colors.dart';
+import 'package:plan_z/core/widgets/custom_app_bar.dart';
+import 'package:plan_z/features/new_owner_features/create_event_screen/ui/screens/my_events_list_screen.dart';
 import 'package:plan_z/features/new_owner_features/event_owner_home/ui/screens/services_screen.dart';
 import '../../../../../core/theming/text_styles.dart';
 import 'owner_notification_screen.dart';
@@ -12,40 +14,16 @@ class OwnerHomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: _buildAppBar(context),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildWelcomeCard(),
-            const SizedBox(height: 28),
-            _buildQuickActionsSection(context),
-            const SizedBox(height: 28),
-            _buildUpcomingEventsSection(),
-            const SizedBox(height: 28),
-            _buildChatAssistanceSection(),
-          ],
-        ),
-      ),
-    );
-  }
-
-  PreferredSizeWidget _buildAppBar(BuildContext context) {
-    return AppBar(
-      backgroundColor: Colors.white,
-      elevation: 0,
-      title: FadeInDown(
-        duration: const Duration(milliseconds: 600),
-        child: Text("Home", style: AppTextStyles.headline2),
-      ),
-      actions: [
+      appBar: CustomAppBar(
+        title: 'Home',
+        actions: [
+          
         SlideInRight(
           duration: const Duration(milliseconds: 700),
           child: IconButton(
             icon: Icon(
               Icons.notifications_none_rounded,
-              color: AppColors.primaryDark.withOpacity(0.7),
+              color: Colors.white,
               size: 24,
             ),
             onPressed: () {
@@ -73,9 +51,30 @@ class OwnerHomeScreen extends StatelessWidget {
             ),
           ),
         ),
-      ],
+      
+        ],
+      ),
+      body: SingleChildScrollView(
+        physics: BouncingScrollPhysics(),
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildWelcomeCard(),
+            const SizedBox(height: 28),
+            _buildQuickActionsSection(context),
+            _buildUpcomingEventsSection(),
+            const SizedBox(height: 28),
+            _buildChatAssistanceSection(),
+                    const SizedBox(height: 150),
+
+          ],
+        ),
+      ),
     );
   }
+
+
 
   Widget _buildWelcomeCard() {
     return FadeInUp(
@@ -149,24 +148,32 @@ class OwnerHomeScreen extends StatelessWidget {
           mainAxisSpacing: 16,
           childAspectRatio: 1.3,
           children: [
-            SlideInLeft(
-              duration: const Duration(milliseconds: 700),
-              child: _quickAction(
-                Icons.auto_awesome_outlined,
-                "Plan New Event",
+            // SlideInLeft(
+            //   duration: const Duration(milliseconds: 700),
+            //   child: _quickAction(
+            //     Icons.auto_awesome_outlined,
+            //     "Plan New Event",
+            //   ),
+            // ),
+            // SlideInRight(
+            //   duration: const Duration(milliseconds: 700),
+            //   child: _quickAction(
+            //     Icons.emoji_events_outlined,
+            //     "Review Vendors",
+            //   ),
+            // ),
+            GestureDetector(
+              onTap: (){
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => MyEventsListScreen()),
+                  );
+                },
+              child: SlideInLeft(
+                duration: const Duration(milliseconds: 800),
+                delay: const Duration(milliseconds: 100),
+                child: _quickAction(Icons.group_outlined, "Manage Guests"),
               ),
-            ),
-            SlideInRight(
-              duration: const Duration(milliseconds: 700),
-              child: _quickAction(
-                Icons.emoji_events_outlined,
-                "Review Vendors",
-              ),
-            ),
-            SlideInLeft(
-              duration: const Duration(milliseconds: 800),
-              delay: const Duration(milliseconds: 100),
-              child: _quickAction(Icons.group_outlined, "Manage Guests"),
             ),
             GestureDetector(
               onTap: () {

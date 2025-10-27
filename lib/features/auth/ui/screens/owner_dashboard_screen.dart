@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:plan_z/core/theming/text_stayls.dart';
+import 'package:plan_z/core/theming/text_styles.dart';
 import 'package:plan_z/core/utils/app_colors.dart';
 
 class OwnerDashboard extends StatelessWidget {
@@ -133,6 +133,10 @@ class OwnerDashboard extends StatelessWidget {
                   Container(
                     padding:
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: AppColors.primaryGold),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
                     child: GestureDetector(
                       onTap: (){},
                       child: Text(
@@ -142,10 +146,6 @@ class OwnerDashboard extends StatelessWidget {
                           color: AppColors.primaryGold,
                         ),
                       ),
-                    ),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: AppColors.primaryGold),
-                      borderRadius: BorderRadius.circular(16),
                     ),
                   ),
                   GestureDetector(
@@ -242,6 +242,10 @@ Widget eventCard({
                     Container(
                       padding:
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: AppColors.primaryGold),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
                       child: GestureDetector(
                         onTap: (){},
                         child: Text(
@@ -251,10 +255,6 @@ Widget eventCard({
                             color: AppColors.primaryGold,
                           ),
                         ),
-                      ),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: AppColors.primaryGold),
-                        borderRadius: BorderRadius.circular(16),
                       ),
                     ),
                   ],
