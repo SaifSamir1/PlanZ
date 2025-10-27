@@ -16,6 +16,23 @@ await Firebase.initializeApp(
   runApp(const PlanZ());
 }
 
+void testFirestore() async {
+  final repo = VendorRepositoryImpl();
+
+  final vendor = VendorModel(
+    vendorId: 'v1',
+    name: 'Hoor Mahmoud',
+    serviceType: 'Decorations',
+    packages: [],
+    verified: false,
+    walletBalance: 0.0,
+    notifications: [],
+  );
+
+  await repo.addVendor(vendor);
+  print("✅ Vendor added successfully!");
+}
+
 class PlanZ extends StatelessWidget {
   const PlanZ({super.key});
 
