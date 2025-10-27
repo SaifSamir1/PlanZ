@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:plan_z/core/theming/text_stayls.dart';
+import 'package:plan_z/core/theming/text_styles.dart';
 import 'package:plan_z/core/utils/app_colors.dart';
 import 'package:plan_z/core/widgets/custom_text_form.dart';
 import 'package:plan_z/features/auth/data/models/user_model.dart';
@@ -8,7 +8,9 @@ import 'package:plan_z/features/auth/ui/widgets/password_text_form_filed.dart';
 class LoginForm extends StatefulWidget {
   final UserType userType;
   final GlobalKey<FormState> formKey;
-  const LoginForm({super.key, required this.userType, required this.formKey});
+  final TextEditingController emailController ;
+  final TextEditingController passwordController;
+  const LoginForm({super.key, required this.userType, required this.formKey, required this.emailController, required this.passwordController});
 
   @override
   // ignore: library_private_types_in_public_api
@@ -16,8 +18,7 @@ class LoginForm extends StatefulWidget {
 }
 
 class _LoginFormState extends State<LoginForm> {
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
+  
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +29,7 @@ class _LoginFormState extends State<LoginForm> {
           // Email field
           AppTextField(
             hintText: 'Email Address',
-            controller: _emailController,
+            controller: widget.emailController,
             keyboardType: TextInputType.emailAddress,
             prefixIcon: const Icon(Icons.email, color: AppColors.textHint),
             validator: (value) {
@@ -46,7 +47,7 @@ class _LoginFormState extends State<LoginForm> {
           const SizedBox(height: 16.0),
           // Password field
           AppPasswordTextField(
-            controller: _passwordController,
+            controller: widget.passwordController,
             validator: (value) {
               if (value == null || value.isEmpty) {
                 return 'Please enter your password';

@@ -4,7 +4,7 @@ class AppColors {
   // الألوان الأساسية
   //static const Color primaryDark = Color(0xFF21225B); // الأزرق الداكن
   static const Color primaryDark = Color(0xff21225b);
-  static const Color primaryGold = Color(0xFFE3C100); // الأصفر الذهبي
+  static const Color primaryGold = Color(0xffcba13b); // الأصفر الذهبي
 
   // درجات متدرجة من الأزرق الداكن (من الفاتح إلى الداكن)
   static const Color blue50 = Color(0xFFF0F1FF);

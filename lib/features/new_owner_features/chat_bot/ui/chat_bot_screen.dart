@@ -101,11 +101,6 @@ PreferredSizeWidget _buildAppBar() {
     elevation: 0,
     backgroundColor: Colors.white,
     surfaceTintColor: Colors.transparent,
-    leading: IconButton(
-      onPressed: () => Navigator.pop(context),
-      icon: const Icon(Icons.arrow_back_ios_rounded),
-      color: AppColors.blue600,
-    ),
     title: Row(
       children: [
         Container(

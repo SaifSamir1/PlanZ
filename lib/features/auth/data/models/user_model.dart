@@ -1,3 +1,5 @@
+// lib/features/auth/data/models/user_model.dart
+
 // أنواع المستخدمين المحتملة
 enum UserType { vendor, eventOwner, attendee }
 
@@ -26,16 +28,18 @@ class UserModel {
   // إنشاء نموذج من JSON
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
-      id: json['id'],
-      name: json['name'],
-      email: json['email'],
+      id: json['id'] ?? '',
+      name: json['name'] ?? '',
+      email: json['email'] ?? '',
       userType: UserType.values.firstWhere(
         (type) => type.name == json['userType'],
         orElse: () => UserType.attendee, // القيمة الافتراضية
       ),
       phoneNumber: json['phoneNumber'],
       isActive: json['isActive'] ?? true,
-      additionalInfo: json['additionalInfo'],
+      additionalInfo: json['additionalInfo'] != null
+          ? Map<String, dynamic>.from(json['additionalInfo'])
+          : null,
     );
   }
 
@@ -49,6 +53,8 @@ class UserModel {
       'phoneNumber': phoneNumber,
       'isActive': isActive,
       'additionalInfo': additionalInfo,
+      'createdAt': DateTime.now().toIso8601String(),
+      'updatedAt': DateTime.now().toIso8601String(),
     };
   }
 
@@ -71,5 +77,10 @@ class UserModel {
       isActive: isActive ?? this.isActive,
       additionalInfo: additionalInfo ?? this.additionalInfo,
     );
+  }
+
+  @override
+  String toString() {
+    return 'UserModel(id: $id, name: $name, email: $email, userType: ${userType.name})';
   }
 }

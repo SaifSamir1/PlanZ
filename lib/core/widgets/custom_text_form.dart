@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:plan_z/core/theming/text_stayls.dart';
+import 'package:plan_z/core/theming/text_styles.dart';
 import 'package:plan_z/core/utils/app_colors.dart';
 
 class AppTextField extends StatefulWidget {
@@ -159,12 +159,12 @@ class _AppTextFieldState extends State<AppTextField>
                 fillColor: widget.fillColor ?? Colors.white,
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12.0),
-                  borderSide: BorderSide(color: AppColors.blue200, width: 1.0),
+                  borderSide: BorderSide(color: AppColors.neutralGray, width: 1.0),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12.0),
                   borderSide: BorderSide(
-                    color: AppColors.blue300, // أزرق داكن بدلاً من ذهبي
+                    color: AppColors.blue500, // أزرق داكن بدلاً من ذهبي
                     width: _borderAnimation.value,
                   ),
                 ),

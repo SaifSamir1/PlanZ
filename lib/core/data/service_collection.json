@@ -1,0 +1,703 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2025-10-09",
+  "totalServices": 14,
+  "services": [
+    {
+      "serviceId": "srv_venue",
+      "serviceName": "Venue & Spaces",
+      "serviceNameAr": "الأماكن والقاعات",
+      "icon": "assets/icons/services/venue.png",
+      "category": "Location",
+      "description": "Event venues, banquet halls, conference rooms, and party spaces for all types of events",
+      "descriptionAr": "أماكن الفعاليات، قاعات الأفراح، غرف المؤتمرات، وأماكن الحفلات لجميع أنواع الفعاليات",
+      "isActive": true,
+      "popularityRank": 1,
+      "keywords": [
+        "venue",
+        "hall",
+        "space",
+        "location",
+        "place",
+        "banquet",
+        "conference",
+        "room",
+        "ballroom",
+        "auditorium",
+        "garden",
+        "outdoor",
+        "indoor"
+      ],
+      "usedInEventTypes": [
+        "evt_wedding",
+        "evt_birthday",
+        "evt_corporate",
+        "evt_engagement",
+        "evt_baby_shower",
+        "evt_graduation"
+      ],
+      "commonAttributes": [
+        "capacity",
+        "area_sqm",
+        "indoor_outdoor",
+        "parking_available",
+        "air_conditioning",
+        "wifi_available",
+        "accessibility",
+        "tables_chairs_included"
+      ],
+      "priceRange": {
+        "min": 3000,
+        "max": 100000,
+        "currency": "EGP",
+        "unit": "per_event"
+      }
+    },
+    
+    {
+      "serviceId": "srv_catering",
+      "serviceName": "Catering & Food",
+      "serviceNameAr": "الطعام والمشروبات",
+      "icon": "assets/icons/services/catering.png",
+      "category": "Food & Beverage",
+      "description": "Professional catering services including buffets, meals, snacks, and beverages for events",
+      "descriptionAr": "خدمات الطعام الاحترافية بما في ذلك البوفيهات والوجبات والوجبات الخفيفة والمشروبات للفعاليات",
+      "isActive": true,
+      "popularityRank": 2,
+      "keywords": [
+        "catering",
+        "food",
+        "buffet",
+        "meal",
+        "menu",
+        "cuisine",
+        "dinner",
+        "lunch",
+        "breakfast",
+        "appetizer",
+        "main_course",
+        "beverage",
+        "drink",
+        "refreshment"
+      ],
+      "usedInEventTypes": [
+        "evt_wedding",
+        "evt_birthday",
+        "evt_corporate",
+        "evt_engagement",
+        "evt_baby_shower",
+        "evt_graduation"
+      ],
+      "commonAttributes": [
+        "menu_type",
+        "cuisine_style",
+        "per_person_cost",
+        "minimum_guests",
+        "vegetarian_options",
+        "halal_certified",
+        "dietary_restrictions",
+        "service_style"
+      ],
+      "priceRange": {
+        "min": 50,
+        "max": 500,
+        "currency": "EGP",
+        "unit": "per_person"
+      }
+    },
+    
+    {
+      "serviceId": "srv_photography",
+      "serviceName": "Photography & Videography",
+      "serviceNameAr": "التصوير الفوتوغرافي والفيديو",
+      "icon": "assets/icons/services/photography.png",
+      "category": "Documentation",
+      "description": "Professional photography and video recording services to capture your special moments",
+      "descriptionAr": "خدمات التصوير الفوتوغرافي وتسجيل الفيديو الاحترافية لالتقاط لحظاتك الخاصة",
+      "isActive": true,
+      "popularityRank": 3,
+      "keywords": [
+        "photography",
+        "photo",
+        "videography",
+        "video",
+        "camera",
+        "photographer",
+        "videographer",
+        "album",
+        "portrait",
+        "candid",
+        "drone",
+        "editing",
+        "digital_album"
+      ],
+      "usedInEventTypes": [
+        "evt_wedding",
+        "evt_birthday",
+        "evt_corporate",
+        "evt_engagement",
+        "evt_baby_shower",
+        "evt_graduation"
+      ],
+      "commonAttributes": [
+        "coverage_duration",
+        "number_of_photographers",
+        "number_of_videographers",
+        "photo_count",
+        "video_length",
+        "editing_included",
+        "album_included",
+        "drone_available",
+        "delivery_time"
+      ],
+      "priceRange": {
+        "min": 2000,
+        "max": 50000,
+        "currency": "EGP",
+        "unit": "per_event"
+      }
+    },
+    
+    {
+      "serviceId": "srv_decoration",
+      "serviceName": "Decoration & Flowers",
+      "serviceNameAr": "الديكور والزهور",
+      "icon": "assets/icons/services/decoration.png",
+      "category": "Styling",
+      "description": "Event decoration services including floral arrangements, themed styling, and venue setup",
+      "descriptionAr": "خدمات ديكور الفعاليات بما في ذلك تنسيق الزهور، التصميم بثيمة، وإعداد المكان",
+      "isActive": true,
+      "popularityRank": 4,
+      "keywords": [
+        "decoration",
+        "decor",
+        "flowers",
+        "floral",
+        "arrangement",
+        "bouquet",
+        "centerpiece",
+        "backdrop",
+        "lighting",
+        "balloons",
+        "theme",
+        "styling",
+        "setup"
+      ],
+      "usedInEventTypes": [
+        "evt_wedding",
+        "evt_birthday",
+        "evt_engagement",
+        "evt_baby_shower",
+        "evt_graduation"
+      ],
+      "commonAttributes": [
+        "theme_style",
+        "color_scheme",
+        "floral_arrangements",
+        "backdrop_included",
+        "lighting_included",
+        "table_centerpieces",
+        "entrance_decoration",
+        "stage_decoration",
+        "setup_teardown_included"
+      ],
+      "priceRange": {
+        "min": 2000,
+        "max": 80000,
+        "currency": "EGP",
+        "unit": "per_event"
+      }
+    },
+    
+    {
+      "serviceId": "srv_entertainment",
+      "serviceName": "Music & Entertainment",
+      "serviceNameAr": "الموسيقى والترفيه",
+      "icon": "assets/icons/services/entertainment.png",
+      "category": "Entertainment",
+      "description": "Entertainment services including DJs, live bands, musicians, and performers for events",
+      "descriptionAr": "خدمات الترفيه بما في ذلك دي جي، فرق موسيقية حية، موسيقيين، وفنانين للفعاليات",
+      "isActive": true,
+      "popularityRank": 5,
+      "keywords": [
+        "entertainment",
+        "dj",
+        "music",
+        "band",
+        "musician",
+        "performer",
+        "singer",
+        "live_music",
+        "sound",
+        "playlist",
+        "mc",
+        "host",
+        "animator",
+        "magician",
+        "clown"
+      ],
+      "usedInEventTypes": [
+        "evt_wedding",
+        "evt_birthday",
+        "evt_engagement",
+        "evt_baby_shower",
+        "evt_graduation"
+      ],
+      "commonAttributes": [
+        "entertainment_type",
+        "duration_hours",
+        "sound_system_included",
+        "lighting_effects",
+        "music_genres",
+        "equipment_provided",
+        "rehearsal_available",
+        "backup_equipment"
+      ],
+      "priceRange": {
+        "min": 1500,
+        "max": 40000,
+        "currency": "EGP",
+        "unit": "per_event"
+      }
+    },
+    
+    {
+      "serviceId": "srv_cake",
+      "serviceName": "Cakes & Desserts",
+      "serviceNameAr": "الكيك والحلويات",
+      "icon": "assets/icons/services/cake.png",
+      "category": "Food & Beverage",
+      "description": "Custom cakes and dessert services for weddings, birthdays, and special occasions",
+      "descriptionAr": "كيك مخصص وخدمات الحلويات لحفلات الزفاف، أعياد الميلاد، والمناسبات الخاصة",
+      "isActive": true,
+      "popularityRank": 6,
+      "keywords": [
+        "cake",
+        "dessert",
+        "pastry",
+        "sweet",
+        "bakery",
+        "wedding_cake",
+        "birthday_cake",
+        "cupcake",
+        "chocolate",
+        "vanilla",
+        "custom_design",
+        "tiered_cake"
+      ],
+      "usedInEventTypes": [
+        "evt_wedding",
+        "evt_birthday",
+        "evt_engagement",
+        "evt_baby_shower",
+        "evt_graduation"
+      ],
+      "commonAttributes": [
+        "cake_size",
+        "number_of_tiers",
+        "flavor",
+        "custom_design",
+        "serves_count",
+        "dietary_options",
+        "delivery_included",
+        "cake_stand_included",
+        "cutting_service"
+      ],
+      "priceRange": {
+        "min": 500,
+        "max": 15000,
+        "currency": "EGP",
+        "unit": "per_cake"
+      }
+    },
+    
+    {
+      "serviceId": "srv_invitations",
+      "serviceName": "Invitations & Printing",
+      "serviceNameAr": "الدعوات والطباعة",
+      "icon": "assets/icons/services/invitations.png",
+      "category": "Stationery",
+      "description": "Custom invitation design and printing services for events",
+      "descriptionAr": "تصميم وطباعة دعوات مخصصة للفعاليات",
+      "isActive": true,
+      "popularityRank": 7,
+      "keywords": [
+        "invitation",
+        "card",
+        "print",
+        "design",
+        "stationery",
+        "envelope",
+        "rsvp",
+        "save_the_date",
+        "thank_you_card",
+        "menu_card",
+        "custom_design"
+      ],
+      "usedInEventTypes": [
+        "evt_wedding",
+        "evt_engagement",
+        "evt_graduation"
+      ],
+      "commonAttributes": [
+        "design_style",
+        "paper_quality",
+        "quantity",
+        "custom_text",
+        "envelope_included",
+        "digital_version",
+        "delivery_method",
+        "turnaround_time"
+      ],
+      "priceRange": {
+        "min": 5,
+        "max": 50,
+        "currency": "EGP",
+        "unit": "per_piece"
+      }
+    },
+    
+    {
+      "serviceId": "srv_makeup",
+      "serviceName": "Hair & Makeup",
+      "serviceNameAr": "الشعر والمكياج",
+      "icon": "assets/icons/services/makeup.png",
+      "category": "Beauty",
+      "description": "Professional hair styling and makeup services for brides and special occasions",
+      "descriptionAr": "خدمات تصفيف الشعر والمكياج الاحترافية للعرائس والمناسبات الخاصة",
+      "isActive": true,
+      "popularityRank": 8,
+      "keywords": [
+        "makeup",
+        "hair",
+        "beauty",
+        "styling",
+        "cosmetics",
+        "bridal",
+        "hairstyle",
+        "makeover",
+        "artist",
+        "glam",
+        "natural",
+        "airbrush"
+      ],
+      "usedInEventTypes": [
+        "evt_wedding",
+        "evt_engagement"
+      ],
+      "commonAttributes": [
+        "service_location",
+        "number_of_people",
+        "makeup_style",
+        "hair_style",
+        "trial_session",
+        "products_used",
+        "duration",
+        "touch_up_included"
+      ],
+      "priceRange": {
+        "min": 800,
+        "max": 10000,
+        "currency": "EGP",
+        "unit": "per_person"
+      }
+    },
+    
+    {
+      "serviceId": "srv_transportation",
+      "serviceName": "Transportation",
+      "serviceNameAr": "المواصلات",
+      "icon": "assets/icons/services/transportation.png",
+      "category": "Logistics",
+      "description": "Transportation services including luxury cars, limousines, and guest shuttles",
+      "descriptionAr": "خدمات النقل بما في ذلك سيارات فاخرة، ليموزين، ونقل الضيوف",
+      "isActive": true,
+      "popularityRank": 9,
+      "keywords": [
+        "transportation",
+        "car",
+        "vehicle",
+        "limousine",
+        "limo",
+        "bus",
+        "shuttle",
+        "driver",
+        "luxury_car",
+        "wedding_car",
+        "transfer"
+      ],
+      "usedInEventTypes": [
+        "evt_wedding",
+        "evt_corporate"
+      ],
+      "commonAttributes": [
+        "vehicle_type",
+        "capacity",
+        "duration_hours",
+        "driver_included",
+        "decoration_included",
+        "pickup_location",
+        "dropoff_location",
+        "fuel_included"
+      ],
+      "priceRange": {
+        "min": 1000,
+        "max": 15000,
+        "currency": "EGP",
+        "unit": "per_event"
+      }
+    },
+    
+    {
+      "serviceId": "srv_av_equipment",
+      "serviceName": "Audio Visual Equipment",
+      "serviceNameAr": "المعدات الصوتية والمرئية",
+      "icon": "assets/icons/services/av_equipment.png",
+      "category": "Technical",
+      "description": "Professional audio and visual equipment for corporate events and presentations",
+      "descriptionAr": "معدات صوتية ومرئية احترافية لفعاليات الشركات والعروض التقديمية",
+      "isActive": true,
+      "popularityRank": 10,
+      "keywords": [
+        "audio",
+        "visual",
+        "av",
+        "sound",
+        "projector",
+        "screen",
+        "microphone",
+        "speaker",
+        "lighting",
+        "presentation",
+        "technical",
+        "equipment"
+      ],
+      "usedInEventTypes": [
+        "evt_corporate"
+      ],
+      "commonAttributes": [
+        "equipment_list",
+        "sound_system_specs",
+        "projector_specs",
+        "screen_size",
+        "microphone_count",
+        "lighting_included",
+        "technician_included",
+        "setup_time",
+        "backup_equipment"
+      ],
+      "priceRange": {
+        "min": 3000,
+        "max": 50000,
+        "currency": "EGP",
+        "unit": "per_event"
+      }
+    },
+    
+    {
+      "serviceId": "srv_stage_setup",
+      "serviceName": "Stage & Set Design",
+      "serviceNameAr": "المسرح والديكور",
+      "icon": "assets/icons/services/stage.png",
+      "category": "Staging",
+      "description": "Professional stage setup and set design for corporate events and conferences",
+      "descriptionAr": "إعداد مسرح احترافي وتصميم الديكور لفعاليات الشركات والمؤتمرات",
+      "isActive": true,
+      "popularityRank": 11,
+      "keywords": [
+        "stage",
+        "set",
+        "design",
+        "backdrop",
+        "platform",
+        "podium",
+        "branding",
+        "signage",
+        "setup",
+        "construction"
+      ],
+      "usedInEventTypes": [
+        "evt_corporate"
+      ],
+      "commonAttributes": [
+        "stage_size",
+        "backdrop_design",
+        "branding_included",
+        "podium_included",
+        "stairs_ramp",
+        "lighting_integrated",
+        "setup_time",
+        "teardown_included"
+      ],
+      "priceRange": {
+        "min": 5000,
+        "max": 80000,
+        "currency": "EGP",
+        "unit": "per_event"
+      }
+    },
+    
+    {
+      "serviceId": "srv_registration",
+      "serviceName": "Registration & Check-in",
+      "serviceNameAr": "التسجيل والدخول",
+      "icon": "assets/icons/services/registration.png",
+      "category": "Logistics",
+      "description": "Registration desk and attendee management services for corporate events",
+      "descriptionAr": "مكتب التسجيل وخدمات إدارة الحضور لفعاليات الشركات",
+      "isActive": true,
+      "popularityRank": 12,
+      "keywords": [
+        "registration",
+        "check_in",
+        "attendee",
+        "badge",
+        "desk",
+        "management",
+        "qr_code",
+        "name_tag",
+        "guest_list"
+      ],
+      "usedInEventTypes": [
+        "evt_corporate"
+      ],
+      "commonAttributes": [
+        "registration_system",
+        "badge_printing",
+        "staff_count",
+        "check_in_duration",
+        "attendee_tracking",
+        "digital_registration",
+        "name_tags_included"
+      ],
+      "priceRange": {
+        "min": 2000,
+        "max": 20000,
+        "currency": "EGP",
+        "unit": "per_event"
+      }
+    },
+    
+    {
+      "serviceId": "srv_wedding_planner",
+      "serviceName": "Wedding Planner",
+      "serviceNameAr": "منظم حفلات الزفاف",
+      "icon": "assets/icons/services/wedding_planner.png",
+      "category": "Planning",
+      "description": "Professional wedding planning and coordination services",
+      "descriptionAr": "خدمات تخطيط وتنسيق حفلات الزفاف الاحترافية",
+      "isActive": true,
+      "popularityRank": 13,
+      "keywords": [
+        "wedding_planner",
+        "planner",
+        "coordinator",
+        "planning",
+        "management",
+        "organization",
+        "consultation",
+        "timeline",
+        "vendor_coordination"
+      ],
+      "usedInEventTypes": [
+        "evt_wedding"
+      ],
+      "commonAttributes": [
+        "planning_scope",
+        "consultation_hours",
+        "vendor_coordination",
+        "timeline_management",
+        "day_of_coordination",
+        "rehearsal_coordination",
+        "budget_management"
+      ],
+      "priceRange": {
+        "min": 5000,
+        "max": 50000,
+        "currency": "EGP",
+        "unit": "per_event"
+      }
+    },
+    
+    {
+      "serviceId": "srv_event_planner",
+      "serviceName": "Event Management",
+      "serviceNameAr": "إدارة الفعاليات",
+      "icon": "assets/icons/services/event_planner.png",
+      "category": "Planning",
+      "description": "Professional event planning and management services for corporate events",
+      "descriptionAr": "خدمات تخطيط وإدارة احترافية لفعاليات الشركات",
+      "isActive": true,
+      "popularityRank": 14,
+      "keywords": [
+        "event_planner",
+        "event_management",
+        "coordinator",
+        "planning",
+        "corporate_event",
+        "organization",
+        "logistics",
+        "project_management"
+      ],
+      "usedInEventTypes": [
+        "evt_corporate"
+      ],
+      "commonAttributes": [
+        "planning_scope",
+        "team_size",
+        "consultation_included",
+        "vendor_management",
+        "logistics_coordination",
+        "on_site_management",
+        "post_event_report"
+      ],
+      "priceRange": {
+        "min": 8000,
+        "max": 100000,
+        "currency": "EGP",
+        "unit": "per_event"
+      }
+    },
+    
+    {
+      "serviceId": "srv_party_favors",
+      "serviceName": "Party Favors & Gifts",
+      "serviceNameAr": "هدايا الضيوف",
+      "icon": "assets/icons/services/party_favors.png",
+      "category": "Gifts",
+      "description": "Party favors, gift bags, and thank you gifts for guests",
+      "descriptionAr": "هدايا الحفلات، أكياس الهدايا، وهدايا الشكر للضيوف",
+      "isActive": true,
+      "popularityRank": 15,
+      "keywords": [
+        "party_favors",
+        "gifts",
+        "gift_bags",
+        "thank_you",
+        "souvenir",
+        "giveaway",
+        "custom_gifts",
+        "branded_gifts"
+      ],
+      "usedInEventTypes": [
+        "evt_birthday",
+        "evt_baby_shower"
+      ],
+      "commonAttributes": [
+        "gift_type",
+        "quantity",
+        "custom_packaging",
+        "personalization",
+        "price_per_piece",
+        "bulk_discount",
+        "delivery_included"
+      ],
+      "priceRange": {
+        "min": 10,
+        "max": 200,
+        "currency": "EGP",
+        "unit": "per_piece"
+      }
+    }
+  ]
+}

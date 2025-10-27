@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "261555413721",
+    "project_id": "planz-app",
+    "storage_bucket": "planz-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:261555413721:android:2fa06b24ca4fc3d7e0d4c8",
+        "android_client_info": {
+          "package_name": "com.example.plan_z"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDuLNn8x_n1kpGUcyF1i9PG_zZYizBqqkQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

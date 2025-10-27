@@ -21,7 +21,7 @@ class OwnerDashboard extends StatelessWidget {
                 "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTqNbKVTGAWlEe65Ao0ILXrAQzupIZOpp6qYw&s",
               ),
             ),
-          ),
+          )
         ],
       ),
       body: SingleChildScrollView(
@@ -119,26 +119,22 @@ class OwnerDashboard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   GestureDetector(
-                    onTap: () {},
+                    onTap: (){},
                     child: Text(
                       'All Events',
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ),
                   GestureDetector(
-                    onTap: () {},
-                    child: Text(
-                      'Active',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
+                    onTap: (){},
+                    child: Text('Active',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
                   ),
                   Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 5,
-                    ),
+                    padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                     child: GestureDetector(
-                      onTap: () {},
+                      onTap: (){},
                       child: Text(
                         'Pending',
                         style: TextStyle(
@@ -153,7 +149,7 @@ class OwnerDashboard extends StatelessWidget {
                     ),
                   ),
                   GestureDetector(
-                    onTap: () {},
+                    onTap: (){},
                     child: Text(
                       'Completed',
                       style: TextStyle(fontWeight: FontWeight.bold),
@@ -168,15 +164,14 @@ class OwnerDashboard extends StatelessWidget {
                 padding: const EdgeInsets.all(16),
                 itemCount: 3,
                 shrinkWrap: true, // important for SingleChildScrollView
-                physics:
-                    const NeverScrollableScrollPhysics(), // disables nested scroll
+                physics: const NeverScrollableScrollPhysics(), // disables nested scroll
                 itemBuilder: (context, index) {
                   return eventCard(
                     title: 'Grand Wedding Gala',
                     date: 'Oct 26, 2024 • 7:00 PM',
                     attendeesNumber: '150 Attendees',
                     imagePath:
-                        'https://static.vecteezy.com/system/resources/thumbnails/041/388/388/small/ai-generated-concert-crowd-enjoying-live-music-event-photo.jpg',
+                    'https://static.vecteezy.com/system/resources/thumbnails/041/388/388/small/ai-generated-concert-crowd-enjoying-live-music-event-photo.jpg',
                   );
                 },
               ),
@@ -190,9 +185,8 @@ class OwnerDashboard extends StatelessWidget {
                     style: TextStyle(color: AppColors.primaryDark),
                   ),
                   icon: Icon(Icons.add, color: AppColors.primaryDark),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                  ),
+                  style:
+                  ElevatedButton.styleFrom(backgroundColor: Colors.white),
                 ),
               ),
             ],
@@ -228,7 +222,8 @@ Widget eventCard({
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ClipRRect(
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+            borderRadius:
+            const BorderRadius.vertical(top: Radius.circular(12)),
             child: Image.network(
               imagePath,
               height: 110,
@@ -245,12 +240,10 @@ Widget eventCard({
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 5,
-                      ),
+                      padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                       child: GestureDetector(
-                        onTap: () {},
+                        onTap: (){},
                         child: Text(
                           'Pending',
                           style: TextStyle(

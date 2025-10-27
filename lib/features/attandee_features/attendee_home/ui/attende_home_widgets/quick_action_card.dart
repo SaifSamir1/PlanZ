@@ -6,54 +6,74 @@ class QuickActionCard extends StatelessWidget {
     super.key,
     required this.icon,
     required this.title,
-    required this.subtitle,
+    required this.subtitle, this.onTap,
   });
+
   final IconData icon;
   final String title;
-  final  String subtitle;
+  final String subtitle;
+  final Function()? onTap;
+
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 160,
+      height: 180,
       child: Card(
-        elevation: 0.3,
+        elevation: 1,
         color: AppColors.background,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
-          side: BorderSide(color: Colors.grey[200]!, width: 0.5),
+          side: BorderSide(color: Colors.grey[200]!, width: 1),
         ),
-
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 5),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-
-              children: [
-                CircleAvatar(
-                  backgroundColor: AppColors.buttonPrimary,
-                  child: IconButton(
-                    icon: Icon(icon, color: AppColors.background),
-                    onPressed: () {},
+        child: Material(
+          color: Colors.transparent,
+          borderRadius: BorderRadius.circular(16),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(16),
+            onTap:onTap ,
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: AppColors.buttonPrimary,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(
+                      icon,
+                      color: AppColors.background,
+                      size: 24,
+                    ),
                   ),
-                ),
-                SizedBox(height: 5),
-                Text(
-                  title,
-                  style: TextStyle(
-                    color: AppColors.blue900,
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold,
+                  const SizedBox(height: 12),
+                  Text(
+                    title,
+                    style: TextStyle(
+                      color: AppColors.blue900,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  textAlign: TextAlign.center,
-                ),
-                SizedBox(height: 5),
-                Text(
-                  subtitle,
-                  style: TextStyle(color: AppColors.neutralGray),
-                  textAlign: TextAlign.center,
-                ),
-              ],
+                  const SizedBox(height: 4),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      color: AppColors.neutralGray,
+                      fontSize: 12,
+                    ),
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
             ),
           ),
         ),
