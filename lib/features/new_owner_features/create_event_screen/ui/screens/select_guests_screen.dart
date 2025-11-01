@@ -1,10 +1,14 @@
 // lib/features/new_owner_features/invitations/ui/screens/select_guests_screen.dart
 
 import 'package:flutter/material.dart';
-import 'package:plan_z/core/theming/text_styles.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import 'package:plan_z/core/utils/app_colors.dart';
 import 'package:plan_z/core/widgets/custom_app_bar.dart';
-import 'package:plan_z/features/new_owner_features/create_event_screen/ui/screens/invite_via_whatsapp_screen.dart';
+import 'package:plan_z/features/new_owner_features/create_event_screen/cubits/create_event_cubit/create_event_cubit.dart';
+import 'package:plan_z/features/auth/data/models/user_model.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class SelectGuestsScreen extends StatefulWidget {
   final String eventId;
@@ -25,86 +29,25 @@ class SelectGuestsScreen extends StatefulWidget {
 }
 
 class _SelectGuestsScreenState extends State<SelectGuestsScreen> {
+  /// ============================================
+  /// Variables
+  /// ============================================
   final TextEditingController _searchController = TextEditingController();
-  final Set<String> selectedGuests = {};
-  String searchQuery = '';
+  final Set<String> _selectedGuestIds = {};
+  String _searchQuery = '';
+  bool _isSendingInvitations = false;
+  bool _isLoadingAttendees = true;
 
-  // Mock Data - App Users (Attendees)
-  final List<Map<String, dynamic>> mockUsers = [
-    {
-      'id': 'user_001',
-      'name': 'Ahmed Mohamed',
-      'nameAr': 'أحمد محمد',
-      'phone': '+201012345678',
-      'email': 'ahmed@example.com',
-      'avatar': 'https://ui-avatars.com/api/?name=Ahmed+Mohamed&background=E3C100&color=fff',
-      'eventsAttended': 5,
-      'isInvited': false,
-    },
-    {
-      'id': 'user_002',
-      'name': 'Sara Ali',
-      'nameAr': 'سارة علي',
-      'phone': '+201123456789',
-      'email': 'sara@example.com',
-      'avatar': 'https://ui-avatars.com/api/?name=Sara+Ali&background=21225b&color=fff',
-      'eventsAttended': 3,
-      'isInvited': true,
-    },
-    {
-      'id': 'user_003',
-      'name': 'Mohamed Hassan',
-      'nameAr': 'محمد حسن',
-      'phone': '+201234567890',
-      'email': 'mohamed@example.com',
-      'avatar': 'https://ui-avatars.com/api/?name=Mohamed+Hassan&background=E3C100&color=fff',
-      'eventsAttended': 8,
-      'isInvited': false,
-    },
-    {
-      'id': 'user_004',
-      'name': 'Fatima Ibrahim',
-      'nameAr': 'فاطمة إبراهيم',
-      'phone': '+201345678901',
-      'email': 'fatima@example.com',
-      'avatar': 'https://ui-avatars.com/api/?name=Fatima+Ibrahim&background=21225b&color=fff',
-      'eventsAttended': 12,
-      'isInvited': false,
-    },
-    {
-      'id': 'user_005',
-      'name': 'Omar Khaled',
-      'nameAr': 'عمر خالد',
-      'phone': '+201456789012',
-      'email': 'omar@example.com',
-      'avatar': 'https://ui-avatars.com/api/?name=Omar+Khaled&background=E3C100&color=fff',
-      'eventsAttended': 2,
-      'isInvited': false,
-    },
-    {
-      'id': 'user_006',
-      'name': 'Nour Ahmed',
-      'nameAr': 'نور أحمد',
-      'phone': '+201567890123',
-      'email': 'nour@example.com',
-      'avatar': 'https://ui-avatars.com/api/?name=Nour+Ahmed&background=21225b&color=fff',
-      'eventsAttended': 6,
-      'isInvited': true,
-    },
-  ];
+  // ✅ Real Data من Firebase - Attendees Collection
+  List<UserModel> _attendeesList = [];
+  List<UserModel> _filteredAttendees = [];
+  Set<String> _alreadyInvitedIds = {};
 
-  List<Map<String, dynamic>> get filteredUsers {
-    if (searchQuery.isEmpty) return mockUsers;
-    return mockUsers.where((user) {
-      final name = user['name'].toString().toLowerCase();
-      final phone = user['phone'].toString();
-      final query = searchQuery.toLowerCase();
-      return name.contains(query) || phone.contains(query);
-    }).toList();
+  @override
+  void initState() {
+    super.initState();
+    _loadAttendees();
   }
-
-  int get selectedCount => selectedGuests.length;
-  int get alreadyInvitedCount => mockUsers.where((u) => u['isInvited']).length;
 
   @override
   void dispose() {
@@ -112,15 +55,108 @@ class _SelectGuestsScreenState extends State<SelectGuestsScreen> {
     super.dispose();
   }
 
+  /// ✅ Load Attendees من Firebase
+  Future<void> _loadAttendees() async {
+    try {
+      debugPrint('📥 Loading attendees from Firebase...');
+
+      // ✅ جلب جميع الـ Attendees من collection
+      final FirebaseFirestore firestore = FirebaseFirestore.instance;
+
+      // ✅ اقرأ من attendees collection
+      final QuerySnapshot snapshot =
+          await firestore.collection('attendees').get();
+
+      if (snapshot.docs.isEmpty) {
+        debugPrint('❌ No attendees found');
+        setState(() {
+          _isLoadingAttendees = false;
+          _attendeesList = [];
+          _filteredAttendees = [];
+        });
+        return;
+      }
+
+      // ✅ تحويل البيانات إلى UserModel
+      final List<UserModel> attendees = [];
+      for (final doc in snapshot.docs) {
+        try {
+          final user = UserModel.fromJson(doc.data() as Map<String, dynamic>);
+          attendees.add(user);
+        } catch (e) {
+          debugPrint('⚠️ Error parsing attendee: $e');
+        }
+      }
+
+      // ✅ جلب الـ Already Invited (من event_invitations)
+      final invitationsSnapshot = await firestore
+          .collection('event_invitations')
+          .where('eventId', isEqualTo: widget.eventId)
+          .get();
+
+      final Set<String> invitedIds = {};
+      for (final doc in invitationsSnapshot.docs) {
+        final attendeeId = doc.data()['attendeeId'] as String?;
+        if (attendeeId != null) {
+          invitedIds.add(attendeeId);
+        }
+      }
+
+      debugPrint('✅ Loaded ${attendees.length} attendees');
+      debugPrint('✅ Already invited: ${invitedIds.length}');
+
+      setState(() {
+        _attendeesList = attendees;
+        _filteredAttendees = attendees;
+        _alreadyInvitedIds = invitedIds;
+        _isLoadingAttendees = false;
+      });
+    } catch (e) {
+      debugPrint('❌ Error loading attendees: $e');
+      _showError('Failed to load attendees: $e');
+      setState(() {
+        _isLoadingAttendees = false;
+      });
+    }
+  }
+
+  /// ✅ Filter Attendees based on Search Query
+  void _filterAttendees(String query) {
+    setState(() {
+      _searchQuery = query;
+
+      if (query.isEmpty) {
+        _filteredAttendees = _attendeesList;
+        return;
+      }
+
+      final lowerQuery = query.toLowerCase();
+      _filteredAttendees = _attendeesList.where((attendee) {
+        final name = attendee.name.toLowerCase();
+        final email = attendee.email.toLowerCase();
+        final phone = attendee.phoneNumber ?? '';
+
+        return name.contains(lowerQuery) ||
+            email.contains(lowerQuery) ||
+            phone.contains(lowerQuery);
+      }).toList();
+    });
+  }
+
+  /// ✅ Statistics
+  int get _selectedCount => _selectedGuestIds.length;
+  int get _alreadyInvitedCount => _alreadyInvitedIds.length;
+  int get _availableCount =>
+      _attendeesList.length - _alreadyInvitedCount;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Colors.white,
       appBar: CustomAppBar(
         title: 'Select Guests',
-        showBackButton: true,
         actions: [
-          if (selectedCount > 0)
+          if (_selectedCount > 0)
             Center(
               child: Container(
                 margin: const EdgeInsets.only(right: 16),
@@ -130,7 +166,7 @@ class _SelectGuestsScreenState extends State<SelectGuestsScreen> {
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
-                  '$selectedCount Selected',
+                  '$_selectedCount Selected',
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 14,
@@ -141,45 +177,59 @@ class _SelectGuestsScreenState extends State<SelectGuestsScreen> {
             ),
         ],
       ),
-      body: Column(
-        children: [
-          // Event Info Header
-          _buildEventInfoHeader(),
-          
-          // Search Bar
-          _buildSearchBar(),
-          
-          // Stats
-          _buildStats(),
-          
-          // Users List
-          Expanded(
-            child: filteredUsers.isEmpty
-                ? _buildEmptyState()
-                : ListView.builder(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: filteredUsers.length,
-                    itemBuilder: (context, index) {
-                      return _buildUserCard(filteredUsers[index]);
-                    },
-                  ),
-          ),
-        ],
-      ),
+      body: _isLoadingAttendees
+          ? const Center(
+              child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  AppColors.primaryGold,
+                ),
+              ),
+            )
+          : Column(
+              children: [
+                // ✅ Event Info Header
+                _buildEventInfoHeader(),
+
+                // ✅ Search Bar
+                _buildSearchBar(),
+
+                // ✅ Stats
+                _buildStats(),
+
+                // ✅ Users List
+                Expanded(
+                  child: _filteredAttendees.isEmpty
+                      ? _buildEmptyState()
+                      : ListView.builder(
+                          padding: const EdgeInsets.all(16),
+                          itemCount: _filteredAttendees.length,
+                          itemBuilder: (context, index) {
+                            return _buildAttendeeCard(
+                              _filteredAttendees[index],
+                              index,
+                            );
+                          },
+                        ),
+                ),
+              ],
+            ),
       bottomNavigationBar: _buildBottomBar(),
     );
   }
 
+  /// ============================================
+  /// Event Info Header
+  /// ============================================
   Widget _buildEventInfoHeader() {
+    final formattedDate = DateFormat('MMM d, yyyy').format(widget.eventDate);
+
     return Container(
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
           colors: [
-            AppColors.primaryGold.withOpacity(0.1),
+            AppColors.primaryGold.withOpacity(0.15),
             AppColors.primaryGold.withOpacity(0.05),
           ],
         ),
@@ -210,17 +260,20 @@ class _SelectGuestsScreenState extends State<SelectGuestsScreen> {
               children: [
                 Text(
                   widget.eventName,
-                  style: AppTextStyles.title.copyWith(
+                  style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
+                    color: AppColors.primaryDark,
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '${widget.eventDate.day}/${widget.eventDate.month}/${widget.eventDate.year}',
-                  style: AppTextStyles.body.copyWith(
-                    color: AppColors.textSecondary,
+                  formattedDate,
+                  style: TextStyle(
                     fontSize: 13,
+                    color: Colors.grey[600],
                   ),
                 ),
               ],
@@ -231,57 +284,36 @@ class _SelectGuestsScreenState extends State<SelectGuestsScreen> {
     );
   }
 
-  IconData _getEventIcon() {
-    switch (widget.eventType) {
-      case 'Wedding':
-        return Icons.favorite;
-      case 'Birthday':
-        return Icons.cake;
-      case 'Corporate':
-        return Icons.business;
-      case 'Engagement':
-        return Icons.diamond;
-      default:
-        return Icons.event;
-    }
-  }
-
+  /// ============================================
+  /// Search Bar
+  /// ============================================
   Widget _buildSearchBar() {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Colors.grey[50],
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        border: Border.all(color: Colors.grey[300]!),
       ),
       child: TextField(
         controller: _searchController,
-        onChanged: (value) {
-          setState(() {
-            searchQuery = value;
-          });
-        },
+        onChanged: _filterAttendees,
         decoration: InputDecoration(
-          hintText: 'Search by name or phone...',
-          hintStyle: AppTextStyles.body.copyWith(
-            color: AppColors.textSecondary.withOpacity(0.5),
+          hintText: 'Search by name, email or phone...',
+          hintStyle: TextStyle(
+            color: Colors.grey[600],
+            fontSize: 14,
           ),
           border: InputBorder.none,
           icon: const Icon(Icons.search, color: AppColors.primaryGold),
-          suffixIcon: searchQuery.isNotEmpty
+          suffixIcon: _searchQuery.isNotEmpty
               ? IconButton(
-                  icon: const Icon(Icons.clear, color: AppColors.textSecondary),
+                  icon: const Icon(Icons.clear, color: Colors.grey),
                   onPressed: () {
                     setState(() {
                       _searchController.clear();
-                      searchQuery = '';
+                      _filterAttendees('');
                     });
                   },
                 )
@@ -291,34 +323,38 @@ class _SelectGuestsScreenState extends State<SelectGuestsScreen> {
     );
   }
 
+  /// ============================================
+  /// Stats
+  /// ============================================
   Widget _buildStats() {
     return Container(
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Colors.grey[50],
         borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey[200]!),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           _buildStatItem(
             'Total Users',
-            mockUsers.length.toString(),
+            _attendeesList.length.toString(),
             Icons.people,
-            AppColors.primaryDark,
+            Colors.blue,
           ),
           _buildStatDivider(),
           _buildStatItem(
-            'Already Invited',
-            alreadyInvitedCount.toString(),
+            'Invited',
+            _alreadyInvitedCount.toString(),
             Icons.check_circle,
-            AppColors.success,
+            Colors.green,
           ),
           _buildStatDivider(),
           _buildStatItem(
             'Available',
-            (mockUsers.length - alreadyInvitedCount).toString(),
+            _availableCount.toString(),
             Icons.person_add,
             AppColors.primaryGold,
           ),
@@ -327,6 +363,9 @@ class _SelectGuestsScreenState extends State<SelectGuestsScreen> {
     );
   }
 
+  /// ============================================
+  /// Stat Item
+  /// ============================================
   Widget _buildStatItem(String label, String value, IconData icon, Color color) {
     return Column(
       children: [
@@ -334,34 +373,40 @@ class _SelectGuestsScreenState extends State<SelectGuestsScreen> {
         const SizedBox(height: 4),
         Text(
           value,
-          style: AppTextStyles.title.copyWith(
-            fontSize: 20,
+          style: TextStyle(
+            fontSize: 18,
             fontWeight: FontWeight.bold,
             color: color,
           ),
         ),
         Text(
           label,
-          style: AppTextStyles.body.copyWith(
+          style: TextStyle(
             fontSize: 11,
-            color: AppColors.textSecondary,
+            color: Colors.grey[600],
           ),
         ),
       ],
     );
   }
 
+  /// ============================================
+  /// Stat Divider
+  /// ============================================
   Widget _buildStatDivider() {
     return Container(
       width: 1,
       height: 40,
-      color: AppColors.textSecondary.withOpacity(0.2),
+      color: Colors.grey[300],
     );
   }
 
-  Widget _buildUserCard(Map<String, dynamic> user) {
-    final bool isSelected = selectedGuests.contains(user['id']);
-    final bool isInvited = user['isInvited'];
+  /// ============================================
+  /// Attendee Card
+  /// ============================================
+  Widget _buildAttendeeCard(UserModel attendee, int index) {
+    final isSelected = _selectedGuestIds.contains(attendee.id);
+    final isInvited = _alreadyInvitedIds.contains(attendee.id);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -372,15 +417,15 @@ class _SelectGuestsScreenState extends State<SelectGuestsScreen> {
           color: isSelected
               ? AppColors.primaryGold
               : isInvited
-                  ? AppColors.success.withOpacity(0.3)
-                  : AppColors.textSecondary.withOpacity(0.1),
+                  ? Colors.green.withOpacity(0.3)
+                  : Colors.grey[200]!,
           width: isSelected ? 2 : 1,
         ),
         boxShadow: [
           if (isSelected)
             BoxShadow(
               color: AppColors.primaryGold.withOpacity(0.2),
-              blurRadius: 10,
+              blurRadius: 8,
               offset: const Offset(0, 2),
             ),
         ],
@@ -393,9 +438,9 @@ class _SelectGuestsScreenState extends State<SelectGuestsScreen> {
               : () {
                   setState(() {
                     if (isSelected) {
-                      selectedGuests.remove(user['id']);
+                      _selectedGuestIds.remove(attendee.id);
                     } else {
-                      selectedGuests.add(user['id']);
+                      _selectedGuestIds.add(attendee.id);
                     }
                   });
                 },
@@ -404,12 +449,20 @@ class _SelectGuestsScreenState extends State<SelectGuestsScreen> {
             padding: const EdgeInsets.all(12),
             child: Row(
               children: [
-                // Avatar
+                // ✅ Avatar with Status
                 Stack(
                   children: [
                     CircleAvatar(
-                      radius: 30,
-                      backgroundImage: NetworkImage(user['avatar']),
+                      radius: 28,
+                      backgroundColor: Colors.grey[300],
+                      child: Text(
+                        attendee.name[0].toUpperCase(),
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
                     ),
                     if (isInvited)
                       Positioned(
@@ -418,7 +471,7 @@ class _SelectGuestsScreenState extends State<SelectGuestsScreen> {
                         child: Container(
                           padding: const EdgeInsets.all(4),
                           decoration: const BoxDecoration(
-                            color: AppColors.success,
+                            color: Colors.green,
                             shape: BoxShape.circle,
                           ),
                           child: const Icon(
@@ -430,75 +483,91 @@ class _SelectGuestsScreenState extends State<SelectGuestsScreen> {
                       ),
                   ],
                 ),
-                
                 const SizedBox(width: 12),
-                
-                // User Info
+
+                // ✅ User Info
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        user['name'],
-                        style: AppTextStyles.body.copyWith(
-                          fontWeight: FontWeight.bold,
+                        attendee.name,
+                        style: const TextStyle(
                           fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.primaryDark,
                         ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 4),
+                      // Email
                       Row(
                         children: [
                           Icon(
-                            Icons.phone,
-                            size: 14,
-                            color: AppColors.textSecondary,
+                            Icons.email,
+                            size: 13,
+                            color: Colors.grey[600],
                           ),
                           const SizedBox(width: 4),
-                          Text(
-                            user['phone'],
-                            style: AppTextStyles.body.copyWith(
-                              color: AppColors.textSecondary,
-                              fontSize: 13,
+                          Expanded(
+                            child: Text(
+                              attendee.email,
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: Colors.grey[600],
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         ],
                       ),
                       const SizedBox(height: 4),
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.event,
-                            size: 14,
-                            color: AppColors.primaryGold,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            '${user['eventsAttended']} events attended',
-                            style: AppTextStyles.body.copyWith(
-                              color: AppColors.primaryGold,
-                              fontSize: 12,
+                      // Phone
+                      if (attendee.phoneNumber != null)
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.phone,
+                              size: 13,
+                              color: Colors.grey[600],
                             ),
-                          ),
-                        ],
-                      ),
+                            const SizedBox(width: 4),
+                            Expanded(
+                              child: Text(
+                                attendee.phoneNumber ?? 'N/A',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  color: Colors.grey[600],
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
                     ],
                   ),
                 ),
-                
-                // Selection/Status
+
+                // ✅ Selection/Status Indicator
                 if (isInvited)
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: AppColors.success.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
                     ),
-                    child: Text(
+                    decoration: BoxDecoration(
+                      color: Colors.green.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: const Text(
                       'Invited',
-                      style: AppTextStyles.body.copyWith(
-                        color: AppColors.success,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.green,
                       ),
                     ),
                   )
@@ -508,9 +577,9 @@ class _SelectGuestsScreenState extends State<SelectGuestsScreen> {
                     onChanged: (value) {
                       setState(() {
                         if (value!) {
-                          selectedGuests.add(user['id']);
+                          _selectedGuestIds.add(attendee.id);
                         } else {
-                          selectedGuests.remove(user['id']);
+                          _selectedGuestIds.remove(attendee.id);
                         }
                       });
                     },
@@ -527,29 +596,36 @@ class _SelectGuestsScreenState extends State<SelectGuestsScreen> {
     );
   }
 
+  /// ============================================
+  /// Empty State
+  /// ============================================
   Widget _buildEmptyState() {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
-            Icons.person_off,
-            size: 80,
-            color: AppColors.textSecondary.withOpacity(0.3),
+            Icons.person_off_rounded,
+            size: 64,
+            color: Colors.grey[300],
           ),
           const SizedBox(height: 16),
-          Text(
+          const Text(
             'No Users Found',
-            style: AppTextStyles.title.copyWith(
-              color: AppColors.textSecondary,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: AppColors.primaryDark,
             ),
           ),
           const SizedBox(height: 8),
           Text(
-            'Try a different search',
-            style: AppTextStyles.body.copyWith(
-              color: AppColors.textSecondary,
-              fontSize: 14,
+            _searchQuery.isEmpty
+                ? 'No attendees available'
+                : 'Try a different search',
+            style: TextStyle(
+              fontSize: 13,
+              color: Colors.grey[600],
             ),
           ),
         ],
@@ -557,6 +633,9 @@ class _SelectGuestsScreenState extends State<SelectGuestsScreen> {
     );
   }
 
+  /// ============================================
+  /// Bottom Bar
+  /// ============================================
   Widget _buildBottomBar() {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -573,59 +652,68 @@ class _SelectGuestsScreenState extends State<SelectGuestsScreen> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Send Invitations Button
-          if (selectedCount > 0)
+          // ✅ Send Invitations Button
+          if (_selectedCount > 0)
             SizedBox(
               width: double.infinity,
-              height: 50,
-              child: ElevatedButton(
-                onPressed: _sendInvitations,
+              height: 52,
+              child: ElevatedButton.icon(
+                onPressed: _isSendingInvitations ? null : _sendInvitations,
+                icon: _isSendingInvitations
+                    ? SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation(
+                            Colors.white.withOpacity(0.8),
+                          ),
+                        ),
+                      )
+                    : const Icon(Icons.send),
+                label: Text(
+                  _isSendingInvitations
+                      ? 'Sending...'
+                      : 'Send Invitations to $_selectedCount',
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primaryGold,
+                  foregroundColor: Colors.white,
+                  disabledBackgroundColor: Colors.grey[400],
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: Text(
-                  'Send Invitations to $selectedCount Guests',
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
               ),
             ),
-          
-          if (selectedCount > 0) const SizedBox(height: 12),
-          
-          // Invite via WhatsApp Button
+          if (_selectedCount > 0) const SizedBox(height: 12),
+
+          // ✅ Skip Button
           SizedBox(
             width: double.infinity,
-            height: 50,
+            height: 52,
             child: OutlinedButton.icon(
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => InviteViaWhatsAppScreen(
-                      eventId: widget.eventId,
-                      eventName: widget.eventName,
-                      eventDate: widget.eventDate,
-                    ),
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Skipped sending invitations'),
+                    duration: Duration(seconds: 2),
                   ),
                 );
               },
-              icon: const Icon(Icons.phone, color: AppColors.primaryDark),
-              label: const Text(
-                'Invite via WhatsApp',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.primaryDark,
-                ),
-              ),
+              icon: const Icon(Icons.close),
+              label: const Text('Skip for Now'),
               style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: AppColors.primaryDark, width: 2),
+                foregroundColor: AppColors.primaryDark,
+                side: const BorderSide(
+                  color: AppColors.primaryDark,
+                  width: 1.5,
+                ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -637,41 +725,190 @@ class _SelectGuestsScreenState extends State<SelectGuestsScreen> {
     );
   }
 
-  void _sendInvitations() {
+  /// ============================================
+  /// Send Invitations Method ✅
+  /// ============================================
+  Future<void> _sendInvitations() async {
+    if (_selectedCount == 0) {
+      _showError('Please select at least one guest');
+      return;
+    }
+
+    setState(() => _isSendingInvitations = true);
+
+    try {
+      final currentUser = FirebaseAuth.instance.currentUser;
+      if (currentUser == null) {
+        _showError('User not authenticated');
+        setState(() => _isSendingInvitations = false);
+        return;
+      }
+
+      debugPrint('📨 Sending invitations to $_selectedCount guests...');
+
+      // ✅ Prepare Invitee Data from selected attendees
+      final List<Map<String, dynamic>> inviteesData = [];
+
+      for (final attendeeId in _selectedGuestIds) {
+        final attendee = _attendeesList.firstWhere(
+          (a) => a.id == attendeeId,
+          orElse: () => UserModel(
+            id: '',
+            name: '',
+            email: '',
+            userType: UserType.attendee,
+            isActive: true,
+          ),
+        );
+
+        if (attendee.id.isNotEmpty) {
+          inviteesData.add({
+            'attendeeId': attendee.id,
+            'inviteeName': attendee.name,
+            'inviteeEmail': attendee.email,
+            'inviteePhone': attendee.phoneNumber ?? '',
+            'invitationType': 'inApp',
+            'guestCount': 1,
+          });
+        }
+      }
+
+      debugPrint('✅ Invitees Data prepared: ${inviteesData.length} guests');
+
+      // ✅ Call Cubit to Send Bulk Invitations
+      if (!mounted) return;
+
+      context.read<EventOwnerCubit>().sendBulkInvitations(
+            eventId: widget.eventId,
+            eventName: widget.eventName,
+            eventOwnerId: currentUser.uid,
+            eventOwnerName: currentUser.displayName ?? 'Event Owner',
+            invitees: inviteesData,
+          );
+
+      // ✅ Show Success Dialog
+      if (!mounted) return;
+      _showSuccessDialog();
+    } catch (e) {
+      debugPrint('❌ Error sending invitations: $e');
+      _showError('Failed to send invitations: ${e.toString()}');
+      setState(() => _isSendingInvitations = false);
+    }
+  }
+
+  /// ============================================
+  /// Success Dialog
+  /// ============================================
+  void _showSuccessDialog() {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Send Invitations?'),
-        content: Text(
-          'You are about to send invitations to $selectedCount guests for "${widget.eventName}".',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              // TODO: Send invitations logic
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Invitations sent to $selectedCount guests!'),
-                  backgroundColor: AppColors.success,
+      barrierDismissible: false,
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.green.withOpacity(0.15),
+                  shape: BoxShape.circle,
                 ),
-              );
-              setState(() {
-                selectedGuests.clear();
-              });
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primaryGold,
-            ),
-            child: const Text('Send'),
+                child: const Icon(
+                  Icons.check_circle,
+                  color: Colors.green,
+                  size: 48,
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Invitations Sent! ✅',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.primaryDark,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Sent to $_selectedCount guests successfully',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey[600],
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                height: 48,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    setState(() {
+                      _selectedGuestIds.clear();
+                      _isSendingInvitations = false;
+                    });
+                    Navigator.pop(context);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text(
+                    'Done',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
+  }
+
+  /// ============================================
+  /// Error Message
+  /// ============================================
+  void _showError(String message) {
+    setState(() => _isSendingInvitations = false);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+        duration: const Duration(seconds: 3),
+      ),
+    );
+  }
+
+  /// ============================================
+  /// Helper Methods
+  /// ============================================
+  IconData _getEventIcon() {
+    switch (widget.eventType) {
+      case 'Wedding':
+        return Icons.favorite;
+      case 'Birthday':
+        return Icons.cake;
+      case 'Corporate':
+        return Icons.business;
+      case 'Engagement':
+        return Icons.diamond;
+      case 'Conference':
+        return Icons.school;
+      case 'Party':
+        return Icons.celebration;
+      default:
+        return Icons.event;
+    }
   }
 }

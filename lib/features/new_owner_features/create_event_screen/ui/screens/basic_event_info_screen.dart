@@ -2,7 +2,11 @@
 
 import 'package:flutter/material.dart';
 import 'package:plan_z/core/utils/app_colors.dart';
+import 'package:plan_z/features/new_owner_features/create_event_screen/cubits/event_creation_cubit/event_creation_cubit.dart';
 import 'package:plan_z/features/new_owner_features/create_event_screen/ui/screens/budget_setup_screen.dart';
+// lib/features/events/presentation/screens/basic_event_info_screen.dart
+
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class BasicEventInfoScreen extends StatefulWidget {
   final Map<String, dynamic> eventType;
@@ -18,17 +22,38 @@ class BasicEventInfoScreen extends StatefulWidget {
 
 class _BasicEventInfoScreenState extends State<BasicEventInfoScreen> {
   final _formKey = GlobalKey<FormState>();
-  
+
   // Controllers
   final _eventNameController = TextEditingController();
   final _guestCountController = TextEditingController();
   final _additionalNotesController = TextEditingController();
-  
+
   // Form Values
   DateTime? _selectedDate;
   TimeOfDay? _selectedTime;
   String? _selectedCity;
   String? _selectedArea;
+
+  // Mock Cities and Areas (يمكن استبدالها بـ JSON أو API)
+  final List<String> _cities = [
+    'Cairo',
+    'Giza',
+    'Alexandria',
+    'Sharm El Sheikh',
+    'Hurghada',
+    'Luxor',
+    'Aswan',
+  ];
+
+  final Map<String, List<String>> _areas = {
+    'Cairo': ['Nasr City', 'Heliopolis', 'Maadi', 'Zamalek', 'Downtown'],
+    'Giza': ['6th October', 'Sheikh Zayed', 'Dokki', 'Mohandessin'],
+    'Alexandria': ['Miami', 'Smouha', 'Stanley', 'Sidi Gaber'],
+    'Sharm El Sheikh': ['Naama Bay', 'Sharks Bay', 'Hadaba'],
+    'Hurghada': ['Sakkala', 'Dahar', 'Marina'],
+    'Luxor': ['East Bank', 'West Bank'],
+    'Aswan': ['City Center', 'Nile Corniche'],
+  };
 
   @override
   void dispose() {
@@ -42,290 +67,316 @@ class _BasicEventInfoScreenState extends State<BasicEventInfoScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: _buildAppBar(),
-      body: SafeArea(
-        child: Column(
+      appBar: AppBar(
+        backgroundColor: AppColors.primaryDark,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: const Text(
+          'Basic Event Info',
+          style: TextStyle(color: Colors.white),
+        ),
+      ),
+      body: Form(
+        key: _formKey,
+        child: ListView(
+          padding: const EdgeInsets.all(20.0),
           children: [
-            // Progress Indicator
-            _buildProgressIndicator(),
+            // Event Type Summary Card
+            _buildEventTypeSummaryCard(),
+            const SizedBox(height: 24),
 
-            // Form Content
-            Expanded(
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.all(20.0),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Section Title
-                      _buildSectionTitle(),
+            // Event Name Field
+            _buildEventNameField(),
+            const SizedBox(height: 16),
 
-                      const SizedBox(height: 24),
-
-                      // Event Name Field
-                      _buildEventNameField(),
-
-                      const SizedBox(height: 20),
-
-                      // Event Date Field
-                      _buildEventDateField(),
-
-                      const SizedBox(height: 20),
-
-                      // Event Time Field
-                      _buildEventTimeField(),
-
-                      const SizedBox(height: 20),
-
-                      // Location Section
-                      _buildLocationSection(),
-
-                      const SizedBox(height: 20),
-
-                      // Guest Count Field
-                      _buildGuestCountField(),
-
-                      const SizedBox(height: 20),
-
-                      // Additional Notes Field
-                      _buildAdditionalNotesField(),
-
-                      const SizedBox(height: 32),
-
-                      // Next Button
-                      _buildNextButton(),
-
-                      const SizedBox(height: 20),
-                    ],
-                  ),
-                ),
-              ),
+            // Date & Time Row
+            Row(
+              children: [
+                Expanded(child: _buildDateField()),
+                const SizedBox(width: 12),
+                Expanded(child: _buildTimeField()),
+              ],
             ),
+            const SizedBox(height: 16),
+
+            // City Dropdown
+            _buildCityDropdown(),
+            const SizedBox(height: 16),
+
+            // Area Dropdown
+            _buildAreaDropdown(),
+            const SizedBox(height: 16),
+
+            // Guest Count Field
+            _buildGuestCountField(),
+            const SizedBox(height: 16),
+
+            // Additional Notes Field
+            _buildAdditionalNotesField(),
+            const SizedBox(height: 32),
+
+            // Continue Button
+            _buildContinueButton(),
           ],
         ),
       ),
     );
   }
+ /// ✅ Helper to build icon (supports emoji or asset path)
+  Widget _buildIcon(dynamic icon) {
+    if (icon == null) {
+      return const Icon(Icons.event, size: 48, color: AppColors.primaryDark);
+    }
 
-  /// AppBar
-  PreferredSizeWidget _buildAppBar() {
-    return AppBar(
-      backgroundColor: AppColors.primaryDark,
-      elevation: 0,
-      leading: IconButton(
-        icon: const Icon(
-          Icons.arrow_back_ios,
-          color: AppColors.textLight,
-        ),
-        onPressed: () => Navigator.pop(context),
-      ),
-      title: const Text(
-        'Event Information',
-        style: TextStyle(
-          color: AppColors.textLight,
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-      centerTitle: true,
+    final iconStr = icon.toString();
+
+    // Check if it's an asset path
+    if (iconStr.startsWith('assets/')) {
+      return Image.asset(
+        iconStr,
+        width: 15,
+        height: 15,
+        fit: BoxFit.contain,
+        color: AppColors.primaryDark, // ✅ Tint icon white
+        colorBlendMode: BlendMode.srcIn,
+        errorBuilder: (context, error, stackTrace) {
+          return const Icon(Icons.event, size: 48, color: AppColors.primaryDark);
+        },
+      );
+    }
+
+    // Otherwise, it's an emoji
+    return Text(
+      iconStr,
+      style: const TextStyle(fontSize: 40),
     );
   }
 
-  /// Progress Indicator Widget
-  Widget _buildProgressIndicator() {
+  /// Event Type Summary Card
+  Widget _buildEventTypeSummaryCard() {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.background,
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.shadow,
-            blurRadius: 4,
-            offset: const Offset(0, 2),
+        color: AppColors.cardBackground,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.primaryGold, width: 1.5),
+      ),
+      child: Row(
+        children: [
+          _buildIcon(widget.eventType['icon']),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  widget.eventType['eventTypeName'] ?? 'Event',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  widget.eventType['description'] ?? '',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppColors.textSecondary,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
           ),
         ],
       ),
-      child: const StepProgressIndicator(
-        currentStep: 2,
-        totalSteps: 8,
-      ),
-    );
-  }
-
-  /// Section Title
-  Widget _buildSectionTitle() {
-    return Row(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: AppColors.primaryGold.withOpacity(0.15),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: const Icon(
-            Icons.description_outlined,
-            color: AppColors.primaryGold,
-            size: 24,
-          ),
-        ),
-        const SizedBox(width: 12),
-        const Text(
-          'Event Details',
-          style: TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
-            color: AppColors.textPrimary,
-          ),
-        ),
-      ],
     );
   }
 
   /// Event Name Field
   Widget _buildEventNameField() {
-    return CustomTextField(
+    return TextFormField(
       controller: _eventNameController,
-      label: 'Event Name',
-      hint: 'e.g., Sarah & Ahmed Wedding',
-      prefixIcon: Icons.event,
+      decoration: InputDecoration(
+        labelText: 'Event Name',
+        hintText: 'e.g., Ahmed & Sara Wedding',
+        prefixIcon: const Icon(Icons.celebration),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        filled: true,
+        fillColor: AppColors.cardBackground,
+      ),
       validator: (value) {
         if (value == null || value.trim().isEmpty) {
           return 'Please enter event name';
         }
-        if (value.trim().length < 3) {
-          return 'Event name must be at least 3 characters';
-        }
         return null;
       },
     );
   }
 
-  /// Event Date Field
-  Widget _buildEventDateField() {
-    return DatePickerField(
-      label: 'Event Date',
-      hint: 'Select event date',
-      selectedDate: _selectedDate,
-      onDateSelected: (date) {
-        setState(() {
-          _selectedDate = date;
-        });
-      },
-      validator: (value) {
-        if (_selectedDate == null) {
-          return 'Please select event date';
-        }
-        if (_selectedDate!.isBefore(DateTime.now())) {
-          return 'Event date must be in the future';
-        }
-        return null;
-      },
-    );
-  }
-
-  /// Event Time Field
-  Widget _buildEventTimeField() {
-    return TimePickerField(
-      label: 'Event Time',
-      hint: 'Select event time',
-      selectedTime: _selectedTime,
-      onTimeSelected: (time) {
-        setState(() {
-          _selectedTime = time;
-        });
-      },
-      validator: (value) {
-        if (_selectedTime == null) {
-          return 'Please select event time';
-        }
-        return null;
-      },
-    );
-  }
-
-  /// Location Section (City & Area)
-  Widget _buildLocationSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Location Label
-        const Text(
-          'Location',
+  /// Date Field
+  Widget _buildDateField() {
+    return InkWell(
+      onTap: _selectDate,
+      child: InputDecorator(
+        decoration: InputDecoration(
+          labelText: 'Date',
+          prefixIcon: const Icon(Icons.calendar_today),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          filled: true,
+          fillColor: AppColors.cardBackground,
+          errorText: _selectedDate == null && _formKey.currentState?.validate() == false
+              ? 'Required'
+              : null,
+        ),
+        child: Text(
+          _selectedDate != null
+              ? '${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}'
+              : 'Select Date',
           style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-            color: AppColors.textPrimary,
+            color: _selectedDate != null
+                ? AppColors.textPrimary
+                : AppColors.textSecondary,
           ),
         ),
-        const SizedBox(height: 12),
+      ),
+    );
+  }
 
-        // City Dropdown
-        CustomDropdownField(
-          label: 'City',
-          hint: 'Select city',
-          value: _selectedCity,
-          items: _mockCities,
-          prefixIcon: Icons.location_city,
-          onChanged: (value) {
-            setState(() {
-              _selectedCity = value;
-              _selectedArea = null; // Reset area when city changes
-            });
-          },
-          validator: (value) {
-            if (value == null || value.isEmpty) {
-              return 'Please select a city';
-            }
-            return null;
-          },
+  /// Time Field
+  Widget _buildTimeField() {
+    return InkWell(
+      onTap: _selectTime,
+      child: InputDecorator(
+        decoration: InputDecoration(
+          labelText: 'Time',
+          prefixIcon: const Icon(Icons.access_time),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          filled: true,
+          fillColor: AppColors.cardBackground,
+          errorText: _selectedTime == null && _formKey.currentState?.validate() == false
+              ? 'Required'
+              : null,
         ),
-
-        const SizedBox(height: 16),
-
-        // Area Dropdown (depends on selected city)
-        CustomDropdownField(
-          label: 'Area',
-          hint: _selectedCity == null 
-              ? 'Select city first' 
-              : 'Select area',
-          value: _selectedArea,
-          items: _selectedCity != null 
-              ? _mockAreas[_selectedCity!] ?? []
-              : [],
-          prefixIcon: Icons.location_on,
-          enabled: _selectedCity != null,
-          onChanged: (value) {
-            setState(() {
-              _selectedArea = value;
-            });
-          },
-          validator: (value) {
-            if (value == null || value.isEmpty) {
-              return 'Please select an area';
-            }
-            return null;
-          },
+        child: Text(
+          _selectedTime != null
+              ? _selectedTime!.format(context)
+              : 'Select Time',
+          style: TextStyle(
+            color: _selectedTime != null
+                ? AppColors.textPrimary
+                : AppColors.textSecondary,
+          ),
         ),
-      ],
+      ),
+    );
+  }
+
+  /// City Dropdown
+  Widget _buildCityDropdown() {
+    return DropdownButtonFormField<String>(
+      value: _selectedCity,
+      decoration: InputDecoration(
+        labelText: 'City',
+        prefixIcon: const Icon(Icons.location_city),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        filled: true,
+        fillColor: AppColors.cardBackground,
+      ),
+      items: _cities.map((city) {
+        return DropdownMenuItem(
+          value: city,
+          child: Text(city),
+        );
+      }).toList(),
+      onChanged: (value) {
+        setState(() {
+          _selectedCity = value;
+          _selectedArea = null; // Reset area when city changes
+        });
+      },
+      validator: (value) {
+        if (value == null) {
+          return 'Please select a city';
+        }
+        return null;
+      },
+    );
+  }
+
+  /// Area Dropdown
+  Widget _buildAreaDropdown() {
+    final areas = _selectedCity != null ? _areas[_selectedCity!] ?? [] : [];
+
+    return DropdownButtonFormField<String>(
+      value: _selectedArea,
+      decoration: InputDecoration(
+        labelText: 'Area',
+        prefixIcon: const Icon(Icons.location_on),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        filled: true,
+        fillColor: AppColors.cardBackground,
+      ),
+      items: areas.isEmpty
+          ? []
+          : areas.map((area) {
+              return DropdownMenuItem<String>(
+                value: area,
+                child: Text(area),
+              );
+            }).toList(),
+      onChanged: areas.isEmpty
+          ? null
+          : (value) {
+              setState(() {
+                _selectedArea = value;
+              });
+            },
+      validator: (value) {
+        if (value == null) {
+          return 'Please select an area';
+        }
+        return null;
+      },
     );
   }
 
   /// Guest Count Field
   Widget _buildGuestCountField() {
-    return CustomTextField(
+    return TextFormField(
       controller: _guestCountController,
-      label: 'Expected Guest Count',
-      hint: 'e.g., 300',
-      prefixIcon: Icons.people,
       keyboardType: TextInputType.number,
+      decoration: InputDecoration(
+        labelText: 'Expected Guest Count',
+        hintText: 'e.g., 200',
+        prefixIcon: const Icon(Icons.people),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        filled: true,
+        fillColor: AppColors.cardBackground,
+      ),
       validator: (value) {
         if (value == null || value.trim().isEmpty) {
-          return 'Please enter expected guest count';
+          return 'Please enter guest count';
         }
-        final count = int.tryParse(value.trim());
-        if (count == null || count <= 0) {
+        final guestCount = int.tryParse(value);
+        if (guestCount == null || guestCount <= 0) {
           return 'Please enter a valid number';
         }
         return null;
@@ -335,53 +386,110 @@ class _BasicEventInfoScreenState extends State<BasicEventInfoScreen> {
 
   /// Additional Notes Field
   Widget _buildAdditionalNotesField() {
-    return CustomTextField(
+    return TextFormField(
       controller: _additionalNotesController,
-      label: 'Additional Notes',
-      hint: 'Any special requirements or notes (Optional)',
-      prefixIcon: Icons.note_alt_outlined,
       maxLines: 4,
-      isRequired: false,
+      decoration: InputDecoration(
+        labelText: 'Additional Notes (Optional)',
+        hintText: 'Any special requirements or preferences...',
+        prefixIcon: const Padding(
+          padding: EdgeInsets.only(bottom: 60),
+          child: Icon(Icons.notes),
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        filled: true,
+        fillColor: AppColors.cardBackground,
+      ),
     );
   }
 
-  /// Next Button
-  Widget _buildNextButton() {
-    return SizedBox(
-      width: double.infinity,
-      height: 56,
-      child: ElevatedButton(
-        onPressed: _handleNext,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primaryGold,
-          foregroundColor: AppColors.textPrimary,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          elevation: 2,
+  /// Continue Button
+  Widget _buildContinueButton() {
+    return ElevatedButton(
+      onPressed: _onContinue,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: AppColors.primaryGold,
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
         ),
-        child: const Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              'Next: Setup Budget',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            SizedBox(width: 8),
-            Icon(Icons.arrow_forward_rounded),
-          ],
+      ),
+      child: const Text(
+        'Continue to Budget Setup',
+        style: TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
         ),
       ),
     );
   }
 
-  /// Handle Next Button Press
-  void _handleNext() {
+  /// Select Date
+  Future<void> _selectDate() async {
+    final now = DateTime.now();
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate ?? now.add(const Duration(days: 30)),
+      firstDate: now,
+      lastDate: now.add(const Duration(days: 730)), // 2 years
+    );
+
+    if (picked != null) {
+      setState(() {
+        _selectedDate = picked;
+      });
+    }
+  }
+
+  /// Select Time
+  Future<void> _selectTime() async {
+    final TimeOfDay? picked = await showTimePicker(
+      context: context,
+      initialTime: _selectedTime ?? const TimeOfDay(hour: 18, minute: 0),
+    );
+
+    if (picked != null) {
+      setState(() {
+        _selectedTime = picked;
+      });
+    }
+  }
+
+  /// Handle Continue Button
+  void _onContinue() {
     if (_formKey.currentState!.validate()) {
-      // Gather all data
+      // Additional validation for date and time
+      if (_selectedDate == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Please select event date')),
+        );
+        return;
+      }
+
+      if (_selectedTime == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Please select event time')),
+        );
+        return;
+      }
+
+      // Save to EventCreationCubit
+      context.read<EventCreationCubit>().setBasicInfo(
+            eventName: _eventNameController.text.trim(),
+            eventDate: _selectedDate!,
+            eventTime: _selectedTime!,
+            city: _selectedCity!,
+            area: _selectedArea!,
+            guestCount: int.parse(_guestCountController.text.trim()),
+            additionalNotes: _additionalNotesController.text.trim().isNotEmpty
+                ? _additionalNotesController.text.trim()
+                : null,
+          );
+
+      // Prepare eventInfo Map for next screen (backward compatibility)
       final eventInfo = {
         'eventType': widget.eventType,
         'eventName': _eventNameController.text.trim(),
@@ -393,16 +501,7 @@ class _BasicEventInfoScreenState extends State<BasicEventInfoScreen> {
         'additionalNotes': _additionalNotesController.text.trim(),
       };
 
-      // Show success message (temporary)
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Event information saved!'),
-          backgroundColor: AppColors.success,
-          duration: Duration(seconds: 2),
-        ),
-      );
-
-      // TODO: Navigate to BudgetSetupScreen
+      // Navigate to BudgetSetupScreen
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -411,76 +510,9 @@ class _BasicEventInfoScreenState extends State<BasicEventInfoScreen> {
           ),
         ),
       );
-
-      print('Event Info: $eventInfo'); // For debugging
     }
   }
-
-  /// Mock Data - Cities
-  static final List<String> _mockCities = [
-    'Cairo',
-    'Alexandria',
-    'Giza',
-    'Mansoura',
-    'Tanta',
-    'Zagazig',
-    'Aswan',
-    'Luxor',
-  ];
-
-  /// Mock Data - Areas (based on city)
-  static final Map<String, List<String>> _mockAreas = {
-    'Cairo': [
-      'Nasr City',
-      'Heliopolis',
-      'Maadi',
-      'Zamalek',
-      'Dokki',
-      'New Cairo',
-      '6th of October',
-      'Tagamoa',
-    ],
-    'Alexandria': [
-      'Smouha',
-      'Stanley',
-      'Miami',
-      'Sidi Gaber',
-      'Sporting',
-      'Montaza',
-    ],
-    'Giza': [
-      'Mohandessin',
-      'Dokki',
-      '6th of October',
-      'Haram',
-      'Faisal',
-    ],
-    'Mansoura': [
-      'City Center',
-      'El Mahalla',
-      'Talkha',
-    ],
-    'Tanta': [
-      'City Center',
-      'El Mahalla',
-      'Kafr El Zayat',
-    ],
-    'Zagazig': [
-      'City Center',
-      'El Mansoura Street',
-    ],
-    'Aswan': [
-      'City Center',
-      'Corniche',
-    ],
-    'Luxor': [
-      'City Center',
-      'Karnak',
-      'West Bank',
-    ],
-  };
 }
-// lib/features/events/presentation/widgets/step_progress_indicator.dart
 
 class StepProgressIndicator extends StatelessWidget {
   final int currentStep;

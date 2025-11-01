@@ -28,3 +28,7 @@ class AuthFailure extends Failure {
 class ValidationFailure extends Failure {
   const ValidationFailure(super.message);
 }
+
+class FirestoreFailure extends Failure {
+  const FirestoreFailure({required String message}) : super(message);
+}

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:plan_z/core/utils/app_colors.dart';
 import 'package:plan_z/core/widgets/custom_app_button.dart';
+import 'package:plan_z/features/attandee/ui/home/ui/screens/attendee_home_screen.dart';
 import 'package:plan_z/features/auth/data/models/user_model.dart';
 import 'package:plan_z/features/auth/ui/widgets/app_logo.dart';
 import 'package:plan_z/features/auth/ui/widgets/login_redirect.dart';
@@ -9,7 +10,6 @@ import 'package:plan_z/features/auth/ui/widgets/sign_up_form.dart';
 import 'package:plan_z/features/auth/ui/widgets/welcom_message.dart';
 import 'package:plan_z/features/vendor_features/vendor_home/ui/screens/vendor_home_screen.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:plan_z/features/attandee_features/attendee_home/ui/attende_home_screen.dart';
 import 'package:plan_z/features/auth/logic/auth_cubit/auth_cubit.dart';
 import 'package:plan_z/features/auth/logic/auth_cubit/auth_state.dart';
 import 'package:plan_z/features/new_owner_features/event_owner_home/ui/screens/navigation_screen.dart';
@@ -77,7 +77,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
         destination = const NavigationScreen();
         break;
       case UserType.attendee:
-        destination = const AttendeHomeScreen();
+        destination = const AttendeeHomeScreen();
         break;
       default:
         ScaffoldMessenger.of(context).showSnackBar(

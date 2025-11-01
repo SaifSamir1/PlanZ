@@ -1,11 +1,15 @@
 // lib/features/auth/presentation/cubit/auth_cubit.dart
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:plan_z/features/auth/data/auth_repo/auth_repo.dart';
+import 'package:plan_z/features/auth/data/models/user_manager.dart';
 import 'package:plan_z/features/auth/data/models/user_model.dart';
 import 'package:plan_z/features/auth/logic/auth_cubit/auth_state.dart';
 
+
 class AuthCubit extends Cubit<AuthState> {
   final AuthRepository _authRepository;
+  final UserManager _userManager = UserManager();
 
   AuthCubit({required AuthRepository authRepository})
       : _authRepository = authRepository,
@@ -21,7 +25,7 @@ class AuthCubit extends Cubit<AuthState> {
     Map<String, dynamic>? additionalInfo,
   }) async {
     emit(const AuthSignUpLoading());
-
+    
     final result = await _authRepository.signUp(
       name: name,
       email: email,
@@ -33,7 +37,10 @@ class AuthCubit extends Cubit<AuthState> {
 
     result.fold(
       (failure) => emit(AuthSignUpError(message: failure.message)),
-      (user) => emit(AuthSignUpSuccess(user: user)),
+      (user) async {
+        await _userManager.setUser(user); // ✅ Save to UserManager + Hive
+        emit(AuthSignUpSuccess(user: user));
+      },
     );
   }
 
@@ -43,7 +50,7 @@ class AuthCubit extends Cubit<AuthState> {
     required String password,
   }) async {
     emit(const AuthSignInLoading());
-
+    
     final result = await _authRepository.signIn(
       email: email,
       password: password,
@@ -51,47 +58,65 @@ class AuthCubit extends Cubit<AuthState> {
 
     result.fold(
       (failure) => emit(AuthSignInError(message: failure.message)),
-      (user) => emit(AuthSignInSuccess(user: user)),
+      (user) async {
+        await _userManager.setUser(user); // ✅ Save to UserManager + Hive
+        emit(AuthSignInSuccess(user: user));
+      },
     );
   }
 
   // ===== Sign Out Method =====
   Future<void> signOut() async {
     emit(const AuthSignOutLoading());
-
+    
     final result = await _authRepository.signOut();
-
+    
     result.fold(
       (failure) => emit(AuthSignOutError(message: failure.message)),
-      (success) => emit(const AuthSignOutSuccess()),
+      (success) async {
+        await _userManager.clearUser(); // ✅ Clear UserManager + Hive
+        emit(const AuthSignOutSuccess());
+      },
     );
   }
 
   // ===== Get Current User Method =====
   Future<void> getCurrentUser() async {
     emit(const AuthGetCurrentUserLoading());
-
+    
     final result = await _authRepository.getCurrentUser();
-
+    
     result.fold(
       (failure) => emit(AuthGetCurrentUserError(message: failure.message)),
-      (user) => emit(AuthGetCurrentUserSuccess(user: user)),
+      (user) async {
+        if (user != null) {
+          await _userManager.setUser(user); // ✅ Save to UserManager + Hive
+        }
+        emit(AuthGetCurrentUserSuccess(user: user));
+      },
     );
   }
 
   // ===== Check Login Status Method =====
   Future<void> checkLoginStatus() async {
     emit(const AuthLoading());
+    
+    // ✅ Check from UserManager (Hive) first
+    if (_userManager.isLoggedIn) {
+      emit(AuthUserLoggedIn(user: _userManager.currentUser!));
+      return;
+    }
 
+    // ✅ If not in storage, check from Firebase
     final result = await _authRepository.isUserLoggedIn();
-
+    
     result.fold(
       (failure) => emit(AuthError(message: failure.message)),
       (isLoggedIn) async {
         if (isLoggedIn) {
-          // إذا كان المستخدم مسجلاً، احصل على بياناته
           await _getCurrentUserAfterLoginCheck();
         } else {
+          await _userManager.clearUser();
           emit(const AuthUserNotLoggedIn());
         }
       },
@@ -101,13 +126,18 @@ class AuthCubit extends Cubit<AuthState> {
   // ===== Helper Method for Getting Current User After Login Check =====
   Future<void> _getCurrentUserAfterLoginCheck() async {
     final result = await _authRepository.getCurrentUser();
-
+    
     result.fold(
-      (failure) => emit(const AuthUserNotLoggedIn()),
-      (user) {
+      (failure) async {
+        await _userManager.clearUser();
+        emit(const AuthUserNotLoggedIn());
+      },
+      (user) async {
         if (user != null) {
+          await _userManager.setUser(user);
           emit(AuthUserLoggedIn(user: user));
         } else {
+          await _userManager.clearUser();
           emit(const AuthUserNotLoggedIn());
         }
       },
@@ -117,9 +147,9 @@ class AuthCubit extends Cubit<AuthState> {
   // ===== Get User By ID Method =====
   Future<void> getUserById(String userId) async {
     emit(const AuthLoading());
-
+    
     final result = await _authRepository.getUserById(userId);
-
+    
     result.fold(
       (failure) => emit(AuthGetUserByIdError(message: failure.message)),
       (user) => emit(AuthGetUserByIdSuccess(user: user)),
@@ -133,35 +163,25 @@ class AuthCubit extends Cubit<AuthState> {
 
   // ===== Helper Methods for UI =====
   
-  // التحقق من أن المستخدم مسجل دخول حالياً
   bool get isUserAuthenticated {
     return state is AuthUserLoggedIn ||
-           state is AuthSignInSuccess ||
-           state is AuthSignUpSuccess;
+        state is AuthSignInSuccess ||
+        state is AuthSignUpSuccess;
   }
 
-  // جلب بيانات المستخدم الحالي من الـ state
   UserModel? get currentUser {
-    if (state is AuthUserLoggedIn) {
-      return (state as AuthUserLoggedIn).user;
-    } else if (state is AuthSignInSuccess) {
-      return (state as AuthSignInSuccess).user;
-    } else if (state is AuthSignUpSuccess) {
-      return (state as AuthSignUpSuccess).user;
-    }
-    return null;
+    // ✅ Use UserManager instead of State
+    return _userManager.currentUser;
   }
 
-  // التحقق من أن العملية في حالة تحميل
   bool get isLoading {
     return state is AuthLoading ||
-           state is AuthSignUpLoading ||
-           state is AuthSignInLoading ||
-           state is AuthSignOutLoading ||
-           state is AuthGetCurrentUserLoading;
+        state is AuthSignUpLoading ||
+        state is AuthSignInLoading ||
+        state is AuthSignOutLoading ||
+        state is AuthGetCurrentUserLoading;
   }
 
-  // جلب رسالة الخطأ الحالية
   String? get errorMessage {
     if (state is AuthError) {
       return (state as AuthError).message;
