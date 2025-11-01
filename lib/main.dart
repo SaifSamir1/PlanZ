@@ -2,37 +2,43 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:intl/intl.dart';
+import 'package:plan_z/features/app_owner/cubit/app_owner_cubit.dart';
+import 'package:plan_z/features/app_owner/data/repo/app_owner_repo_impl.dart';
 import 'package:plan_z/features/app_owner/ui/screens/owner_dashboard_screen.dart';
+import 'package:plan_z/features/attandee/cubit/attendee_cubit.dart';
+import 'package:plan_z/features/attandee/data/attandee_repo_impl.dart';
 import 'package:plan_z/features/auth/data/auth_repo/auth_repo_impl.dart';
+import 'package:plan_z/features/auth/data/models/user_manager.dart';
 import 'package:plan_z/features/auth/logic/auth_cubit/auth_cubit.dart';
-import 'package:plan_z/features/vendor_features/packages_mangment/data/models/vendor_model.dart';
+import 'package:plan_z/features/new_owner_features/create_event_screen/cubits/create_event_cubit/create_event_cubit.dart';
+import 'package:plan_z/features/new_owner_features/create_event_screen/cubits/event_creation_cubit/event_creation_cubit.dart';
+import 'package:plan_z/features/new_owner_features/create_event_screen/data/repo/event_owner_repo_impl.dart';
+import 'package:plan_z/features/on_boarding/ui/on_boarding_view.dart';
+import 'package:plan_z/features/on_boarding/ui/stakeholders_selection_screen.dart';
+import 'package:plan_z/features/vendor_features/packages_mangment/cubit/vendor_cubit.dart';
 import 'package:plan_z/features/vendor_features/packages_mangment/data/repos/vendor_repository_impl.dart';
+
 import 'package:plan_z/firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // ✅ 1. Initialize Hive FIRST
+  await Hive.initFlutter(); // هذا أهم خطوة
+
+  // ✅ 2. Initialize Intl
   Intl.defaultLocale = 'ar';
+
+  // ✅ 3. Initialize Firebase
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  // ✅ 4. Initialize UserManager (after Hive init)
+  await UserManager().init();
+
+  // ✅ 5. Run App
   runApp(const PlanZ());
-}
-
-void testFirestore() async {
-  final repo = VendorRepositoryImpl();
-
-  final vendor = VendorModel(
-    vendorId: 'v1',
-    name: 'Hoor Mahmoud',
-    serviceType: 'Decorations',
-    packages: [],
-    verified: false,
-    walletBalance: 0.0,
-    notifications: [],
-  );
-
-  await repo.addVendor(vendor);
-  print("✅ Vendor added successfully!");
 }
 
 class PlanZ extends StatelessWidget {
@@ -44,10 +50,26 @@ class PlanZ extends StatelessWidget {
       designSize: const Size(360, 690),
       minTextAdapt: true,
       splitScreenMode: true,
-      child: BlocProvider(
-        create: (context) => AuthCubit(authRepository: AuthRepositoryImpl()),
+      child: MultiBlocProvider(
+        providers: [
+          BlocProvider(
+            create: (context) =>
+                AuthCubit(authRepository: AuthRepositoryImpl()),
+          ),
+          BlocProvider(create: (context) => EventCreationCubit()),
+          BlocProvider(
+            create: (context) => EventOwnerCubit(EventOwnerRepositoryImpl()),
+          ),
+          BlocProvider(create: (context) => VendorCubit(VendorRepositoryImpl())),
+          BlocProvider(create: (context) => AppOwnerCubit(
+            AppOwnerRepositoryImpl()
+          )),
+          BlocProvider(create: (context) => AttendeeCubit(
+            AttendeeRepositoryImpl()
+          )),
+         ],
         child: MaterialApp(
-          home: OwnerDashboardScreen(),
+          home: OnBoardingScreen(),
           // title: 'PlanZ Chat',
           debugShowCheckedModeBanner: false,
         ),

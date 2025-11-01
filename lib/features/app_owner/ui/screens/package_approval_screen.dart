@@ -1,10 +1,13 @@
 // lib/features/app_owner/packages/ui/screens/package_approval_screen.dart
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:plan_z/core/utils/app_colors.dart';
 import 'package:plan_z/core/theming/text_styles.dart';
 import 'package:plan_z/core/widgets/custom_app_bar.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:plan_z/features/app_owner/cubit/app_owner_cubit.dart';
+import 'package:plan_z/features/app_owner/cubit/app_owner_state.dart';
+import 'package:plan_z/features/vendor_features/packages_mangment/data/models/package_model.dart';
 
 class PackageApprovalScreen extends StatefulWidget {
   const PackageApprovalScreen({super.key});
@@ -17,133 +20,12 @@ class _PackageApprovalScreenState extends State<PackageApprovalScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
-  // Mock Data
-  final List<Map<String, dynamic>> pendingPackages = [
-    {
-      'id': 'pkg_001',
-      'name': 'Premium Wedding Photography',
-      'vendorName': 'Ahmed Hassan',
-      'vendorImage': 'https://i.pravatar.cc/150?img=12',
-      'category': 'Photography',
-      'price': 1200.0,
-      'description':
-          'Complete wedding photography package with 2 photographers, 8 hours coverage, edited photos, and album',
-      'features': [
-        '2 Professional Photographers',
-        '8 Hours Coverage',
-        '500+ Edited Photos',
-        'Premium Photo Album',
-        'Online Gallery',
-      ],
-      'submittedDate': DateTime(2024, 10, 20),
-      // Google Drive Links for Portfolio
-      'portfolioLinks': [
-        {
-          'type': 'image', // image or video
-          'url': 'https://drive.google.com/file/d/1ABC123/view',
-          'thumbnail': 'https://images.unsplash.com/photo-1606800052052-a08af7148866',
-        },
-        {
-          'type': 'image',
-          'url': 'https://drive.google.com/file/d/1XYZ789/view',
-          'thumbnail': 'https://images.unsplash.com/photo-1511285560929-80b456fea0bc',
-        },
-        {
-          'type': 'video',
-          'url': 'https://drive.google.com/file/d/1VIDEO123/view',
-          'thumbnail': 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4',
-        },
-      ],
-    },
-    {
-      'id': 'pkg_002',
-      'name': 'Standard Catering Package',
-      'vendorName': 'Sara Mohamed',
-      'vendorImage': 'https://i.pravatar.cc/150?img=5',
-      'category': 'Catering',
-      'price': 850.0,
-      'description':
-          'Professional catering service for corporate events up to 200 guests',
-      'features': [
-        'Buffet Setup',
-        'Service for 200 guests',
-        '3 Main Dishes',
-        '2 Side Dishes',
-        'Desserts & Beverages',
-      ],
-      'submittedDate': DateTime(2024, 10, 21),
-      'portfolioLinks': [
-        {
-          'type': 'image',
-          'url': 'https://drive.google.com/file/d/1CATERING123/view',
-          'thumbnail': 'https://images.unsplash.com/photo-1555244162-803834f70033',
-        },
-      ],
-    },
-    {
-      'id': 'pkg_003',
-      'name': 'DJ & Sound System',
-      'vendorName': 'Mohamed Ali',
-      'vendorImage': 'https://i.pravatar.cc/150?img=8',
-      'category': 'Entertainment',
-      'price': 650.0,
-      'description': 'Professional DJ service with premium sound system',
-      'features': [
-        'Professional DJ',
-        'Premium Sound System',
-        '6 Hours Service',
-        'LED Lighting',
-        'Playlist Customization',
-      ],
-      'submittedDate': DateTime(2024, 10, 19),
-      'portfolioLinks': [
-        {
-          'type': 'video',
-          'url': 'https://drive.google.com/file/d/1DJVIDEO/view',
-          'thumbnail': 'https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3',
-        },
-      ],
-    },
-  ];
-
-  final List<Map<String, dynamic>> approvedPackages = [
-    {
-      'id': 'pkg_101',
-      'name': 'Luxury Venue Decoration',
-      'vendorName': 'Fatma Ibrahim',
-      'vendorImage': 'https://i.pravatar.cc/150?img=9',
-      'category': 'Decoration',
-      'price': 2000.0,
-      'approvedDate': DateTime(2024, 10, 15),
-    },
-    {
-      'id': 'pkg_102',
-      'name': 'Professional Video Coverage',
-      'vendorName': 'Khaled Ahmed',
-      'vendorImage': 'https://i.pravatar.cc/150?img=11',
-      'category': 'Videography',
-      'price': 1500.0,
-      'approvedDate': DateTime(2024, 10, 14),
-    },
-  ];
-
-  final List<Map<String, dynamic>> rejectedPackages = [
-    {
-      'id': 'pkg_201',
-      'name': 'Basic DJ Service',
-      'vendorName': 'Omar Hassan',
-      'vendorImage': 'https://i.pravatar.cc/150?img=15',
-      'category': 'Entertainment',
-      'price': 300.0,
-      'rejectedDate': DateTime(2024, 10, 10),
-      'rejectionReason': 'Incomplete package details and missing portfolio',
-    },
-  ];
-
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    // ✅ Load pending packages on init
+    context.read<AppOwnerCubit>().loadPendingPackages();
   }
 
   @override
@@ -160,31 +42,82 @@ class _PackageApprovalScreenState extends State<PackageApprovalScreen>
         title: 'Package Approvals',
         showBackButton: true,
       ),
-      body: Column(
-        children: [
-          // Stats Summary
-          _buildStatsSummary(),
+      body: BlocConsumer<AppOwnerCubit, AppOwnerState>(
+        listener: (context, state) {
+          // ✅ Show error
+          if (state.errorMessage != null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Row(
+                  children: [
+                    const Icon(Icons.error, color: Colors.white),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(state.errorMessage!),
+                    ),
+                  ],
+                ),
+                backgroundColor: Colors.red,
+                behavior: SnackBarBehavior.floating,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            );
+          }
 
-          // Tabs - WITH PADDING
-          _buildTabs(),
+          // ✅ Show success
+          if (state.successMessage != null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Row(
+                  children: [
+                    const Icon(Icons.check_circle, color: Colors.white),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(state.successMessage!),
+                    ),
+                  ],
+                ),
+                backgroundColor: AppColors.success,
+                behavior: SnackBarBehavior.floating,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            );
+          }
+        },
+        builder: (context, state) {
+          return Column(
+            children: [
+              // ✅ Stats Summary
+              _buildStatsSummary(state),
 
-          // Tab Views
-          Expanded(
-            child: TabBarView(
-              controller: _tabController,
-              children: [
-                _buildPendingList(),
-                _buildApprovedList(),
-                _buildRejectedList(),
-              ],
-            ),
-          ),
-        ],
+              // ✅ Tabs
+              _buildTabs(),
+
+              // ✅ Tab Views
+              Expanded(
+                child: TabBarView(
+                  controller: _tabController,
+                  children: [
+                    _buildPendingList(state),
+                    _buildApprovedList(state),
+                    _buildRejectedList(state),
+                  ],
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
 
-  Widget _buildStatsSummary() {
+  Widget _buildStatsSummary(AppOwnerState state) {
+    final pendingCount = state.pendingPackages.length;
+
     return Container(
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(16),
@@ -208,7 +141,7 @@ class _PackageApprovalScreenState extends State<PackageApprovalScreen>
           _buildStatItem(
             icon: Icons.pending_actions,
             label: 'Pending',
-            value: pendingPackages.length.toString(),
+            value: pendingCount.toString(),
             color: AppColors.warning,
           ),
           Container(
@@ -216,23 +149,23 @@ class _PackageApprovalScreenState extends State<PackageApprovalScreen>
             height: 40,
             color: Colors.grey.shade300,
           ),
-          _buildStatItem(
-            icon: Icons.check_circle,
-            label: 'Approved',
-            value: approvedPackages.length.toString(),
-            color: AppColors.success,
-          ),
-          Container(
-            width: 1,
-            height: 40,
-            color: Colors.grey.shade300,
-          ),
-          _buildStatItem(
-            icon: Icons.cancel,
-            label: 'Rejected',
-            value: rejectedPackages.length.toString(),
-            color: AppColors.error,
-          ),
+          // _buildStatItem(
+          //   icon: Icons.check_circle,
+          //   label: 'Approved',
+          //   value: '5', // TODO: Get from state
+          //   color: AppColors.success,
+          // ),
+          // Container(
+          //   width: 1,
+          //   height: 40,
+          //   color: Colors.grey.shade300,
+          // ),
+          // _buildStatItem(
+          //   icon: Icons.cancel,
+          //   label: 'Rejected',
+          //   value: '2', // TODO: Get from state
+          //   color: AppColors.error,
+          // ),
         ],
       ),
     );
@@ -268,8 +201,7 @@ class _PackageApprovalScreenState extends State<PackageApprovalScreen>
 
   Widget _buildTabs() {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16,),
-      
+      margin: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
         color: Colors.grey.shade100,
         borderRadius: BorderRadius.circular(10),
@@ -277,7 +209,6 @@ class _PackageApprovalScreenState extends State<PackageApprovalScreen>
       child: TabBar(
         controller: _tabController,
         indicator: BoxDecoration(
-
           color: AppColors.primaryGold,
           borderRadius: BorderRadius.circular(10),
         ),
@@ -288,7 +219,6 @@ class _PackageApprovalScreenState extends State<PackageApprovalScreen>
           fontSize: 14,
         ),
         indicatorSize: TabBarIndicatorSize.tab,
-        // إضافة Padding للـ Tabs
         labelPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         indicatorPadding: const EdgeInsets.all(4),
         tabs: const [
@@ -300,8 +230,24 @@ class _PackageApprovalScreenState extends State<PackageApprovalScreen>
     );
   }
 
-  Widget _buildPendingList() {
-    if (pendingPackages.isEmpty) {
+  Widget _buildPendingList(AppOwnerState state) {
+    if (state.isLoading) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const CircularProgressIndicator(),
+            const SizedBox(height: 16),
+            Text(
+              'Loading packages...',
+              style: AppTextStyles.body,
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (state.pendingPackages.isEmpty) {
       return _buildEmptyState(
         icon: Icons.inbox,
         message: 'No pending packages',
@@ -310,48 +256,32 @@ class _PackageApprovalScreenState extends State<PackageApprovalScreen>
 
     return ListView.builder(
       padding: const EdgeInsets.all(16),
-      itemCount: pendingPackages.length,
+      itemCount: state.pendingPackages.length,
       itemBuilder: (context, index) {
-        return _buildPendingPackageCard(pendingPackages[index]);
+        return _buildPendingPackageCard(
+          state.pendingPackages[index],
+          context,
+        );
       },
     );
   }
 
-  Widget _buildApprovedList() {
-    if (approvedPackages.isEmpty) {
-      return _buildEmptyState(
-        icon: Icons.check_circle_outline,
-        message: 'No approved packages yet',
-      );
-    }
-
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: approvedPackages.length,
-      itemBuilder: (context, index) {
-        return _buildApprovedPackageCard(approvedPackages[index]);
-      },
+  Widget _buildApprovedList(AppOwnerState state) {
+    return _buildEmptyState(
+      icon: Icons.check_circle_outline,
+      message: 'No approved packages yet',
     );
   }
 
-  Widget _buildRejectedList() {
-    if (rejectedPackages.isEmpty) {
-      return _buildEmptyState(
-        icon: Icons.cancel_outlined,
-        message: 'No rejected packages',
-      );
-    }
-
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: rejectedPackages.length,
-      itemBuilder: (context, index) {
-        return _buildRejectedPackageCard(rejectedPackages[index]);
-      },
+  Widget _buildRejectedList(AppOwnerState state) {
+    return _buildEmptyState(
+      icon: Icons.cancel_outlined,
+      message: 'No rejected packages',
     );
   }
 
-  Widget _buildPendingPackageCard(Map<String, dynamic> package) {
+  Widget _buildPendingPackageCard(
+      PackageModel package, BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
@@ -372,7 +302,7 @@ class _PackageApprovalScreenState extends State<PackageApprovalScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header
+          // ✅ Header
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
@@ -384,9 +314,14 @@ class _PackageApprovalScreenState extends State<PackageApprovalScreen>
             ),
             child: Row(
               children: [
+                // Vendor Avatar (TODO: Add vendor image)
                 CircleAvatar(
                   radius: 24,
-                  backgroundImage: NetworkImage(package['vendorImage']),
+                  backgroundColor: AppColors.primaryGold.withOpacity(0.3),
+                  child: const Icon(
+                    Icons.person,
+                    color: AppColors.primaryGold,
+                  ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -394,30 +329,30 @@ class _PackageApprovalScreenState extends State<PackageApprovalScreen>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        package['vendorName'],
+                        package.vendorName ?? 'Unknown Vendor',
                         style: AppTextStyles.body.copyWith(
                           fontWeight: FontWeight.bold,
                           fontSize: 15,
                         ),
                       ),
-                      const SizedBox(height: 4),
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.category,
-                            size: 14,
-                            color: AppColors.textSecondary,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            package['category'],
-                            style: AppTextStyles.body.copyWith(
-                              color: AppColors.textSecondary,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ],
-                      ),
+                      // const SizedBox(height: 4),
+                      // Row(
+                      //   children: [
+                      //     const Icon(
+                      //       Icons.category,
+                      //       size: 14,
+                      //       color: AppColors.textSecondary,
+                      //     ),
+                      //     const SizedBox(width: 4),
+                      //     Text(
+                      //       'Catering Package', // TODO: Get category
+                      //       style: AppTextStyles.body.copyWith(
+                      //         color: AppColors.textSecondary,
+                      //         fontSize: 12,
+                      //       ),
+                      //     ),
+                      //   ],
+                      // ),
                     ],
                   ),
                 ),
@@ -454,24 +389,22 @@ class _PackageApprovalScreenState extends State<PackageApprovalScreen>
             ),
           ),
 
-          // Content
+          // ✅ Content
           Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  package['name'],
+                  package.packageName ?? 'Package Name',
                   style: AppTextStyles.title.copyWith(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-
                 const SizedBox(height: 8),
-
                 Text(
-                  package['description'],
+                  package.description ?? 'No description',
                   style: AppTextStyles.body.copyWith(
                     color: AppColors.textSecondary,
                     fontSize: 14,
@@ -480,19 +413,18 @@ class _PackageApprovalScreenState extends State<PackageApprovalScreen>
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
-
                 const SizedBox(height: 12),
 
-                // Price
+                // ✅ Price
                 Row(
                   children: [
-                    Icon(
+                    const Icon(
                       Icons.attach_money,
                       color: AppColors.primaryGold,
                       size: 20,
                     ),
                     Text(
-                      '\$${package['price'].toStringAsFixed(2)}',
+                      'EGP ${(package.price ).toStringAsFixed(2)}',
                       style: AppTextStyles.title.copyWith(
                         color: AppColors.primaryGold,
                         fontSize: 20,
@@ -501,15 +433,17 @@ class _PackageApprovalScreenState extends State<PackageApprovalScreen>
                     ),
                   ],
                 ),
-
                 const SizedBox(height: 16),
 
-                // Action Buttons
+                // ✅ Action Buttons
                 Row(
                   children: [
                     Expanded(
                       child: ElevatedButton.icon(
-                        onPressed: () => _showPackageDetails(package),
+                        onPressed: () => _showPackageDetails(
+                          package,
+                          context,
+                        ),
                         icon: const Icon(Icons.visibility, size: 18),
                         label: const Text('View Details'),
                         style: ElevatedButton.styleFrom(
@@ -525,7 +459,8 @@ class _PackageApprovalScreenState extends State<PackageApprovalScreen>
                     const SizedBox(width: 8),
                     Expanded(
                       child: ElevatedButton.icon(
-                        onPressed: () => _approvePackage(package),
+                        onPressed: () =>
+                            _approvePackageDialog(package, context),
                         icon: const Icon(Icons.check_circle, size: 18),
                         label: const Text('Approve'),
                         style: ElevatedButton.styleFrom(
@@ -540,7 +475,8 @@ class _PackageApprovalScreenState extends State<PackageApprovalScreen>
                     ),
                     const SizedBox(width: 8),
                     IconButton(
-                      onPressed: () => _rejectPackage(package),
+                      onPressed: () =>
+                          _rejectPackageDialog(package, context),
                       icon: const Icon(Icons.cancel),
                       color: AppColors.error,
                       style: IconButton.styleFrom(
@@ -557,191 +493,10 @@ class _PackageApprovalScreenState extends State<PackageApprovalScreen>
     );
   }
 
-  Widget _buildApprovedPackageCard(Map<String, dynamic> package) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: AppColors.success.withOpacity(0.3),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          CircleAvatar(
-            radius: 28,
-            backgroundImage: NetworkImage(package['vendorImage']),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  package['name'],
-                  style: AppTextStyles.body.copyWith(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 15,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  package['vendorName'],
-                  style: AppTextStyles.body.copyWith(
-                    color: AppColors.textSecondary,
-                    fontSize: 13,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Row(
-                  children: [
-                    Icon(
-                      Icons.calendar_today,
-                      size: 12,
-                      color: AppColors.textSecondary,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      'Approved: ${package['approvedDate'].day}/${package['approvedDate'].month}/${package['approvedDate'].year}',
-                      style: AppTextStyles.body.copyWith(
-                        color: AppColors.textSecondary,
-                        fontSize: 11,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: AppColors.success.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: const Icon(
-              Icons.check_circle,
-              color: AppColors.success,
-              size: 24,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildRejectedPackageCard(Map<String, dynamic> package) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: AppColors.error.withOpacity(0.3),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              CircleAvatar(
-                radius: 24,
-                backgroundImage: NetworkImage(package['vendorImage']),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      package['name'],
-                      style: AppTextStyles.body.copyWith(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 15,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      package['vendorName'],
-                      style: AppTextStyles.body.copyWith(
-                        color: AppColors.textSecondary,
-                        fontSize: 13,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: AppColors.error.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Icon(
-                  Icons.cancel,
-                  color: AppColors.error,
-                  size: 24,
-                ),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 12),
-
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: AppColors.error.withOpacity(0.05),
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(
-                color: AppColors.error.withOpacity(0.2),
-              ),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Rejection Reason:',
-                  style: AppTextStyles.body.copyWith(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 12,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  package['rejectionReason'],
-                  style: AppTextStyles.body.copyWith(
-                    color: AppColors.textSecondary,
-                    fontSize: 12,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildEmptyState({required IconData icon, required String message}) {
+  Widget _buildEmptyState({
+    required IconData icon,
+    required String message,
+  }) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -764,7 +519,7 @@ class _PackageApprovalScreenState extends State<PackageApprovalScreen>
     );
   }
 
-  void _showPackageDetails(Map<String, dynamic> package) {
+  void _showPackageDetails(PackageModel package, BuildContext context) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -787,7 +542,7 @@ class _PackageApprovalScreenState extends State<PackageApprovalScreen>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Handle
+                // ✅ Handle
                 Center(
                   child: Container(
                     width: 40,
@@ -798,52 +553,19 @@ class _PackageApprovalScreenState extends State<PackageApprovalScreen>
                     ),
                   ),
                 ),
-
                 const SizedBox(height: 20),
 
-                // Package Name
+                // ✅ Package Name
                 Text(
-                  package['name'],
+                  package.packageName ?? 'Package Name',
                   style: AppTextStyles.title.copyWith(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-
                 const SizedBox(height: 16),
 
-                // Vendor Info
-                Row(
-                  children: [
-                    CircleAvatar(
-                      radius: 24,
-                      backgroundImage: NetworkImage(package['vendorImage']),
-                    ),
-                    const SizedBox(width: 12),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          package['vendorName'],
-                          style: AppTextStyles.body.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          package['category'],
-                          style: AppTextStyles.body.copyWith(
-                            color: AppColors.textSecondary,
-                            fontSize: 13,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 20),
-
-                // Price
+                // ✅ Price
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
@@ -865,7 +587,7 @@ class _PackageApprovalScreenState extends State<PackageApprovalScreen>
                         ),
                       ),
                       Text(
-                        '\$${package['price'].toStringAsFixed(2)}',
+                        'EGP ${(package.price ).toStringAsFixed(2)}',
                         style: AppTextStyles.title.copyWith(
                           color: AppColors.primaryGold,
                           fontSize: 24,
@@ -875,10 +597,9 @@ class _PackageApprovalScreenState extends State<PackageApprovalScreen>
                     ],
                   ),
                 ),
-
                 const SizedBox(height: 20),
 
-                // Description
+                // ✅ Description
                 Text(
                   'Description',
                   style: AppTextStyles.title.copyWith(
@@ -888,16 +609,15 @@ class _PackageApprovalScreenState extends State<PackageApprovalScreen>
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  package['description'],
+                  package.description ?? 'No description',
                   style: AppTextStyles.body.copyWith(
                     color: AppColors.textSecondary,
                     height: 1.6,
                   ),
                 ),
-
                 const SizedBox(height: 20),
 
-                // Features
+                // ✅ Features
                 Text(
                   'Package Features',
                   style: AppTextStyles.title.copyWith(
@@ -906,57 +626,49 @@ class _PackageApprovalScreenState extends State<PackageApprovalScreen>
                   ),
                 ),
                 const SizedBox(height: 12),
-                ...List.generate(
-                  package['features'].length,
-                  (index) => Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Icon(
-                          Icons.check_circle,
-                          color: AppColors.success,
-                          size: 20,
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            package['features'][index],
-                            style: AppTextStyles.body.copyWith(
-                              fontSize: 14,
+                if (package.features != null && package.features!.isNotEmpty)
+                  ...List.generate(
+                    package.features!.length,
+                    (index) => Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Icon(
+                            Icons.check_circle,
+                            color: AppColors.success,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              package.features![index],
+                              style: AppTextStyles.body.copyWith(
+                                fontSize: 14,
+                              ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
+                    ),
+                  )
+                else
+                  Text(
+                    'No features listed',
+                    style: AppTextStyles.body.copyWith(
+                      color: AppColors.textSecondary,
                     ),
                   ),
-                ),
-
                 const SizedBox(height: 20),
 
-                // Portfolio Section (Images/Videos from Google Drive)
-                if (package['portfolioLinks'] != null &&
-                    package['portfolioLinks'].isNotEmpty) ...[
-                  Text(
-                    'Portfolio & Work Samples',
-                    style: AppTextStyles.title.copyWith(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  _buildPortfolioGallery(package['portfolioLinks']),
-                  const SizedBox(height: 20),
-                ],
-
-                // Action Buttons
+                // ✅ Action Buttons
                 Row(
                   children: [
                     Expanded(
                       child: ElevatedButton.icon(
                         onPressed: () {
                           Navigator.pop(context);
-                          _approvePackage(package);
+                          _approvePackageDialog(package, context);
                         },
                         icon: const Icon(Icons.check_circle, size: 20),
                         label: const Text('Approve Package'),
@@ -975,7 +687,7 @@ class _PackageApprovalScreenState extends State<PackageApprovalScreen>
                       child: OutlinedButton.icon(
                         onPressed: () {
                           Navigator.pop(context);
-                          _rejectPackage(package);
+                          _rejectPackageDialog(package, context);
                         },
                         icon: const Icon(Icons.cancel, size: 20),
                         label: const Text('Reject'),
@@ -999,186 +711,10 @@ class _PackageApprovalScreenState extends State<PackageApprovalScreen>
     );
   }
 
-  // Portfolio Gallery Widget (Images & Videos)
-  Widget _buildPortfolioGallery(List<dynamic> portfolioLinks) {
-    return SizedBox(
-      height: 200,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: portfolioLinks.length,
-        itemBuilder: (context, index) {
-          final item = portfolioLinks[index];
-          final isVideo = item['type'] == 'video';
-
-          return GestureDetector(
-            onTap: () => _openGoogleDriveLink(item['url']),
-            child: Container(
-              width: 180,
-              margin: const EdgeInsets.only(right: 12),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Stack(
-                children: [
-                  // Thumbnail
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: Image.network(
-                      item['thumbnail'],
-                      width: 180,
-                      height: 200,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-
-                  // Overlay
-                  Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12),
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          Colors.transparent,
-                          Colors.black.withOpacity(0.6),
-                        ],
-                      ),
-                    ),
-                  ),
-
-                  // Play Icon for Videos
-                  if (isVideo)
-                    Center(
-                      child: Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.9),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.play_arrow,
-                          color: AppColors.primaryDark,
-                          size: 32,
-                        ),
-                      ),
-                    ),
-
-                  // Type Badge
-                  Positioned(
-                    top: 8,
-                    right: 8,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: isVideo
-                            ? AppColors.error.withOpacity(0.9)
-                            : AppColors.primaryGold.withOpacity(0.9),
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            isVideo ? Icons.videocam : Icons.image,
-                            color: Colors.white,
-                            size: 12,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            isVideo ? 'Video' : 'Image',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 10,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-
-                  // View on Drive Text
-                  Positioned(
-                    bottom: 8,
-                    left: 8,
-                    right: 8,
-                    child: Text(
-                      'Tap to view on Google Drive',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w500,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-
-  // Open Google Drive Link
-  Future<void> _openGoogleDriveLink(String url) async {
-    final Uri driveUri = Uri.parse(url);
-
-    try {
-      if (await canLaunchUrl(driveUri)) {
-        await launchUrl(
-          driveUri,
-          mode: LaunchMode.externalApplication,
-        );
-      } else {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Row(
-                children: [
-                  const Icon(Icons.error, color: Colors.white),
-                  const SizedBox(width: 12),
-                  const Expanded(
-                    child: Text('Could not open Google Drive link'),
-                  ),
-                ],
-              ),
-              backgroundColor: AppColors.error,
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-          );
-        }
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error: ${e.toString()}'),
-            backgroundColor: AppColors.error,
-          ),
-        );
-      }
-    }
-  }
-
-  void _approvePackage(Map<String, dynamic> package) {
+  void _approvePackageDialog(PackageModel package, BuildContext context) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
         ),
@@ -1197,7 +733,6 @@ class _PackageApprovalScreenState extends State<PackageApprovalScreen>
               ),
             ),
             const SizedBox(width: 12),
-            // FIX OVERFLOW IN TITLE
             Expanded(
               child: Text(
                 'Approve Package?',
@@ -1213,9 +748,7 @@ class _PackageApprovalScreenState extends State<PackageApprovalScreen>
           children: [
             Text(
               'Are you sure you want to approve this package?',
-              style: AppTextStyles.body.copyWith(
-                fontSize: 15,
-              ),
+              style: AppTextStyles.body.copyWith(fontSize: 15),
             ),
             const SizedBox(height: 12),
             Container(
@@ -1228,14 +761,14 @@ class _PackageApprovalScreenState extends State<PackageApprovalScreen>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    package['name'],
+                    package.packageName ?? 'Package',
                     style: AppTextStyles.body.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'by ${package['vendorName']}',
+                    'by ${package.vendorName ?? 'Vendor'}',
                     style: AppTextStyles.body.copyWith(
                       color: AppColors.textSecondary,
                       fontSize: 13,
@@ -1248,31 +781,16 @@ class _PackageApprovalScreenState extends State<PackageApprovalScreen>
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(ctx),
             child: const Text('Cancel'),
           ),
           ElevatedButton(
             onPressed: () {
-              Navigator.pop(context);
-              // TODO: Implement approval logic
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Row(
-                    children: [
-                      const Icon(Icons.check_circle, color: Colors.white),
-                      const SizedBox(width: 12),
-                      const Expanded(
-                        child: Text('Package approved successfully!'),
-                      ),
-                    ],
-                  ),
-                  backgroundColor: AppColors.success,
-                  behavior: SnackBarBehavior.floating,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              );
+              // ✅ Call Cubit approve method
+              context.read<AppOwnerCubit>().approvePackage(
+                    packageId: package.packageId ?? '',
+                  );
+              Navigator.pop(ctx);
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.success,
@@ -1288,12 +806,12 @@ class _PackageApprovalScreenState extends State<PackageApprovalScreen>
     );
   }
 
-  void _rejectPackage(Map<String, dynamic> package) {
+  void _rejectPackageDialog(PackageModel package, BuildContext context) {
     final TextEditingController reasonController = TextEditingController();
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
         ),
@@ -1312,9 +830,10 @@ class _PackageApprovalScreenState extends State<PackageApprovalScreen>
               ),
             ),
             const SizedBox(width: 12),
-            const Expanded(
+            Expanded(
               child: Text(
                 'Reject Package',
+                style: AppTextStyles.title.copyWith(fontSize: 18),
                 overflow: TextOverflow.ellipsis,
               ),
             ),
@@ -1325,7 +844,7 @@ class _PackageApprovalScreenState extends State<PackageApprovalScreen>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Rejecting "${package['name']}"',
+              'Rejecting "${package.packageName}"',
               style: AppTextStyles.body.copyWith(
                 fontWeight: FontWeight.w600,
               ),
@@ -1333,9 +852,7 @@ class _PackageApprovalScreenState extends State<PackageApprovalScreen>
             const SizedBox(height: 16),
             Text(
               'Please provide a reason for rejection:',
-              style: AppTextStyles.body.copyWith(
-                fontSize: 14,
-              ),
+              style: AppTextStyles.body.copyWith(fontSize: 14),
             ),
             const SizedBox(height: 12),
             TextField(
@@ -1359,13 +876,13 @@ class _PackageApprovalScreenState extends State<PackageApprovalScreen>
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(ctx),
             child: const Text('Cancel'),
           ),
           ElevatedButton(
             onPressed: () {
               if (reasonController.text.trim().isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(
+                ScaffoldMessenger.of(ctx).showSnackBar(
                   const SnackBar(
                     content: Text('Please provide a rejection reason'),
                   ),
@@ -1373,26 +890,12 @@ class _PackageApprovalScreenState extends State<PackageApprovalScreen>
                 return;
               }
 
-              Navigator.pop(context);
-              // TODO: Implement rejection logic
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Row(
-                    children: [
-                      const Icon(Icons.info, color: Colors.white),
-                      const SizedBox(width: 12),
-                      const Expanded(
-                        child: Text('Package rejected'),
-                      ),
-                    ],
-                  ),
-                  backgroundColor: AppColors.error,
-                  behavior: SnackBarBehavior.floating,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              );
+              // ✅ Call Cubit reject method
+              context.read<AppOwnerCubit>().rejectPackage(
+                    packageId: package.packageId ?? '',
+                    rejectionReason: reasonController.text,
+                  );
+              Navigator.pop(ctx);
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.error,

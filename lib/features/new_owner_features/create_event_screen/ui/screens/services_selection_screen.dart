@@ -2,9 +2,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:plan_z/core/utils/app_colors.dart';
-
-import 'package:plan_z/features/new_owner_features/create_event_screen/ui/screens/basic_event_info_screen.dart';
+import 'package:plan_z/features/new_owner_features/create_event_screen/cubits/event_creation_cubit/event_creation_cubit.dart';
 import 'package:plan_z/features/new_owner_features/create_event_screen/ui/screens/browse_packages_screen.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:plan_z/core/services/json_service.dart';
 
 class ServicesSelectionScreen extends StatefulWidget {
   final Map<String, dynamic> eventInfo;
@@ -17,369 +18,402 @@ class ServicesSelectionScreen extends StatefulWidget {
   });
 
   @override
-  State<ServicesSelectionScreen> createState() => _ServicesSelectionScreenState();
+  State<ServicesSelectionScreen> createState() =>
+      _ServicesSelectionScreenState();
 }
 
 class _ServicesSelectionScreenState extends State<ServicesSelectionScreen> {
   // Services Lists
-  late List<Map<String, dynamic>> _requiredServices;
-  late List<Map<String, dynamic>> _optionalServices;
-  
+  List<Map<String, dynamic>> _requiredServices = [];
+  List<Map<String, dynamic>> _optionalServices = [];
+
   // Selected Optional Services IDs
   final Set<String> _selectedOptionalServicesIds = {};
 
   // Budget tracking
   late double _totalBudget;
-  late double _allocatedBudget;
-  late double _remainingBudget;
+  double _allocatedBudget = 0;
+  double _remainingBudget = 0;
+
+  // Loading state
+  bool _isLoading = true;
+  String? _errorMessage;
 
   @override
   void initState() {
     super.initState();
+    _totalBudget = widget.budgetData['totalBudget'];
+    _remainingBudget = _totalBudget;
     _loadServices();
-    _calculateBudget();
   }
 
-  void _loadServices() {
-    final eventTypeId = widget.eventInfo['eventType']['id'];
-    
-    // Get services based on event type
-    final allServices = _getServicesForEventType(eventTypeId);
-    
-    // Split into required and optional
-    _requiredServices = allServices.where((s) => s['required'] == true).toList();
-    _optionalServices = allServices.where((s) => s['required'] == false).toList();
-    
-    // Pre-select first 2 optional services (for demo)
-    if (_optionalServices.length >= 2) {
-      _selectedOptionalServicesIds.add(_optionalServices[0]['serviceId']);
-      _selectedOptionalServicesIds.add(_optionalServices[1]['serviceId']);
+  /// Load Services from JSON
+  Future<void> _loadServices() async {
+    try {
+      setState(() {
+        _isLoading = true;
+        _errorMessage = null;
+      });
+
+      final eventTypeId = widget.eventInfo['eventType']['eventTypeId'];
+
+      // Load Required Services
+      final requiredServices = await JsonService.getRequiredServices(eventTypeId);
+
+      // Load Optional Services
+      final optionalServices = await JsonService.getOptionalServices(eventTypeId);
+
+      setState(() {
+        _requiredServices = requiredServices;
+        _optionalServices = optionalServices;
+        _isLoading = false;
+      });
+
+      // Calculate initial budget allocation for required services
+      _calculateBudgetAllocation();
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'Failed to load services: $e';
+        _isLoading = false;
+      });
     }
   }
 
-  void _calculateBudget() {
-    _totalBudget = widget.budgetData['totalBudget'].toDouble();
-    _allocatedBudget = 0;
+  /// Calculate Budget Allocation
+  void _calculateBudgetAllocation() {
+    double allocated = 0;
 
-    // Calculate allocated budget from required services
+    // Calculate for required services
     for (var service in _requiredServices) {
-      final percentage = service['suggestedBudgetPercentage'].toDouble();
-      _allocatedBudget += (_totalBudget * percentage / 100);
+      final percentage = service['suggestedBudgetPercentage'] ?? 0;
+      allocated += (_totalBudget * percentage / 100);
     }
 
-    // Calculate allocated budget from selected optional services
+    // Calculate for selected optional services
     for (var service in _optionalServices) {
       if (_selectedOptionalServicesIds.contains(service['serviceId'])) {
-        final percentage = service['suggestedBudgetPercentage'].toDouble();
-        _allocatedBudget += (_totalBudget * percentage / 100);
+        final percentage = service['suggestedBudgetPercentage'] ?? 0;
+        allocated += (_totalBudget * percentage / 100);
       }
     }
 
-    _remainingBudget = _totalBudget - _allocatedBudget;
+    setState(() {
+      _allocatedBudget = allocated;
+      _remainingBudget = _totalBudget - allocated;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: _buildAppBar(),
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Progress Indicator
-            _buildProgressIndicator(),
-
-            // Content
-            Expanded(
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.all(20.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+      appBar: AppBar(
+        backgroundColor: AppColors.primaryDark,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: const Text(
+          'Select Services',
+          style: TextStyle(color: Colors.white),
+        ),
+      ),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : _errorMessage != null
+              ? _buildErrorView()
+              : Column(
                   children: [
-                    // Required Services Section
-                    _buildRequiredServicesSection(),
+                    // Budget Summary Card
+                    _buildBudgetSummaryCard(),
 
-                    const SizedBox(height: 24),
+                    // Services List
+                    Expanded(
+                      child: ListView(
+                        padding: const EdgeInsets.all(20),
+                        children: [
+                          // Required Services Section
+                          _buildSectionHeader('Required Services', Icons.check_circle),
+                          const SizedBox(height: 12),
+                          ..._requiredServices.map((service) =>
+                              _buildServiceCard(service, isRequired: true)),
+                          const SizedBox(height: 24),
 
-                    // Divider
-                    _buildDivider(),
-
-                    const SizedBox(height: 24),
-
-                    // Optional Services Section
-                    _buildOptionalServicesSection(),
-
-                    const SizedBox(height: 24),
-
-                    // Divider
-                    _buildDivider(),
-
-                    const SizedBox(height: 24),
-
-                    // Budget Summary
-                    BudgetSummaryCard(
-                      totalBudget: _totalBudget,
-                      allocatedBudget: _allocatedBudget,
-                      remainingBudget: _remainingBudget,
+                          // Optional Services Section
+                          _buildSectionHeader('Optional Services', Icons.add_circle_outline),
+                          const SizedBox(height: 12),
+                          ..._optionalServices.map((service) =>
+                              _buildServiceCard(service, isRequired: false)),
+                        ],
+                      ),
                     ),
 
-                    const SizedBox(height: 32),
-
-                    // Next Button
-                    _buildNextButton(),
-
-                    const SizedBox(height: 20),
+                    // Continue Button
+                    _buildContinueButton(),
                   ],
                 ),
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 
-  /// AppBar
-  PreferredSizeWidget _buildAppBar() {
-    return AppBar(
-      backgroundColor: AppColors.primaryDark,
-      elevation: 0,
-      leading: IconButton(
-        icon: const Icon(
-          Icons.arrow_back_ios,
-          color: AppColors.textLight,
-        ),
-        onPressed: () => Navigator.pop(context),
-      ),
-      title: const Text(
-        'Select Services',
-        style: TextStyle(
-          color: AppColors.textLight,
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-      centerTitle: true,
-    );
-  }
-
-  /// Progress Indicator
-  Widget _buildProgressIndicator() {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
-      decoration: BoxDecoration(
-        color: AppColors.background,
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.shadow,
-            blurRadius: 4,
-            offset: const Offset(0, 2),
+  /// Error View
+  Widget _buildErrorView() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.error_outline, size: 64, color: Colors.red),
+          const SizedBox(height: 16),
+          Text(
+            _errorMessage ?? 'An error occurred',
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 16),
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton(
+            onPressed: _loadServices,
+            child: const Text('Retry'),
           ),
         ],
       ),
-      child: const StepProgressIndicator(
-        currentStep: 4,
-        totalSteps: 8,
-      ),
     );
   }
 
-  /// Required Services Section
-  Widget _buildRequiredServicesSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Section Header
-        _buildSectionHeader(
-          icon: Icons.check_circle,
-          title: 'Required Services',
-          color: AppColors.success,
-          subtitle: 'These services are essential for your event',
-        ),
-
-        const SizedBox(height: 16),
-
-        // Required Services List
-        ..._requiredServices.map((service) {
-          final allocatedAmount = _totalBudget * 
-              (service['suggestedBudgetPercentage'] / 100);
-          
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: ServiceCard(
-              service: service,
-              allocatedAmount: allocatedAmount,
-              isRequired: true,
-              isSelected: true,
-              onToggle: null, // Required services cannot be toggled
-            ),
-          );
-        }),
-      ],
-    );
-  }
-
-  /// Optional Services Section
-  Widget _buildOptionalServicesSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Section Header
-        _buildSectionHeader(
-          icon: Icons.library_add_check,
-          title: 'Optional Services',
-          color: AppColors.info,
-          subtitle: 'Add these services to enhance your event',
-        ),
-
-        const SizedBox(height: 16),
-
-        // Optional Services List
-        ..._optionalServices.map((service) {
-          final isSelected = _selectedOptionalServicesIds.contains(
-            service['serviceId'],
-          );
-          final allocatedAmount = _totalBudget * 
-              (service['suggestedBudgetPercentage'] / 100);
-          
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: ServiceCard(
-              service: service,
-              allocatedAmount: allocatedAmount,
-              isRequired: false,
-              isSelected: isSelected,
-              onToggle: () => _toggleOptionalService(service['serviceId']),
-            ),
-          );
-        }),
-      ],
-    );
-  }
-
-  /// Section Header Widget
-  Widget _buildSectionHeader({
-    required IconData icon,
-    required String title,
-    required Color color,
-    required String subtitle,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: color.withOpacity(0.15),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Icon(
-                icon,
-                color: color,
-                size: 22,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: AppColors.textPrimary,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 6),
-        Padding(
-          padding: const EdgeInsets.only(left: 50),
-          child: Text(
-            subtitle,
-            style: TextStyle(
-              fontSize: 13,
-              color: AppColors.textSecondary,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  /// Divider
-  Widget _buildDivider() {
+  /// Budget Summary Card
+  Widget _buildBudgetSummaryCard() {
     return Container(
-      height: 1,
+      margin: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            Colors.transparent,
-            AppColors.blue100,
-            Colors.transparent,
+            AppColors.primaryDark,
+            AppColors.primaryDark.withOpacity(0.8),
           ],
         ),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _buildBudgetItem('Total Budget', _totalBudget),
+              _buildBudgetItem('Allocated', _allocatedBudget),
+              _buildBudgetItem('Remaining', _remainingBudget),
+            ],
+          ),
+          const SizedBox(height: 12),
+          LinearProgressIndicator(
+            value: _allocatedBudget / _totalBudget,
+            backgroundColor: Colors.white24,
+            valueColor: AlwaysStoppedAnimation<Color>(
+              _remainingBudget >= 0 ? Colors.green : Colors.red,
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  /// Next Button
-  Widget _buildNextButton() {
-    return SizedBox(
-      width: double.infinity,
-      height: 56,
+  /// Budget Item
+  Widget _buildBudgetItem(String label, double amount) {
+    return Column(
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 12,
+            color: Colors.white70,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          'EGP ${_formatNumber(amount.toInt())}',
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Section Header
+  Widget _buildSectionHeader(String title, IconData icon) {
+    return Row(
+      children: [
+        Icon(icon, color: AppColors.primaryGold),
+        const SizedBox(width: 8),
+        Text(
+          title,
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: AppColors.textPrimary,
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Service Card
+  Widget _buildServiceCard(
+    Map<String, dynamic> service, {
+    required bool isRequired,
+  }) {
+    final serviceId = service['serviceId'];
+    final isSelected = isRequired || _selectedOptionalServicesIds.contains(serviceId);
+    final budgetPercentage = service['suggestedBudgetPercentage'] ?? 0;
+    final allocatedAmount = (_totalBudget * budgetPercentage / 100);
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: AppColors.cardBackground,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: isSelected ? AppColors.primaryGold : Colors.transparent,
+          width: 2,
+        ),
+      ),
+      child: CheckboxListTile(
+        value: isSelected,
+        onChanged: isRequired
+            ? null
+            : (value) {
+                setState(() {
+                  if (value == true) {
+                    _selectedOptionalServicesIds.add(serviceId);
+                  } else {
+                    _selectedOptionalServicesIds.remove(serviceId);
+                  }
+                  _calculateBudgetAllocation();
+                });
+              },
+        title: Text(
+          service['serviceName'] ?? 'Service',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: AppColors.textPrimary,
+          ),
+        ),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 4),
+            Text(
+              service['description'] ?? '',
+              style: TextStyle(
+                fontSize: 12,
+                color: AppColors.textSecondary,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: isRequired ? Colors.red.withOpacity(0.2) : Colors.blue.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Text(
+                    isRequired ? 'Required' : 'Optional',
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      color: isRequired ? Colors.red : Colors.blue,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  '$budgetPercentage% • EGP ${_formatNumber(allocatedAmount.toInt())}',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.primaryGold,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+        activeColor: AppColors.primaryGold,
+        checkColor: Colors.white,
+      ),
+    );
+  }
+
+  /// Continue Button
+  Widget _buildContinueButton() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.cardBackground,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 10,
+            offset: const Offset(0, -5),
+          ),
+        ],
+      ),
       child: ElevatedButton(
-        onPressed: _handleNext,
+        onPressed: _onContinue,
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primaryGold,
-          foregroundColor: AppColors.textPrimary,
+          padding: const EdgeInsets.symmetric(vertical: 16),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
-          elevation: 2,
         ),
-        child: const Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              'Start Browsing Packages',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            SizedBox(width: 8),
-            Icon(Icons.arrow_forward_rounded),
-          ],
+        child: const Text(
+          'Continue to Browse Packages',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
         ),
       ),
     );
   }
 
-  /// Toggle Optional Service
-  void _toggleOptionalService(String serviceId) {
-    setState(() {
-      if (_selectedOptionalServicesIds.contains(serviceId)) {
-        _selectedOptionalServicesIds.remove(serviceId);
-      } else {
-        _selectedOptionalServicesIds.add(serviceId);
-      }
-      _calculateBudget();
-    });
-  }
+  /// Handle Continue
+  void _onContinue() {
+    if (_remainingBudget < 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Budget exceeded! Please adjust your selections.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
 
-  /// Handle Next Button
-  void _handleNext() {
-    // Gather selected services
+    // Combine required and selected optional services
     final selectedServices = [
       ..._requiredServices,
-      ..._optionalServices.where((s) => 
-        _selectedOptionalServicesIds.contains(s['serviceId'])
+      ..._optionalServices.where(
+        (s) => _selectedOptionalServicesIds.contains(s['serviceId']),
       ),
     ];
 
-    // Prepare data for next screen
+    // Save to EventCreationCubit
+    context.read<EventCreationCubit>().setSelectedServices(
+          selectedServices: selectedServices,
+          allocatedBudget: _allocatedBudget,
+          remainingBudget: _remainingBudget,
+        );
+
+    // Prepare servicesData for next screen
     final servicesData = {
       'selectedServices': selectedServices,
       'totalBudget': _totalBudget,
@@ -387,17 +421,7 @@ class _ServicesSelectionScreenState extends State<ServicesSelectionScreen> {
       'remainingBudget': _remainingBudget,
     };
 
-    // Show success message
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          'Selected ${selectedServices.length} services',
-        ),
-        backgroundColor: AppColors.success,
-        duration: const Duration(seconds: 2),
-      ),
-    );
-
+    // Navigate to BrowsePackagesScreen
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -408,152 +432,16 @@ class _ServicesSelectionScreenState extends State<ServicesSelectionScreen> {
         ),
       ),
     );
-    
   }
 
-  /// Get Services for Event Type (Mock Data)
-  List<Map<String, dynamic>> _getServicesForEventType(String eventTypeId) {
-    // This will be replaced with actual data from JSON later
-    return _mockServicesData[eventTypeId] ?? _mockServicesData['evt_wedding']!;
+  /// Format Number Helper
+  String _formatNumber(int number) {
+    return number.toString().replaceAllMapped(
+          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+          (Match m) => '${m[1]},',
+        );
   }
-
-  /// Mock Services Data
-  static final Map<String, List<Map<String, dynamic>>> _mockServicesData = {
-    'evt_wedding': [
-      {
-        'serviceId': 'srv_venue',
-        'serviceName': 'Venue & Spaces',
-        'icon': '🏛️',
-        'required': true,
-        'priority': 1,
-        'suggestedBudgetPercentage': 30,
-        'description': 'Wedding venue, banquet hall, or outdoor space',
-      },
-      {
-        'serviceId': 'srv_catering',
-        'serviceName': 'Catering & Food',
-        'icon': '🍽️',
-        'required': true,
-        'priority': 2,
-        'suggestedBudgetPercentage': 25,
-        'description': 'Food and beverage services for your wedding',
-      },
-      {
-        'serviceId': 'srv_photography',
-        'serviceName': 'Photography & Videography',
-        'icon': '📷',
-        'required': true,
-        'priority': 3,
-        'suggestedBudgetPercentage': 15,
-        'description': 'Professional photography and video coverage',
-      },
-      {
-        'serviceId': 'srv_decoration',
-        'serviceName': 'Decoration & Flowers',
-        'icon': '🎨',
-        'required': true,
-        'priority': 4,
-        'suggestedBudgetPercentage': 15,
-        'description': 'Wedding decoration, floral arrangements',
-      },
-      {
-        'serviceId': 'srv_entertainment',
-        'serviceName': 'Music & Entertainment',
-        'icon': '🎵',
-        'required': false,
-        'priority': 5,
-        'suggestedBudgetPercentage': 8,
-        'description': 'DJ, live band, or entertainment services',
-      },
-      {
-        'serviceId': 'srv_cake',
-        'serviceName': 'Wedding Cake',
-        'icon': '🎂',
-        'required': false,
-        'priority': 6,
-        'suggestedBudgetPercentage': 3,
-        'description': 'Wedding cake and dessert services',
-      },
-      {
-        'serviceId': 'srv_invitations',
-        'serviceName': 'Invitations',
-        'icon': '💌',
-        'required': false,
-        'priority': 7,
-        'suggestedBudgetPercentage': 2,
-        'description': 'Wedding invitations and printing',
-      },
-      {
-        'serviceId': 'srv_makeup',
-        'serviceName': 'Hair & Makeup',
-        'icon': '💄',
-        'required': false,
-        'priority': 8,
-        'suggestedBudgetPercentage': 4,
-        'description': 'Bridal hair styling and makeup',
-      },
-    ],
-    'evt_birthday': [
-      {
-        'serviceId': 'srv_venue',
-        'serviceName': 'Venue & Spaces',
-        'icon': '🏛️',
-        'required': true,
-        'priority': 1,
-        'suggestedBudgetPercentage': 25,
-        'description': 'Party venue or entertainment center',
-      },
-      {
-        'serviceId': 'srv_catering',
-        'serviceName': 'Catering & Food',
-        'icon': '🍽️',
-        'required': true,
-        'priority': 2,
-        'suggestedBudgetPercentage': 30,
-        'description': 'Food, snacks, and beverages',
-      },
-      {
-        'serviceId': 'srv_cake',
-        'serviceName': 'Birthday Cake',
-        'icon': '🎂',
-        'required': true,
-        'priority': 3,
-        'suggestedBudgetPercentage': 10,
-        'description': 'Birthday cake and desserts',
-      },
-      {
-        'serviceId': 'srv_entertainment',
-        'serviceName': 'Entertainment',
-        'icon': '🎪',
-        'required': false,
-        'priority': 4,
-        'suggestedBudgetPercentage': 20,
-        'description': 'Entertainers, animators, or DJ',
-      },
-      {
-        'serviceId': 'srv_decoration',
-        'serviceName': 'Decoration',
-        'icon': '🎨',
-        'required': false,
-        'priority': 5,
-        'suggestedBudgetPercentage': 12,
-        'description': 'Party decoration and themed styling',
-      },
-      {
-        'serviceId': 'srv_photography',
-        'serviceName': 'Photography',
-        'icon': '📷',
-        'required': false,
-        'priority': 6,
-        'suggestedBudgetPercentage': 8,
-        'description': 'Photo coverage of the party',
-      },
-    ],
-    // Add more event types as needed
-  };
 }
-
-// lib/features/events/presentation/widgets/service_card.dart
 
 class ServiceCard extends StatelessWidget {
   final Map<String, dynamic> service;

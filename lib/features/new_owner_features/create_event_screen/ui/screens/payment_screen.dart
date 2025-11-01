@@ -1,24 +1,24 @@
-// lib/features/events/presentation/screens/payment_screen.dart
+// lib/features/new_owner_features/create_event_screen/ui/screens/payment_screen.dart
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_credit_card/flutter_credit_card.dart';
+import 'package:intl/intl.dart';
 import 'package:plan_z/core/utils/app_colors.dart';
-import 'package:plan_z/features/new_owner_features/create_event_screen/ui/screens/basic_event_info_screen.dart';
+import 'package:plan_z/core/widgets/custom_app_bar.dart';
+import 'package:plan_z/features/new_owner_features/create_event_screen/cubits/create_event_cubit/create_event_cubit.dart';
+import 'package:plan_z/features/new_owner_features/create_event_screen/cubits/create_event_cubit/create_event_state.dart';
+import 'package:plan_z/features/new_owner_features/create_event_screen/data/models/event_model.dart';
+import 'package:plan_z/features/new_owner_features/create_event_screen/data/models/event_model_enum.dart';
 
 class PaymentScreen extends StatefulWidget {
+  final String eventId;
   final double totalAmount;
-  final Map<String, dynamic> eventInfo;
-  final Map<String, dynamic> budgetData;
-  final Map<String, dynamic> servicesData;
-  final Map<String, String> selectedPackages;
 
   const PaymentScreen({
     super.key,
+    required this.eventId,
     required this.totalAmount,
-    required this.eventInfo,
-    required this.budgetData,
-    required this.servicesData,
-    required this.selectedPackages,
   });
 
   @override
@@ -26,116 +26,231 @@ class PaymentScreen extends StatefulWidget {
 }
 
 class _PaymentScreenState extends State<PaymentScreen> {
-  // Payment method
+  /// ============================================
+  /// Variables
+  /// ============================================
+  
+  // Payment Method
   String _selectedPaymentMethod = 'card'; // card, wallet, cash
+  
+  // Deposit Options
+  String _selectedDepositOption = 'full'; // full, partial
+  late double _depositAmount;
 
-  // Card details
+  // Card Form Variables
   String _cardNumber = '';
   String _expiryDate = '';
   String _cardHolderName = '';
   String _cvvCode = '';
   bool _isCvvFocused = false;
-
-  // Form key
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  // Deposit options
-  String _selectedDepositOption = 'full'; // full, partial
-  double _depositAmount = 0;
+  // Wallet Number
+  String _walletNumber = '';
+
+  // Processing
+  bool _isProcessing = false;
 
   @override
   void initState() {
     super.initState();
     _depositAmount = widget.totalAmount;
+    _loadEventData();
+  }
+
+  /// ✅ Load Event Data
+  void _loadEventData() {
+    debugPrint('💳 Loading event data for payment: ${widget.eventId}');
+    context.read<EventOwnerCubit>().getEventById(widget.eventId);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: _buildAppBar(),
-      body: Column(
-        children: [
-          // Progress Indicator
-          _buildProgressIndicator(),
+      backgroundColor: Colors.white,
+      appBar: CustomAppBar(title: 'Payment'),
+      body: BlocBuilder<EventOwnerCubit, EventOwnerState>(
+        builder: (context, state) {
+          debugPrint('💳 Payment State: ${state.runtimeType}');
 
-          // Content
-          Expanded(
-            child: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Payment Summary
-                  _buildPaymentSummary(),
-
-                  const SizedBox(height: 24),
-
-                  // Payment Method Selection
-                  _buildPaymentMethodSelection(),
-
-                  const SizedBox(height: 24),
-
-                  // Payment Form based on selected method
-                  if (_selectedPaymentMethod == 'card') ...[
-                    _buildCreditCardForm(),
-                  ] else if (_selectedPaymentMethod == 'wallet') ...[
-                    _buildMobileWalletForm(),
-                  ] else if (_selectedPaymentMethod == 'cash') ...[
-                    _buildCashOnDeliveryInfo(),
-                  ],
-
-                  const SizedBox(height: 80),
-                ],
+          // ============================================
+          // Loading State
+          // ============================================
+          if (state is GetEventByIdLoading) {
+            return const Center(
+              child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  AppColors.primaryGold,
+                ),
               ),
+            );
+          }
+
+          // ============================================
+          // Error State
+          // ============================================
+          if (state is GetEventByIdError) {
+            return _buildErrorWidget(state.message);
+          }
+
+          // ============================================
+          // Success State ✅
+          // ============================================
+          if (state is GetEventByIdSuccess) {
+            final event = state.event;
+            return _buildPaymentContent(event);
+          }
+
+          return const SizedBox.shrink();
+        },
+      ),
+    );
+  }
+
+  /// ============================================
+  /// Payment Content
+  /// ============================================
+  Widget _buildPaymentContent(EventModel event) {
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          // ✅ Progress Bar
+          _buildProgressBar(),
+          
+          // ✅ Content
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // ✅ Payment Summary
+                _buildPaymentSummary(event),
+                const SizedBox(height: 24),
+
+                // ✅ Payment Method Selection
+                _buildPaymentMethodSelection(),
+                const SizedBox(height: 24),
+
+                // ✅ Deposit Options
+                _buildDepositOptions(),
+                const SizedBox(height: 24),
+
+                // ✅ Payment Form (based on method)
+                if (_selectedPaymentMethod == 'card')
+                  _buildCreditCardForm()
+                else if (_selectedPaymentMethod == 'wallet')
+                  _buildWalletForm()
+                else
+                  _buildCashPaymentInfo(),
+
+                const SizedBox(height: 30),
+
+                // ✅ Payment Button
+                _buildPaymentButton(event),
+
+                const SizedBox(height: 20),
+              ],
             ),
           ),
         ],
       ),
-      floatingActionButton: _buildPayButton(),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 
-  PreferredSizeWidget _buildAppBar() {
-    return AppBar(
-      backgroundColor: AppColors.primaryDark,
-      elevation: 0,
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back_ios, color: AppColors.textLight),
-        onPressed: () => Navigator.pop(context),
-      ),
-      title: const Text(
-        'Payment & Booking',
-        style: TextStyle(
-          color: AppColors.textLight,
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-      centerTitle: true,
-    );
-  }
-
-  Widget _buildProgressIndicator() {
+  /// ============================================
+  /// Progress Bar
+  /// ============================================
+  Widget _buildProgressBar() {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+      padding: const EdgeInsets.symmetric(vertical: 16),
       decoration: BoxDecoration(
-        color: AppColors.background,
+        color: Colors.grey[100],
         boxShadow: [
           BoxShadow(
-            color: AppColors.shadow,
+            color: Colors.black.withOpacity(0.05),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
         ],
       ),
-      child: const StepProgressIndicator(currentStep: 7, totalSteps: 8),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              _buildProgressStep('1', 'Packages', true),
+              _buildProgressLine(true),
+              _buildProgressStep('2', 'Payment', true),
+              _buildProgressLine(false),
+              _buildProgressStep('3', 'Done', false),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Step 2 of 3: Payment',
+            style: TextStyle(
+              fontSize: 12,
+              color: Colors.grey[600],
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _buildPaymentSummary() {
+  /// ============================================
+  /// Progress Step
+  /// ============================================
+  Widget _buildProgressStep(String number, String label, bool isCompleted) {
+    return Expanded(
+      child: Column(
+        children: [
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: isCompleted ? Colors.green : Colors.grey[300],
+              shape: BoxShape.circle,
+            ),
+            child: Center(
+              child: isCompleted
+                  ? const Icon(Icons.check, color: Colors.white, size: 20)
+                  : Text(
+                      number,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: const TextStyle(fontSize: 10),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// ============================================
+  /// Progress Line
+  /// ============================================
+  Widget _buildProgressLine(bool isCompleted) {
+    return Expanded(
+      child: Container(
+        height: 2,
+        color: isCompleted ? Colors.green : Colors.grey[300],
+      ),
+    );
+  }
+
+  /// ============================================
+  /// Payment Summary Card
+  /// ============================================
+  Widget _buildPaymentSummary(EventModel event) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -152,6 +267,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
         ),
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
@@ -168,79 +284,48 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 ),
               ),
               const SizedBox(width: 16),
-              const Expanded(
-                child: Text(
-                  'Payment Summary',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.textPrimary,
-                  ),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      event.eventName,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.primaryDark,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      DateFormat('MMM d, yyyy').format(event.eventDate),
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
-
-          const SizedBox(height: 20),
-          const Divider(height: 1),
-          const SizedBox(height: 16),
-
-          // Total Amount
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'Total Amount',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: AppColors.textSecondary,
-                ),
-              ),
-              Text(
-                '${widget.totalAmount.toStringAsFixed(0)} EGP',
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
-                ),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 16),
-
-          // Deposit Options
-          _buildDepositOptions(),
-
-          const SizedBox(height: 16),
-
-          // Amount to pay
+          const Divider(height: 24),
+          _buildSummaryRow('Subtotal', widget.totalAmount),
+          const SizedBox(height: 12),
+          _buildSummaryRow('Fees (0%)', 0),
+          const SizedBox(height: 12),
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: AppColors.primaryGold.withOpacity(0.15),
-              borderRadius: BorderRadius.circular(12),
+              color: AppColors.primaryGold.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'Amount to Pay Now',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-                Text(
-                  '${_depositAmount.toStringAsFixed(0)} EGP',
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.primaryGold,
-                  ),
-                ),
-              ],
+            child: _buildSummaryRow(
+              'Total Amount',
+              widget.totalAmount,
+              isBold: true,
             ),
           ),
         ],
@@ -248,19 +333,131 @@ class _PaymentScreenState extends State<PaymentScreen> {
     );
   }
 
+  /// ============================================
+  /// Summary Row
+  /// ============================================
+  Widget _buildSummaryRow(String label, double amount, {bool isBold = false}) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: isBold ? 14 : 13,
+            fontWeight: isBold ? FontWeight.bold : FontWeight.w500,
+            color: isBold ? AppColors.primaryGold : Colors.grey[600],
+          ),
+        ),
+        Text(
+          'EGP ${_formatNumber(amount.toInt())}',
+          style: TextStyle(
+            fontSize: isBold ? 14 : 13,
+            fontWeight: isBold ? FontWeight.bold : FontWeight.w500,
+            color: isBold ? AppColors.primaryGold : AppColors.primaryDark,
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// ============================================
+  /// Payment Method Selection
+  /// ============================================
+  Widget _buildPaymentMethodSelection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Payment Method',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: AppColors.primaryDark,
+          ),
+        ),
+        const SizedBox(height: 16),
+        Row(
+          children: [
+            Expanded(
+              child: _buildPaymentMethodCard('Credit Card', 'card', Icons.credit_card),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _buildPaymentMethodCard('Mobile Wallet', 'wallet', Icons.phone_android),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _buildPaymentMethodCard('Cash', 'cash', Icons.money),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  /// ============================================
+  /// Payment Method Card
+  /// ============================================
+  Widget _buildPaymentMethodCard(String title, String value, IconData icon) {
+    final isSelected = _selectedPaymentMethod == value;
+
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _selectedPaymentMethod = value;
+        });
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? AppColors.primaryGold.withOpacity(0.15)
+              : Colors.grey[50],
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected ? AppColors.primaryGold : Colors.grey[300]!,
+            width: isSelected ? 2 : 1,
+          ),
+        ),
+        child: Column(
+          children: [
+            Icon(
+              icon,
+              color: isSelected ? AppColors.primaryGold : Colors.grey[600],
+              size: 32,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                color: isSelected ? AppColors.primaryGold : Colors.grey[600],
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// ============================================
+  /// Deposit Options
+  /// ============================================
   Widget _buildDepositOptions() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          'Deposit Options',
+          'Payment Option',
           style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: AppColors.textPrimary,
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: AppColors.primaryDark,
           ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 16),
         Row(
           children: [
             Expanded(
@@ -268,7 +465,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 'Full Payment',
                 'full',
                 widget.totalAmount,
-                Icons.payment,
               ),
             ),
             const SizedBox(width: 12),
@@ -277,7 +473,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 '30% Deposit',
                 'partial',
                 widget.totalAmount * 0.3,
-                Icons.account_balance_wallet,
               ),
             ),
           ],
@@ -286,51 +481,48 @@ class _PaymentScreenState extends State<PaymentScreen> {
     );
   }
 
-  Widget _buildDepositOption(String title, String value, double amount, IconData icon) {
+  /// ============================================
+  /// Deposit Option
+  /// ============================================
+  Widget _buildDepositOption(String title, String value, double amount) {
     final isSelected = _selectedDepositOption == value;
 
-    return InkWell(
+    return GestureDetector(
       onTap: () {
         setState(() {
           _selectedDepositOption = value;
           _depositAmount = amount;
         });
       },
-      borderRadius: BorderRadius.circular(12),
       child: Container(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primaryGold.withOpacity(0.15) : AppColors.blue50,
+          color: isSelected
+              ? AppColors.primaryGold.withOpacity(0.15)
+              : Colors.grey[50],
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected ? AppColors.primaryGold : AppColors.blue100,
+            color: isSelected ? AppColors.primaryGold : Colors.grey[300]!,
             width: isSelected ? 2 : 1,
           ),
         ),
         child: Column(
           children: [
-            Icon(
-              icon,
-              color: isSelected ? AppColors.primaryGold : AppColors.textSecondary,
-              size: 24,
-            ),
-            const SizedBox(height: 8),
             Text(
               title,
               style: TextStyle(
-                fontSize: 12,
+                fontSize: 13,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                color: isSelected ? AppColors.primaryGold : AppColors.textSecondary,
+                color: isSelected ? AppColors.primaryGold : Colors.grey[600],
               ),
-              textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 8),
             Text(
-              '${amount.toStringAsFixed(0)} EGP',
+              'EGP ${_formatNumber(amount.toInt())}',
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
-                color: isSelected ? AppColors.primaryGold : AppColors.textPrimary,
+                color: isSelected ? AppColors.primaryGold : AppColors.primaryDark,
               ),
             ),
           ],
@@ -339,97 +531,13 @@ class _PaymentScreenState extends State<PaymentScreen> {
     );
   }
 
-  Widget _buildPaymentMethodSelection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Payment Method',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: AppColors.textPrimary,
-          ),
-        ),
-        const SizedBox(height: 16),
-        Row(
-          children: [
-            Expanded(
-              child: _buildPaymentMethodCard(
-                'Credit Card',
-                'card',
-                Icons.credit_card,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _buildPaymentMethodCard(
-                'Mobile Wallet',
-                'wallet',
-                Icons.phone_android,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _buildPaymentMethodCard(
-                'Cash',
-                'cash',
-                Icons.money,
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildPaymentMethodCard(String title, String value, IconData icon) {
-    final isSelected = _selectedPaymentMethod == value;
-
-    return InkWell(
-      onTap: () {
-        setState(() {
-          _selectedPaymentMethod = value;
-        });
-      },
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
-        decoration: BoxDecoration(
-          color: isSelected ? AppColors.primaryGold.withOpacity(0.15) : AppColors.background,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: isSelected ? AppColors.primaryGold : AppColors.blue100,
-            width: isSelected ? 2.5 : 1.5,
-          ),
-        ),
-        child: Column(
-          children: [
-            Icon(
-              icon,
-              color: isSelected ? AppColors.primaryGold : AppColors.textSecondary,
-              size: 32,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                color: isSelected ? AppColors.primaryGold : AppColors.textSecondary,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
+  /// ============================================
+  /// Credit Card Form
+  /// ============================================
   Widget _buildCreditCardForm() {
     return Column(
       children: [
-        // Credit Card Widget
+        // Card Display
         CreditCardWidget(
           cardNumber: _cardNumber,
           expiryDate: _expiryDate,
@@ -442,21 +550,10 @@ class _PaymentScreenState extends State<PaymentScreen> {
           cardBgColor: AppColors.primaryDark,
           isSwipeGestureEnabled: true,
           onCreditCardWidgetChange: (CreditCardBrand brand) {},
-          customCardTypeIcons: <CustomCardTypeIcon>[
-            CustomCardTypeIcon(
-              cardType: CardType.mastercard,
-              cardImage: Image.asset(
-                'assets/images/mastercard.png',
-                height: 48,
-                width: 48,
-              ),
-            ),
-          ],
         ),
-
         const SizedBox(height: 20),
 
-        // Credit Card Form
+        // Card Form
         CreditCardForm(
           formKey: _formKey,
           obscureCvv: true,
@@ -472,77 +569,89 @@ class _PaymentScreenState extends State<PaymentScreen> {
             cardNumberDecoration: InputDecoration(
               labelText: 'Card Number',
               hintText: 'XXXX XXXX XXXX XXXX',
-              labelStyle: const TextStyle(color: AppColors.textSecondary),
+              labelStyle: const TextStyle(color: Colors.grey),
               filled: true,
-              fillColor: AppColors.background,
+              fillColor: Colors.grey[50],
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: AppColors.blue100),
+                borderSide: BorderSide(color: Colors.grey[300]!),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: AppColors.blue100),
+                borderSide: BorderSide(color: Colors.grey[300]!),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: AppColors.primaryGold, width: 2),
+                borderSide: const BorderSide(
+                  color: AppColors.primaryGold,
+                  width: 2,
+                ),
               ),
             ),
             expiryDateDecoration: InputDecoration(
               labelText: 'Expiry Date',
               hintText: 'MM/YY',
-              labelStyle: const TextStyle(color: AppColors.textSecondary),
+              labelStyle: const TextStyle(color: Colors.grey),
               filled: true,
-              fillColor: AppColors.background,
+              fillColor: Colors.grey[50],
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: AppColors.blue100),
+                borderSide: BorderSide(color: Colors.grey[300]!),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: AppColors.blue100),
+                borderSide: BorderSide(color: Colors.grey[300]!),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: AppColors.primaryGold, width: 2),
+                borderSide: const BorderSide(
+                  color: AppColors.primaryGold,
+                  width: 2,
+                ),
               ),
             ),
             cvvCodeDecoration: InputDecoration(
               labelText: 'CVV',
               hintText: 'XXX',
-              labelStyle: const TextStyle(color: AppColors.textSecondary),
+              labelStyle: const TextStyle(color: Colors.grey),
               filled: true,
-              fillColor: AppColors.background,
+              fillColor: Colors.grey[50],
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: AppColors.blue100),
+                borderSide: BorderSide(color: Colors.grey[300]!),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: AppColors.blue100),
+                borderSide: BorderSide(color: Colors.grey[300]!),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: AppColors.primaryGold, width: 2),
+                borderSide: const BorderSide(
+                  color: AppColors.primaryGold,
+                  width: 2,
+                ),
               ),
             ),
             cardHolderDecoration: InputDecoration(
               labelText: 'Card Holder Name',
               hintText: 'John Doe',
-              labelStyle: const TextStyle(color: AppColors.textSecondary),
+              labelStyle: const TextStyle(color: Colors.grey),
               filled: true,
-              fillColor: AppColors.background,
+              fillColor: Colors.grey[50],
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: AppColors.blue100),
+                borderSide: BorderSide(color: Colors.grey[300]!),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: AppColors.blue100),
+                borderSide: BorderSide(color: Colors.grey[300]!),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: AppColors.primaryGold, width: 2),
+                borderSide: const BorderSide(
+                  color: AppColors.primaryGold,
+                  width: 2,
+                ),
               ),
             ),
           ),
@@ -560,111 +669,111 @@ class _PaymentScreenState extends State<PaymentScreen> {
     );
   }
 
-  Widget _buildMobileWalletForm() {
+  /// ============================================
+  /// Wallet Form
+  /// ============================================
+  Widget _buildWalletForm() {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.background,
+        color: Colors.blue[50],
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.blue100, width: 1.5),
+        border: Border.all(color: Colors.blue[200]!, width: 1),
       ),
       child: Column(
         children: [
-          const Icon(Icons.phone_android, size: 64, color: AppColors.info),
+          Icon(Icons.phone_android, size: 64, color: Colors.blue[400]),
           const SizedBox(height: 16),
           const Text(
             'Mobile Wallet Payment',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: AppColors.textPrimary,
+              color: AppColors.primaryDark,
             ),
           ),
           const SizedBox(height: 8),
           Text(
-            'Pay using Vodafone Cash, Fawry, or other mobile wallets',
-            style: TextStyle(
-              fontSize: 14,
-              color: AppColors.textSecondary,
-            ),
+            'Pay using Vodafone Cash, Fawry, or other wallets',
+            style: TextStyle(fontSize: 13, color: Colors.grey[600]),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 20),
           TextField(
+            onChanged: (value) => setState(() => _walletNumber = value),
+            keyboardType: TextInputType.phone,
             decoration: InputDecoration(
               labelText: 'Mobile Number',
               hintText: '01XXXXXXXXX',
-              prefixIcon: const Icon(Icons.phone, color: AppColors.info),
-              labelStyle: const TextStyle(color: AppColors.textSecondary),
+              prefixIcon: const Icon(Icons.phone),
               filled: true,
-              fillColor: AppColors.background,
+              fillColor: Colors.white,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: AppColors.blue100),
+                borderSide: BorderSide(color: Colors.blue[300]!),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: AppColors.blue100),
+                borderSide: BorderSide(color: Colors.blue[300]!),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: AppColors.primaryGold, width: 2),
+                borderSide: const BorderSide(
+                  color: AppColors.primaryGold,
+                  width: 2,
+                ),
               ),
             ),
-            keyboardType: TextInputType.phone,
           ),
         ],
       ),
     );
   }
 
-  Widget _buildCashOnDeliveryInfo() {
+  /// ============================================
+  /// Cash Payment Info
+  /// ============================================
+  Widget _buildCashPaymentInfo() {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.warning.withOpacity(0.1),
+        color: Colors.orange[50],
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.warning.withOpacity(0.3), width: 1.5),
+        border: Border.all(color: Colors.orange[200]!, width: 1),
       ),
       child: Column(
         children: [
-          Icon(Icons.money, size: 64, color: AppColors.warning),
+          Icon(Icons.money, size: 64, color: Colors.orange[400]),
           const SizedBox(height: 16),
           const Text(
-            'Cash on Delivery',
+            'Cash Payment',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: AppColors.textPrimary,
+              color: AppColors.primaryDark,
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 12),
           Text(
-            'Pay in cash when you meet with vendors or on the event day',
-            style: TextStyle(
-              fontSize: 14,
-              color: AppColors.textSecondary,
-            ),
+            'Pay cash directly to vendors or on event day',
+            style: TextStyle(fontSize: 13, color: Colors.grey[600]),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 16),
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: AppColors.info.withOpacity(0.1),
+              color: Colors.orange[100],
               borderRadius: BorderRadius.circular(8),
             ),
             child: Row(
               children: [
-                const Icon(Icons.info_outline, color: AppColors.info, size: 20),
+                Icon(Icons.info_outline, color: Colors.orange[700], size: 20),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Payment will be collected by vendors directly',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: AppColors.info,
-                    ),
+                    'Vendors will collect payment directly from you',
+                    style: TextStyle(fontSize: 12, color: Colors.orange[900]),
                   ),
                 ),
               ],
@@ -675,54 +784,93 @@ class _PaymentScreenState extends State<PaymentScreen> {
     );
   }
 
-  Widget _buildPayButton() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: SizedBox(
-        width: double.infinity,
-        height: 56,
-        child: ElevatedButton(
-          onPressed: _processPayment,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.primaryGold,
-            foregroundColor: AppColors.textPrimary,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            elevation: 4,
+  /// ============================================
+  /// Payment Button
+  /// ============================================
+  Widget _buildPaymentButton(EventModel event) {
+    return SizedBox(
+      width: double.infinity,
+      height: 56,
+      child: ElevatedButton.icon(
+        onPressed: _isProcessing ? null : () => _processPayment(event),
+        icon: const Icon(Icons.lock, size: 20),
+        label: Text(
+          _isProcessing
+              ? 'Processing...'
+              : _selectedPaymentMethod == 'cash'
+                  ? 'Confirm Booking'
+                  : 'Pay EGP ${_formatNumber(_depositAmount.toInt())}',
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.primaryGold,
+          foregroundColor: Colors.white,
+          disabledBackgroundColor: Colors.grey[400],
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
           ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.lock, size: 22),
-              const SizedBox(width: 12),
-              Text(
-                _selectedPaymentMethod == 'cash' 
-                    ? 'Confirm Booking'
-                    : 'Pay ${_depositAmount.toStringAsFixed(0)} EGP',
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
+          elevation: 4,
         ),
       ),
     );
   }
 
-  void _processPayment() {
-    if (_selectedPaymentMethod == 'card') {
-      if (_formKey.currentState!.validate()) {
-        _showProcessingDialog();
-      }
-    } else {
-      _showProcessingDialog();
-    }
+  /// ============================================
+  /// Error Widget
+  /// ============================================
+  Widget _buildErrorWidget(String message) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.error_outline, size: 64, color: Colors.red[300]),
+          const SizedBox(height: 16),
+          const Text(
+            'Failed to load event',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+          Text(message, textAlign: TextAlign.center),
+          const SizedBox(height: 24),
+          ElevatedButton(
+            onPressed: _loadEventData,
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text('Retry'),
+          ),
+        ],
+      ),
+    );
   }
 
-  void _showProcessingDialog() {
+  /// ============================================
+  /// Process Payment
+  /// ============================================
+  void _processPayment(EventModel event) {
+    debugPrint('💳 Processing payment...');
+
+    // Validation
+    if (_selectedPaymentMethod == 'card') {
+      if (!_formKey.currentState!.validate()) {
+        _showError('Please fill all card details');
+        return;
+      }
+    } else if (_selectedPaymentMethod == 'wallet') {
+      if (_walletNumber.isEmpty) {
+        _showError('Please enter your wallet number');
+        return;
+      }
+    }
+
+    setState(() => _isProcessing = true);
+
+    // Show Processing Dialog
+    _showProcessingDialog(event);
+  }
+
+  /// ============================================
+  /// Processing Dialog
+  /// ============================================
+  void _showProcessingDialog(EventModel event) {
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -734,7 +882,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               const CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(AppColors.primaryGold),
+                valueColor: AlwaysStoppedAnimation(AppColors.primaryGold),
               ),
               const SizedBox(height: 24),
               const Text(
@@ -742,16 +890,13 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
+                  color: AppColors.primaryDark,
                 ),
               ),
               const SizedBox(height: 8),
               Text(
                 'Please wait while we process your payment',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: AppColors.textSecondary,
-                ),
+                style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                 textAlign: TextAlign.center,
               ),
             ],
@@ -762,12 +907,24 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
     // Simulate payment processing
     Future.delayed(const Duration(seconds: 3), () {
-      Navigator.pop(context); // Close processing dialog
-      _showSuccessDialog();
+      Navigator.pop(context);
+      _showSuccessDialog(event);
     });
   }
 
-  void _showSuccessDialog() {
+  /// ============================================
+  /// Success Dialog
+  /// ============================================
+  void _showSuccessDialog(EventModel event) {
+    // ✅ Update Payment Status
+    context.read<EventOwnerCubit>().updatePaymentStatus(
+      eventId: event.eventId,
+      paymentStatus: _selectedDepositOption == 'full'
+          ? PaymentStatus.paid
+          : PaymentStatus.partiallyPaid,
+      paidAmount: _depositAmount,
+    );
+
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -781,31 +938,28 @@ class _PaymentScreenState extends State<PaymentScreen> {
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: AppColors.success.withOpacity(0.15),
+                  color: Colors.green.withOpacity(0.15),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
                   Icons.check_circle,
-                  color: AppColors.success,
+                  color: Colors.green,
                   size: 60,
                 ),
               ),
               const SizedBox(height: 24),
               const Text(
-                'Payment Successful!',
+                'Payment Successful! ✅',
                 style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
+                  color: AppColors.primaryDark,
                 ),
               ),
               const SizedBox(height: 12),
               Text(
                 'Your event has been booked successfully',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: AppColors.textSecondary,
-                ),
+                style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 24),
@@ -814,11 +968,12 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 height: 50,
                 child: ElevatedButton(
                   onPressed: () {
+                    setState(() => _isProcessing = false);
                     Navigator.of(context).popUntil((route) => route.isFirst);
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primaryGold,
-                    foregroundColor: AppColors.textPrimary,
+                    foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -833,6 +988,27 @@ class _PaymentScreenState extends State<PaymentScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  /// ============================================
+  /// Helper Methods
+  /// ============================================
+  void _showError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+        duration: const Duration(seconds: 3),
+      ),
+    );
+    setState(() => _isProcessing = false);
+  }
+
+  String _formatNumber(int number) {
+    return number.toString().replaceAllMapped(
+      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+      (Match m) => '${m[1]},',
     );
   }
 }

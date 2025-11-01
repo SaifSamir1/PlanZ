@@ -1,9 +1,13 @@
 // lib/features/app_owner/finances/ui/screens/financial_overview_screen.dart
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:plan_z/core/utils/app_colors.dart';
 import 'package:plan_z/core/theming/text_styles.dart';
 import 'package:plan_z/core/widgets/custom_app_bar.dart';
+import 'package:plan_z/features/app_owner/cubit/app_owner_cubit.dart';
+import 'package:plan_z/features/app_owner/cubit/app_owner_state.dart';
+import 'package:plan_z/features/app_owner/data/model/financial_overview_model.dart';
 
 class FinancialOverviewScreen extends StatefulWidget {
   const FinancialOverviewScreen({super.key});
@@ -15,66 +19,235 @@ class FinancialOverviewScreen extends StatefulWidget {
 
 class _FinancialOverviewScreenState extends State<FinancialOverviewScreen> {
   String selectedPeriod = 'This Month';
+
+  @override
+  void initState() {
+    super.initState();
+    // ✅ Load financial overview on init
+    Future.microtask(() {
+      context.read<AppOwnerCubit>().loadFinancialOverview(
+            period: selectedPeriod,
+          );
+    });
+  }
+// lib/features/app_owner/finances/ui/screens/financial_overview_screen.dart
+
+Widget _buildRevenueBreakdown(AppOwnerFinancialOverview? overview) {
+  final totalRevenue = overview?.totalRevenue ?? 1; // ✅ تغيرها من 0 لـ 1
+  final vendorPayouts = overview?.vendorPayouts ?? 0;
+  final appProfit = overview?.appProfit ?? 0;
+
+  // ✅ تحقق من إذا totalRevenue أقل من أو تساوي 0
+  if (totalRevenue <= 0) {
+    return _buildEmptyRevenueBreakdown(); // رجع widget فارغ
+  }
+
+  // ✅ الحساب الآمن الآن
+  final percentageVendor = 
+    ((vendorPayouts / totalRevenue.abs()) * 100).toInt().clamp(0, 100);
+  final percentageApp = 
+    ((appProfit / totalRevenue.abs()) * 100).toInt().clamp(0, 100);
+
+  return Container(
+    padding: const EdgeInsets.all(20),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(16),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.05),
+          blurRadius: 10,
+          offset: const Offset(0, 2),
+        ),
+      ],
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Revenue Breakdown',
+          style: AppTextStyles.title.copyWith(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 20),
+
+        // ✅ Progress Bar - آمن الآن
+        Container(
+          height: 40,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.grey.shade200),
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: Row(
+              children: [
+                // Vendor Share
+                Expanded(
+                  flex: percentageVendor > 0 ? percentageVendor : 1,
+                  child: Container(
+                    color: AppColors.primaryDark,
+                    alignment: Alignment.center,
+                    child: percentageVendor > 0
+                        ? Text(
+                            '$percentageVendor%',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                            ),
+                          )
+                        : const SizedBox.shrink(),
+                  ),
+                ),
+
+                // App Share
+                Expanded(
+                  flex: percentageApp > 0 ? percentageApp : 1,
+                  child: Container(
+                    color: AppColors.primaryGold,
+                    alignment: Alignment.center,
+                    child: percentageApp > 0
+                        ? Text(
+                            '$percentageApp%',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                            ),
+                          )
+                        : const SizedBox.shrink(),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
+
+        // ✅ Legend
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            _buildLegendItem(
+              color: AppColors.primaryDark,
+              label: 'Vendor Share (80%)',
+              value: 'EGP ${vendorPayouts.toStringAsFixed(2)}',
+            ),
+            _buildLegendItem(
+              color: AppColors.primaryGold,
+              label: 'App Profit (20%)',
+              value: 'EGP ${appProfit.toStringAsFixed(2)}',
+            ),
+          ],
+        ),
+      ],
+    ),
+  );
+}
+
+// ✅ Widget لما تكون البيانات فارغة
+Widget _buildEmptyRevenueBreakdown() {
+  return Container(
+    padding: const EdgeInsets.all(20),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(16),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.05),
+          blurRadius: 10,
+          offset: const Offset(0, 2),
+        ),
+      ],
+    ),
+    child: Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.trending_up,
+            size: 60,
+            color: AppColors.primaryGold.withOpacity(0.3),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            'No Revenue Data Yet',
+            style: AppTextStyles.body.copyWith(
+              color: AppColors.textSecondary,
+              fontSize: 14,
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+// ✅ حل للـ Stats Grid أيضاً
+Widget _buildStatsGrid(AppOwnerFinancialOverview? overview) {
+  final stats = overview?.stats ?? {};
   
-  // Mock Data
-  final double totalRevenue = 125000.0; // من Event Owners
-  final double vendorPayouts = 100000.0; // 80% للـ Vendors
-  final double appProfit = 25000.0; // 20% ربح التطبيق
-  final double pendingPayments = 15000.0;
-  
-  final List<Map<String, dynamic>> recentTransactions = [
-    {
-      'id': 'txn_001',
-      'type': 'revenue',
-      'title': 'Event Payment - Annual Tech Conference',
-      'eventOwner': 'Ahmed Hassan',
-      'amount': 5000.0,
-      'date': DateTime(2024, 10, 22),
-      'status': 'completed',
-      'vendorShare': 4000.0,
-      'appShare': 1000.0,
-    },
-    {
-      'id': 'txn_002',
-      'type': 'payout',
-      'title': 'Vendor Payout - Sara Mohamed',
-      'vendorName': 'Sara Mohamed',
-      'amount': 1200.0,
-      'date': DateTime(2024, 10, 21),
-      'status': 'completed',
-    },
-    {
-      'id': 'txn_003',
-      'type': 'revenue',
-      'title': 'Event Payment - Wedding Ceremony',
-      'eventOwner': 'Fatma Ibrahim',
-      'amount': 8000.0,
-      'date': DateTime(2024, 10, 20),
-      'status': 'completed',
-      'vendorShare': 6400.0,
-      'appShare': 1600.0,
-    },
-    {
-      'id': 'txn_004',
-      'type': 'payout',
-      'title': 'Vendor Payout - Mohamed Ali',
-      'vendorName': 'Mohamed Ali',
-      'amount': 800.0,
-      'date': DateTime(2024, 10, 19),
-      'status': 'completed',
-    },
-    {
-      'id': 'txn_005',
-      'type': 'revenue',
-      'title': 'Event Payment - Corporate Event',
-      'eventOwner': 'Khaled Ahmed',
-      'amount': 3500.0,
-      'date': DateTime(2024, 10, 18),
-      'status': 'pending',
-      'vendorShare': 2800.0,
-      'appShare': 700.0,
-    },
-  ];
+  // ✅ تحويل القيم بشكل آمن
+  final totalEvents = (stats['totalEvents'] ?? 0) as int;
+  final activeVendors = (stats['activeVendors'] ?? 0) as int;
+  final eventOwners = (stats['eventOwners'] ?? 0) as int;
+  final transactions = (stats['transactions'] ?? 0) as int;
+
+  return Column(
+    children: [
+      Row(
+        children: [
+          Expanded(
+            child: _buildStatCard(
+              icon: Icons.event,
+              title: 'Total Events',
+              value: totalEvents.toString(),
+              subtitle: '+15 this month',
+              color: AppColors.primaryGold,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: _buildStatCard(
+              icon: Icons.store,
+              title: 'Active Vendors',
+              value: activeVendors.toString(),
+              subtitle: '+3 this month',
+              color: AppColors.success,
+            ),
+          ),
+        ],
+      ),
+      const SizedBox(height: 12),
+      Row(
+        children: [
+          Expanded(
+            child: _buildStatCard(
+              icon: Icons.people,
+              title: 'Event Owners',
+              value: eventOwners.toString(),
+              subtitle: '+8 this month',
+              color: Colors.blue,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: _buildStatCard(
+              icon: Icons.receipt_long,
+              title: 'Transactions',
+              value: transactions.toString(),
+              subtitle: '+45 this month',
+              color: Colors.purple,
+            ),
+          ),
+        ],
+      ),
+    ],
+  );
+}
 
   @override
   Widget build(BuildContext context) {
@@ -90,42 +263,95 @@ class _FinancialOverviewScreenState extends State<FinancialOverviewScreen> {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Period Selector
-            _buildPeriodSelector(),
-            
-            const SizedBox(height: 20),
-            
-            // Main Financial Card
-            _buildMainFinancialCard(),
-            
-            const SizedBox(height: 20),
-            
-            // Stats Grid
-            _buildStatsGrid(),
-            
-            const SizedBox(height: 24),
-            
-            // Revenue Breakdown
-            _buildRevenueBreakdown(),
-            
-            const SizedBox(height: 24),
-            
-            // Recent Transactions
-            _buildRecentTransactions(),
-          ],
-        ),
+      body: BlocBuilder<AppOwnerCubit, AppOwnerState>(
+        builder: (context, state) {
+          if (state.isLoading) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      AppColors.primaryGold,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Loading financial data...',
+                    style: AppTextStyles.body,
+                  ),
+                ],
+              ),
+            );
+          }
+
+          if (state.errorMessage != null && state.errorMessage!.isNotEmpty) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.error,
+                    size: 80,
+                    color: AppColors.error.withOpacity(0.3),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    state.errorMessage!,
+                    style: AppTextStyles.body.copyWith(
+                      color: AppColors.error,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () {
+                      context.read<AppOwnerCubit>().loadFinancialOverview(
+                            period: selectedPeriod,
+                          );
+                    },
+                    child: const Text('Retry'),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          final overview = state.financialOverview;
+
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // ✅ Period Selector
+                _buildPeriodSelector(),
+                const SizedBox(height: 20),
+
+                // ✅ Main Financial Card
+                _buildMainFinancialCard(overview),
+                const SizedBox(height: 20),
+
+                // ✅ Stats Grid
+                _buildStatsGrid(overview),
+                const SizedBox(height: 24),
+
+                // ✅ Revenue Breakdown
+                _buildRevenueBreakdown(overview),
+                const SizedBox(height: 24),
+
+                // ✅ Recent Transactions
+                _buildRecentTransactions(overview),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
 
   Widget _buildPeriodSelector() {
     final periods = ['Today', 'This Week', 'This Month', 'This Year', 'All Time'];
-    
     return Container(
       height: 45,
       child: ListView.builder(
@@ -134,9 +360,14 @@ class _FinancialOverviewScreenState extends State<FinancialOverviewScreen> {
         itemBuilder: (context, index) {
           final period = periods[index];
           final isSelected = selectedPeriod == period;
-          
           return GestureDetector(
-            onTap: () => setState(() => selectedPeriod = period),
+            onTap: () {
+              setState(() => selectedPeriod = period);
+              // ✅ Load data for selected period
+              context.read<AppOwnerCubit>().loadFinancialOverview(
+                    period: period,
+                  );
+            },
             child: Container(
               margin: const EdgeInsets.only(right: 8),
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -144,7 +375,9 @@ class _FinancialOverviewScreenState extends State<FinancialOverviewScreen> {
                 color: isSelected ? AppColors.primaryGold : Colors.white,
                 borderRadius: BorderRadius.circular(25),
                 border: Border.all(
-                  color: isSelected ? AppColors.primaryGold : Colors.grey.shade300,
+                  color: isSelected
+                      ? AppColors.primaryGold
+                      : Colors.grey.shade300,
                 ),
                 boxShadow: isSelected
                     ? [
@@ -173,7 +406,12 @@ class _FinancialOverviewScreenState extends State<FinancialOverviewScreen> {
     );
   }
 
-  Widget _buildMainFinancialCard() {
+  Widget _buildMainFinancialCard(AppOwnerFinancialOverview? overview) {
+    final totalRevenue = overview?.totalRevenue ?? 0.0;
+    final vendorPayouts = overview?.vendorPayouts ?? 0.0;
+    final appProfit = overview?.appProfit ?? 0.0;
+    final pendingPayments = overview?.pendingPayments ?? 0.0;
+
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -196,46 +434,41 @@ class _FinancialOverviewScreenState extends State<FinancialOverviewScreen> {
       ),
       child: Column(
         children: [
-          // App Profit (Main Focus)
-          Column(
+          // ✅ App Profit (Main Focus)
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+              Icon(
+                Icons.trending_up,
+                color: AppColors.primaryGold,
+                size: 32,
+              ),
+              const SizedBox(width: 12),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(
-                    Icons.trending_up,
-                    color: AppColors.primaryGold,
-                    size: 32,
+                  Text(
+                    'App Profit (20%)',
+                    style: AppTextStyles.body.copyWith(
+                      color: Colors.white70,
+                      fontSize: 14,
+                    ),
                   ),
-                  const SizedBox(width: 12),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'App Profit (20%)',
-                        style: AppTextStyles.body.copyWith(
-                          color: Colors.white70,
-                          fontSize: 14,
-                        ),
-                      ),
-                      Text(
-                        '\$${appProfit.toStringAsFixed(2)}',
-                        style: AppTextStyles.title.copyWith(
-                          color: AppColors.primaryGold,
-                          fontSize: 36,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
+                  Text(
+                    'EGP ${appProfit.toStringAsFixed(2)}',
+                    style: AppTextStyles.title.copyWith(
+                      color: AppColors.primaryGold,
+                      fontSize: 36,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ],
               ),
             ],
           ),
-          
           const SizedBox(height: 24),
-          
-          // Financial Breakdown
+
+          // ✅ Financial Breakdown
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
@@ -247,21 +480,21 @@ class _FinancialOverviewScreenState extends State<FinancialOverviewScreen> {
                 _buildFinancialRow(
                   icon: Icons.arrow_downward,
                   label: 'Total Revenue',
-                  value: '\$${totalRevenue.toStringAsFixed(2)}',
+                  value: 'EGP ${totalRevenue.toStringAsFixed(2)}',
                   color: AppColors.success,
                 ),
                 const SizedBox(height: 12),
                 _buildFinancialRow(
                   icon: Icons.arrow_upward,
                   label: 'Vendor Payouts (80%)',
-                  value: '\$${vendorPayouts.toStringAsFixed(2)}',
+                  value: 'EGP ${vendorPayouts.toStringAsFixed(2)}',
                   color: AppColors.error,
                 ),
                 const SizedBox(height: 12),
                 _buildFinancialRow(
                   icon: Icons.pending,
                   label: 'Pending Payments',
-                  value: '\$${pendingPayments.toStringAsFixed(2)}',
+                  value: 'EGP ${pendingPayments.toStringAsFixed(2)}',
                   color: AppColors.warning,
                 ),
               ],
@@ -309,62 +542,7 @@ class _FinancialOverviewScreenState extends State<FinancialOverviewScreen> {
       ],
     );
   }
-
-  Widget _buildStatsGrid() {
-    return Column(
-      children: [
-        Row(
-          children: [
-            Expanded(
-              child: _buildStatCard(
-                icon: Icons.event,
-                title: 'Total Events',
-                value: '120',
-                subtitle: '+15 this month',
-                color: AppColors.primaryGold,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _buildStatCard(
-                icon: Icons.store,
-                title: 'Active Vendors',
-                value: '45',
-                subtitle: '+3 this month',
-                color: AppColors.success,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        Row(
-          children: [
-            Expanded(
-              child: _buildStatCard(
-                icon: Icons.people,
-                title: 'Event Owners',
-                value: '85',
-                subtitle: '+8 this month',
-                color: Colors.blue,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _buildStatCard(
-                icon: Icons.receipt_long,
-                title: 'Transactions',
-                value: '340',
-                subtitle: '+45 this month',
-                color: Colors.purple,
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildStatCard({
+ Widget _buildStatCard({
     required IconData icon,
     required String title,
     required String value,
@@ -422,107 +600,6 @@ class _FinancialOverviewScreenState extends State<FinancialOverviewScreen> {
     );
   }
 
-  Widget _buildRevenueBreakdown() {
-    final percentageVendor = (vendorPayouts / totalRevenue * 100).toInt();
-    final percentageApp = (appProfit / totalRevenue * 100).toInt();
-    
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Revenue Breakdown',
-            style: AppTextStyles.title.copyWith(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          
-          const SizedBox(height: 20),
-          
-          // Progress Bar
-          Container(
-            height: 40,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: Colors.grey.shade200),
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(20),
-              child: Row(
-                children: [
-                  // Vendor Share
-                  Expanded(
-                    flex: percentageVendor,
-                    child: Container(
-                      color: AppColors.primaryDark,
-                      alignment: Alignment.center,
-                      child: Text(
-                        '$percentageVendor%',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ),
-                  ),
-                  // App Share
-                  Expanded(
-                    flex: percentageApp,
-                    child: Container(
-                      color: AppColors.primaryGold,
-                      alignment: Alignment.center,
-                      child: Text(
-                        '$percentageApp%',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          
-          const SizedBox(height: 16),
-          
-          // Legend
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _buildLegendItem(
-                color: AppColors.primaryDark,
-                label: 'Vendor Share (80%)',
-                value: '\$${vendorPayouts.toStringAsFixed(2)}',
-              ),
-              _buildLegendItem(
-                color: AppColors.primaryGold,
-                label: 'App Profit (20%)',
-                value: '\$${appProfit.toStringAsFixed(2)}',
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildLegendItem({
     required Color color,
     required String label,
@@ -561,7 +638,31 @@ class _FinancialOverviewScreenState extends State<FinancialOverviewScreen> {
     );
   }
 
-  Widget _buildRecentTransactions() {
+  Widget _buildRecentTransactions(AppOwnerFinancialOverview? overview) {
+    final transactions = overview?.recentTransactions ?? [];
+
+    if (transactions.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.history,
+              size: 80,
+              color: AppColors.textSecondary.withOpacity(0.3),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'No recent transactions',
+              style: AppTextStyles.body.copyWith(
+                color: AppColors.textSecondary,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -589,25 +690,23 @@ class _FinancialOverviewScreenState extends State<FinancialOverviewScreen> {
             ),
           ],
         ),
-        
         const SizedBox(height: 12),
-        
         ListView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          itemCount: recentTransactions.length,
+          itemCount: transactions.length,
           itemBuilder: (context, index) {
-            return _buildTransactionCard(recentTransactions[index]);
+            return _buildTransactionCard(transactions[index]);
           },
         ),
       ],
     );
   }
 
-  Widget _buildTransactionCard(Map<String, dynamic> transaction) {
-    final isRevenue = transaction['type'] == 'revenue';
-    final isPending = transaction['status'] == 'pending';
-    
+  Widget _buildTransactionCard(FinancialTransaction transaction) {
+    final isRevenue = transaction.type == 'revenue';
+    final isPending = transaction.status == 'pending';
+
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
@@ -640,20 +739,20 @@ class _FinancialOverviewScreenState extends State<FinancialOverviewScreen> {
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Icon(
-                  isRevenue ? Icons.arrow_downward : Icons.arrow_upward,
+                  isRevenue
+                      ? Icons.arrow_downward
+                      : Icons.arrow_upward,
                   color: isRevenue ? AppColors.success : AppColors.error,
                   size: 24,
                 ),
               ),
-              
               const SizedBox(width: 12),
-              
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      transaction['title'],
+                      transaction.title,
                       style: AppTextStyles.body.copyWith(
                         fontWeight: FontWeight.bold,
                         fontSize: 14,
@@ -661,9 +760,7 @@ class _FinancialOverviewScreenState extends State<FinancialOverviewScreen> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      isRevenue
-                          ? 'From: ${transaction['eventOwner']}'
-                          : 'To: ${transaction['vendorName']}',
+                      transaction.description,
                       style: AppTextStyles.body.copyWith(
                         color: AppColors.textSecondary,
                         fontSize: 12,
@@ -679,7 +776,7 @@ class _FinancialOverviewScreenState extends State<FinancialOverviewScreen> {
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          '${transaction['date'].day}/${transaction['date'].month}/${transaction['date'].year}',
+                          _formatDate(transaction.date),
                           style: AppTextStyles.body.copyWith(
                             color: AppColors.textSecondary,
                             fontSize: 11,
@@ -690,14 +787,14 @@ class _FinancialOverviewScreenState extends State<FinancialOverviewScreen> {
                   ],
                 ),
               ),
-              
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    '${isRevenue ? '+' : '-'}\$${transaction['amount'].toStringAsFixed(2)}',
+                    '${isRevenue ? '+' : '-'}EGP ${transaction.amount.toStringAsFixed(2)}',
                     style: AppTextStyles.body.copyWith(
-                      color: isRevenue ? AppColors.success : AppColors.error,
+                      color:
+                          isRevenue ? AppColors.success : AppColors.error,
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
@@ -727,70 +824,13 @@ class _FinancialOverviewScreenState extends State<FinancialOverviewScreen> {
               ),
             ],
           ),
-          
-          // Revenue Breakdown (only for revenue transactions)
-          if (isRevenue) ...[
-            const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.grey.shade50,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  Column(
-                    children: [
-                      Text(
-                        'Vendor Share',
-                        style: AppTextStyles.body.copyWith(
-                          color: AppColors.textSecondary,
-                          fontSize: 11,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '\$${transaction['vendorShare'].toStringAsFixed(2)}',
-                        style: AppTextStyles.body.copyWith(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 13,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Container(
-                    width: 1,
-                    height: 30,
-                    color: Colors.grey.shade300,
-                  ),
-                  Column(
-                    children: [
-                      Text(
-                        'App Profit',
-                        style: AppTextStyles.body.copyWith(
-                          color: AppColors.textSecondary,
-                          fontSize: 11,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '\$${transaction['appShare'].toStringAsFixed(2)}',
-                        style: AppTextStyles.body.copyWith(
-                          color: AppColors.primaryGold,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 13,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
         ],
       ),
     );
+  }
+
+  String _formatDate(DateTime date) {
+    return '${date.day}/${date.month}/${date.year}';
   }
 
   void _showFilterOptions() {
@@ -821,9 +861,7 @@ class _FinancialOverviewScreenState extends State<FinancialOverviewScreen> {
                 ),
               ),
             ),
-            
             const SizedBox(height: 20),
-            
             Text(
               'Filter Options',
               style: AppTextStyles.title.copyWith(
@@ -831,9 +869,7 @@ class _FinancialOverviewScreenState extends State<FinancialOverviewScreen> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            
             const SizedBox(height: 20),
-            
             ListTile(
               leading: const Icon(Icons.arrow_downward, color: AppColors.success),
               title: const Text('Revenue Only'),
@@ -842,7 +878,6 @@ class _FinancialOverviewScreenState extends State<FinancialOverviewScreen> {
                 // TODO: Filter revenue
               },
             ),
-            
             ListTile(
               leading: const Icon(Icons.arrow_upward, color: AppColors.error),
               title: const Text('Payouts Only'),
@@ -851,7 +886,6 @@ class _FinancialOverviewScreenState extends State<FinancialOverviewScreen> {
                 // TODO: Filter payouts
               },
             ),
-            
             ListTile(
               leading: const Icon(Icons.pending, color: AppColors.warning),
               title: const Text('Pending Only'),
@@ -860,7 +894,6 @@ class _FinancialOverviewScreenState extends State<FinancialOverviewScreen> {
                 // TODO: Filter pending
               },
             ),
-            
             ListTile(
               leading: const Icon(Icons.date_range, color: AppColors.primaryGold),
               title: const Text('Custom Date Range'),

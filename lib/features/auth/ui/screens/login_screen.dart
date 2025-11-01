@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:plan_z/core/utils/app_colors.dart';
 import 'package:plan_z/core/widgets/custom_app_button.dart';
-import 'package:plan_z/features/attandee_features/attendee_home/ui/attende_home_screen.dart';
+import 'package:plan_z/features/app_owner/ui/screens/owner_dashboard_screen.dart';
+import 'package:plan_z/features/attandee/ui/home/ui/screens/attendee_home_screen.dart';
 import 'package:plan_z/features/auth/data/models/user_model.dart';
 import 'package:plan_z/features/auth/ui/widgets/app_logo.dart';
 import 'package:plan_z/features/auth/ui/widgets/login_form.dart';
@@ -55,17 +56,11 @@ class _LoginScreenState extends State<LoginScreen> {
         destination = const NavigationScreen();
         break;
       case UserType.attendee:
-        destination = const AttendeHomeScreen();
+        destination = const AttendeeHomeScreen();
+      case UserType.admin:
+         destination = const OwnerDashboardScreen();  
         break;
-      default:
-        // في حالة نوع مستخدم غير معروف
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Unknown user type'),
-            backgroundColor: Colors.red,
-          ),
-        );
-        return;
+      
     }
 
     Navigator.of(context).pushReplacement(
@@ -82,7 +77,6 @@ class _LoginScreenState extends State<LoginScreen> {
           // معالجة حالات النجاح والفشل
           if (state is AuthSignInSuccess) {
             // التحقق من أن نوع المستخدم يطابق الشاشة
-            if (state.user.userType == widget.userType) {
               _navigateBasedOnUserType(state.user);
               
               ScaffoldMessenger.of(context).showSnackBar(
@@ -92,21 +86,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   duration: const Duration(seconds: 2),
                 ),
               );
-            } else {
-              // نوع المستخدم مش مطابق
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    'This account is registered as ${state.user.userType.name}. Please use the correct login page.',
-                  ),
-                  backgroundColor: Colors.orange,
-                  duration: const Duration(seconds: 3),
-                ),
-              );
-              
-              // تسجيل خروج تلقائي
-              context.read<AuthCubit>().signOut();
-            }
+            
           } else if (state is AuthSignInError) {
             // إظهار رسالة الخطأ
             ScaffoldMessenger.of(context).showSnackBar(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:plan_z/core/theming/text_styles.dart';
 import 'package:plan_z/core/utils/app_colors.dart';
+import 'package:plan_z/core/widgets/custom_app_bar.dart';
 import 'package:plan_z/features/new_owner_features/event_owner_home/ui/widgets/service_widget.dart';
 
 class ServicesScreen extends StatefulWidget {
@@ -55,13 +56,8 @@ class _ServicesScreenState extends State<ServicesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios, color: AppColors.buttonPrimary),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        centerTitle: true,
-        title: Text('Select Services',style: AppTextStyles.title),
+      appBar:CustomAppBar(title: "Select Services",
+      showBackButton: true,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

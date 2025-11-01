@@ -1,27 +1,34 @@
 // lib/features/app_owner/dashboard/ui/screens/owner_dashboard_screen.dart
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:plan_z/core/utils/app_colors.dart';
 import 'package:plan_z/core/theming/text_styles.dart';
 import 'package:plan_z/core/widgets/custom_app_bar.dart';
+import 'package:plan_z/features/app_owner/cubit/app_owner_cubit.dart';
+import 'package:plan_z/features/app_owner/cubit/app_owner_state.dart';
 import 'package:plan_z/features/app_owner/ui/screens/financial_overview_screen.dart';
 import 'package:plan_z/features/app_owner/ui/screens/package_approval_screen.dart';
 import 'package:plan_z/features/app_owner/ui/screens/withdrawal_requests_screen.dart';
+import 'package:shimmer/shimmer.dart';
 
-class OwnerDashboardScreen extends StatelessWidget {
+class OwnerDashboardScreen extends StatefulWidget {
   const OwnerDashboardScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    // Mock Data
-    final double totalRevenue = 125000.0; // من Event Owners
-    final double vendorPayouts = 100000.0; // 80% للـ Vendors
-    final double appProfit = 25000.0; // 20% ربح التطبيق
-    final int pendingPackages = 8;
-    final int pendingWithdrawals = 5;
-    final int activeVendors = 45;
-    final int totalEvents = 120;
+  State<OwnerDashboardScreen> createState() => _OwnerDashboardScreenState();
+}
 
+class _OwnerDashboardScreenState extends State<OwnerDashboardScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // ✅ Load dashboard stats on init
+    context.read<AppOwnerCubit>().loadDashboardStats();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: CustomAppBar(
@@ -29,49 +36,62 @@ class OwnerDashboardScreen extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.notifications_outlined, color: Colors.white),
-            onPressed: () {},
+            onPressed: () {
+              // TODO: Handle notifications
+            },
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Welcome Section
-            _buildWelcomeSection(),
-            
-            const SizedBox(height: 24),
-            
-            // Financial Overview Card
-            _buildFinancialCard(
-              context,
-              totalRevenue: totalRevenue,
-              vendorPayouts: vendorPayouts,
-              appProfit: appProfit,
+      body: BlocConsumer<AppOwnerCubit, AppOwnerState>(
+        listener: (context, state) {
+          // ✅ Show error snackbar
+          if (state.errorMessage != null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.errorMessage!),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+
+          // ✅ Show success snackbar
+          if (state.successMessage != null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.successMessage!),
+                backgroundColor: Colors.green,
+              ),
+            );
+          }
+        },
+        builder: (context, state) {
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // ✅ Welcome Section
+                _buildWelcomeSection(),
+                const SizedBox(height: 24),
+
+                // ✅ Financial Overview Card
+                _buildFinancialCard(context, state),
+                const SizedBox(height: 20),
+
+                // ✅ Stats Grid
+                _buildStatsGrid(state),
+                const SizedBox(height: 20),
+
+                // ✅ Quick Actions
+                _buildQuickActions(context),
+                const SizedBox(height: 24),
+
+                // ✅ Recent Activities
+                _buildRecentActivities(),
+              ],
             ),
-            
-            const SizedBox(height: 20),
-            
-            // Stats Grid
-            _buildStatsGrid(
-              pendingPackages: pendingPackages,
-              pendingWithdrawals: pendingWithdrawals,
-              activeVendors: activeVendors,
-              totalEvents: totalEvents,
-            ),
-            
-            const SizedBox(height: 20),
-            
-            // Quick Actions
-            _buildQuickActions(context),
-            
-            const SizedBox(height: 24),
-            
-            // Recent Activities
-            _buildRecentActivities(),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
@@ -89,7 +109,7 @@ class OwnerDashboardScreen extends StatelessWidget {
         ),
         const SizedBox(height: 6),
         Text(
-          'Here\'s what\'s happening with your platform today',
+          "Here's what's happening with your platform today",
           style: AppTextStyles.body.copyWith(
             color: AppColors.textSecondary,
             fontSize: 14,
@@ -99,12 +119,12 @@ class OwnerDashboardScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildFinancialCard(
-    BuildContext context, {
-    required double totalRevenue,
-    required double vendorPayouts,
-    required double appProfit,
-  }) {
+  Widget _buildFinancialCard(BuildContext context, AppOwnerState state) {
+    final stats = state.dashboardStats ?? {};
+    final totalRevenue = stats['totalRevenue'] as double? ?? 0.0;
+    final appProfit = stats['appProfit'] as double? ?? 0.0;
+    final vendorPayouts = stats['vendorPayouts'] as double? ?? 0.0;
+
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -151,14 +171,30 @@ class OwnerDashboardScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    Text(
-                      '\$${appProfit.toStringAsFixed(2)}',
-                      style: AppTextStyles.title.copyWith(
-                        color: AppColors.primaryGold,
-                        fontSize: 36,
-                        fontWeight: FontWeight.bold,
+                    // ✅ Loading state
+                    if (context.watch<AppOwnerCubit>().state.isLoading)
+                      const SizedBox(
+                        width: 100,
+                        height: 36,
+                        child: Shimmer(
+                          gradient:  LinearGradient(
+                            colors: [Colors.grey, Colors.white30],
+                          ),
+                          child: CircularProgressIndicator(
+                            valueColor:
+                                AlwaysStoppedAnimation<Color>(Colors.grey),
+                          ),
+                        ),
+                      )
+                    else
+                      Text(
+                        'EGP ${appProfit.toStringAsFixed(2)}',
+                        style: AppTextStyles.title.copyWith(
+                          color: AppColors.primaryGold,
+                          fontSize: 36,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
                     const SizedBox(height: 4),
                     Text(
                       '20% Commission',
@@ -183,9 +219,7 @@ class OwnerDashboardScreen extends StatelessWidget {
                 ),
               ],
             ),
-            
             const SizedBox(height: 20),
-            
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
@@ -205,7 +239,7 @@ class OwnerDashboardScreen extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        '\$${totalRevenue.toStringAsFixed(2)}',
+                        'EGP ${totalRevenue.toStringAsFixed(2)}',
                         style: AppTextStyles.body.copyWith(
                           color: Colors.white,
                           fontSize: 14,
@@ -226,7 +260,7 @@ class OwnerDashboardScreen extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        '\$${vendorPayouts.toStringAsFixed(2)}',
+                        'EGP ${vendorPayouts.toStringAsFixed(2)}',
                         style: AppTextStyles.body.copyWith(
                           color: Colors.white,
                           fontSize: 14,
@@ -238,9 +272,7 @@ class OwnerDashboardScreen extends StatelessWidget {
                 ],
               ),
             ),
-            
             const SizedBox(height: 12),
-            
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
@@ -266,12 +298,12 @@ class OwnerDashboardScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildStatsGrid({
-    required int pendingPackages,
-    required int pendingWithdrawals,
-    required int activeVendors,
-    required int totalEvents,
-  }) {
+  Widget _buildStatsGrid(AppOwnerState state) {
+    final stats = state.dashboardStats ?? {};
+    final pendingPackages = stats['pendingPackagesCount'] as int? ?? 0;
+    final pendingWithdrawals = stats['pendingWithdrawalsCount'] as int? ?? 0;
+    final activeVendors = stats['activeVendorsCount'] as int? ?? 0;
+
     return Column(
       children: [
         Row(
@@ -309,9 +341,9 @@ class OwnerDashboardScreen extends StatelessWidget {
             const SizedBox(width: 12),
             Expanded(
               child: _buildStatCard(
-                icon: Icons.event,
-                title: 'Total Events',
-                value: totalEvents.toString(),
+                icon: Icons.payments,
+                title: 'Pending Amount',
+                value: 'EGP ${(stats['pendingWithdrawalAmount'] as double? ?? 0.0).toStringAsFixed(0)}',
                 color: AppColors.primaryGold,
               ),
             ),
@@ -410,7 +442,8 @@ class OwnerDashboardScreen extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const WithdrawalRequestsScreen(),
+                      builder: (context) =>
+                          const WithdrawalRequestsScreen(),
                     ),
                   );
                 },
@@ -477,7 +510,7 @@ class OwnerDashboardScreen extends StatelessWidget {
         'icon': Icons.monetization_on,
         'color': AppColors.warning,
         'title': 'New Withdrawal Request',
-        'subtitle': 'Sara requested \$500 withdrawal',
+        'subtitle': 'Sara requested EGP 500 withdrawal',
         'time': '5 hours ago',
       },
       {
