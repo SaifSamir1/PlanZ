@@ -96,4 +96,8 @@ abstract class AttendeeRepository {
     required String invitationId,
     required String attendeeId,
   });
+
+  Stream<List<Map<String, dynamic>>> getAttendeeNotifications(
+    String attendeeId,
+  );
 }
