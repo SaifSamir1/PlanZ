@@ -3,7 +3,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:plan_z/features/attandee/cubit/attendee_state.dart';
 import 'package:plan_z/features/attandee/data/attandee_repo.dart';
- import 'package:plan_z/features/new_owner_features/create_event_screen/data/models/event_invitation_model.dart';
+import 'package:plan_z/features/attandee/data/models/app_notification_model.dart';
+import 'package:plan_z/features/new_owner_features/create_event_screen/data/models/event_invitation_model.dart';
 
 class AttendeeCubit extends Cubit<AttendeeState> {
   final AttendeeRepository repository;
@@ -229,6 +230,25 @@ class AttendeeCubit extends Cubit<AttendeeState> {
   }
 
   // ============================================
+
+  void listenToNotifications(String attendeeId) {
+    emit(GetNotificationsLoading());
+    repository
+        .getAttendeeNotifications(attendeeId)
+        .listen(
+          (notifications) {
+            emit(GetNotificationsSuccess(notifications));
+          },
+          onError: (e) {
+            emit(GetNotificationsError(e.toString()));
+          },
+        );
+  }
+
+  Future<void> sendNotification(String receiverId, String title, String body) async {
+    await repository.sendAttendeeNotification(receiverId: receiverId, title: title, body: body);
+  }
+
   // HELPER METHODS
   // ============================================
 

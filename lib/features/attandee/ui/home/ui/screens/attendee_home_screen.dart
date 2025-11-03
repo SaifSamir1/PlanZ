@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:plan_z/core/utils/app_colors.dart';
 import 'package:plan_z/core/widgets/custom_app_bar.dart';
 import 'package:plan_z/features/attandee/cubit/attendee_cubit.dart';
+import 'package:plan_z/features/attandee/ui/home/ui/screens/attandee_notification.dart';
 import 'package:plan_z/features/attandee/ui/home/ui/widgets/attendee_stats_card.dart';
 import 'package:plan_z/features/attandee/ui/home/ui/widgets/quick_actions_section.dart';
 import 'package:plan_z/features/attandee/ui/home/ui/widgets/upcoming_events_section.dart';
@@ -19,12 +20,12 @@ class AttendeeHomeScreen extends StatefulWidget {
 }
 
 class _AttendeeHomeScreenState extends State<AttendeeHomeScreen> {
-    UserManager userManager = UserManager();
+  UserManager userManager = UserManager();
 
   @override
   void initState() {
     super.initState();
-    
+
     _loadData();
   }
 
@@ -52,8 +53,14 @@ class _AttendeeHomeScreenState extends State<AttendeeHomeScreen> {
             duration: const Duration(milliseconds: 700),
             child: IconButton(
               onPressed: () {
-                // Navigate to Notifications Screen (future)
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const NotificationsScreen(),
+                  ),
+                );
               },
+
               icon: Icon(
                 Icons.notifications_outlined,
                 color: AppColors.buttonPrimary,
@@ -90,7 +97,9 @@ class _AttendeeHomeScreenState extends State<AttendeeHomeScreen> {
               // Stats Card
               FadeInUp(
                 duration: const Duration(milliseconds: 500),
-                child: AttendeeStatsCard(attendeeId: userManager.currentUser!.id),
+                child: AttendeeStatsCard(
+                  attendeeId: userManager.currentUser!.id,
+                ),
               ),
 
               const SizedBox(height: 24),
@@ -108,7 +117,9 @@ class _AttendeeHomeScreenState extends State<AttendeeHomeScreen> {
               FadeInUp(
                 duration: const Duration(milliseconds: 700),
                 delay: const Duration(milliseconds: 200),
-                child: UpcomingEventsSection(attendeeId: userManager.currentUser!.id),
+                child: UpcomingEventsSection(
+                  attendeeId: userManager.currentUser!.id,
+                ),
               ),
 
               const SizedBox(height: 16),
