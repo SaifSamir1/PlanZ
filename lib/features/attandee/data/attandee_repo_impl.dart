@@ -2,6 +2,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:plan_z/core/constants/constants.dart';
 import 'package:plan_z/core/error/failures.dart';
 import 'package:plan_z/features/attandee/data/attandee_repo.dart';
@@ -455,5 +456,28 @@ class AttendeeRepositoryImpl implements AttendeeRepository {
               .map((doc) => doc.data() as Map<String, dynamic>)
               .toList(),
         );
+  }
+
+  @override
+  Future<Either<Failure, Unit>> sendAttendeeNotification({
+    required String receiverId,
+    required String title,
+    required String body,
+  }) async {
+    try {
+      final token = await FirebaseMessaging.instance.getToken();
+
+      await _firestore.collection('notifications').add({
+        'receiverId': receiverId,
+        'title': title,
+        'body': body,
+        'tokens': token != null ? [token] : [],
+        'createdAt': DateTime.now(),
+      });
+      return Right(unit);
+    } catch (e) {
+      print("❌ Error sending notification: $e");
+      return Left(FirestoreFailure(message: 'Failed to send notification: $e'));
+    }
   }
 }

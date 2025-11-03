@@ -100,4 +100,10 @@ abstract class AttendeeRepository {
   Stream<List<Map<String, dynamic>>> getAttendeeNotifications(
     String attendeeId,
   );
+
+  Future<Either<Failure, Unit>> sendAttendeeNotification({
+    required String receiverId,
+    required String title,
+    required String body,
+  });
 }
