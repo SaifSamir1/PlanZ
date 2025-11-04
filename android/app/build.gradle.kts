@@ -10,10 +10,11 @@ plugins {
 
 android {
     namespace = "com.example.plan_z"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 36
     ndkVersion = "27.0.12077973"
 
     compileOptions {
+        isCoreLibraryDesugaringEnabled = true
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
@@ -44,4 +45,14 @@ android {
 
 flutter {
     source = "../.."
+}
+
+dependencies {
+    // ✅ Required for Firebase Messaging
+    implementation("com.google.firebase:firebase-messaging:23.3.1")
+
+    // ✅ Optional but recommended for analytics if you use FCM notifications
+    implementation("com.google.firebase:firebase-analytics")
+
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4") 
 }

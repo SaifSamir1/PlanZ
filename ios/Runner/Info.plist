@@ -47,5 +47,19 @@
 		<true/>
 		<key>UIStatusBarHidden</key>
 		<false/>
+		<!-- Required for Firebase Cloud Messaging -->
+		<key>FirebaseAppDelegateProxyEnabled</key>
+		<false/>
+
+		<!-- Allow background notification delivery -->
+		<key>UIBackgroundModes</key>
+		<array>
+		<string>fetch</string>
+		<string>remote-notification</string>
+		</array>
+
+		<!-- Request notification permissions -->
+		<key>NSUserTrackingUsageDescription</key>
+		<string>This app uses notifications to keep you updated.</string>
 	</dict>
 </plist>
