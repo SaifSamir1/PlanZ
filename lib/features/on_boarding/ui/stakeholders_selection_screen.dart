@@ -175,6 +175,7 @@ class _StakeholdersSelectionScreenState
           ),
         ),
       ),
+      
     );
   }
 }

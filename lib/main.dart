@@ -52,7 +52,8 @@ Future<void> main() async {
 
   // ✅ 5. Local notifications initialization
   const AndroidInitializationSettings androidInitSettings =
-      AndroidInitializationSettings('@mipmap/ic_launcher');
+      AndroidInitializationSettings('@drawable/ic_notification');
+
   const InitializationSettings initSettings = InitializationSettings(
     android: androidInitSettings,
   );
@@ -111,7 +112,12 @@ class _PlanZState extends State<PlanZ> {
               importance: Importance.max,
               priority: Priority.high,
               showWhen: true,
+              icon: '@drawable/ic_notification', // small white icon
+              largeIcon: DrawableResourceAndroidBitmap(
+                'planz_logo',
+              ), // colorful large icon
             );
+
         const NotificationDetails platformDetails = NotificationDetails(
           android: androidDetails,
         );

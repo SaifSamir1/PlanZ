@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class AttendeeModel {
   final String id;
   final String name;
@@ -37,7 +39,9 @@ class AttendeeModel {
       declinedInvitations: List<String>.from(json['declinedInvitations'] ?? []),
       attendedEvents: List<String>.from(json['attendedEvents'] ?? []),
       profileImageUrl: json['profileImageUrl'],
-      createdAt: DateTime.tryParse(json['createdAt'] ?? '') ?? DateTime.now(),
+      createdAt: (json['createdAt'] is Timestamp)
+          ? (json['createdAt'] as Timestamp).toDate()
+          : DateTime.tryParse(json['createdAt'] ?? '') ?? DateTime.now(),
     );
   }
 
