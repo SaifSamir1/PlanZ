@@ -10,18 +10,26 @@ import 'package:intl/intl.dart';
 // Your imports
 import 'package:plan_z/features/app_owner/cubit/app_owner_cubit.dart';
 import 'package:plan_z/features/app_owner/data/repo/app_owner_repo_impl.dart';
+import 'package:plan_z/features/app_owner/ui/screens/financial_overview_screen.dart';
 import 'package:plan_z/features/attandee/cubit/attendee_cubit.dart';
 import 'package:plan_z/features/attandee/data/attandee_repo_impl.dart';
 import 'package:plan_z/features/attandee/ui/home/ui/screens/attandee_notification.dart';
+import 'package:plan_z/features/attandee/ui/home/ui/screens/attendee_home_screen.dart';
+import 'package:plan_z/features/attandee/ui/home/ui/screens/my_invitations_screen.dart';
 import 'package:plan_z/features/auth/data/auth_repo/auth_repo_impl.dart';
 import 'package:plan_z/features/auth/data/models/user_manager.dart';
 import 'package:plan_z/features/auth/logic/auth_cubit/auth_cubit.dart';
+import 'package:plan_z/features/new_owner_features/chat_bot/ui/chat_bot_screen.dart';
 import 'package:plan_z/features/new_owner_features/create_event_screen/cubits/create_event_cubit/create_event_cubit.dart';
 import 'package:plan_z/features/new_owner_features/create_event_screen/cubits/event_creation_cubit/event_creation_cubit.dart';
 import 'package:plan_z/features/new_owner_features/create_event_screen/data/repo/event_owner_repo_impl.dart';
+import 'package:plan_z/features/new_owner_features/create_event_screen/ui/screens/select_event_type_screen.dart';
 import 'package:plan_z/features/on_boarding/ui/on_boarding_view.dart';
 import 'package:plan_z/features/vendor_features/packages_mangment/cubit/vendor_cubit.dart';
 import 'package:plan_z/features/vendor_features/packages_mangment/data/repos/vendor_repository_impl.dart';
+import 'package:plan_z/features/vendor_features/packages_mangment/ui/screens/create_package_screen.dart';
+import 'package:plan_z/features/vendor_features/vendor_home/ui/screens/vendor_earnings_screen.dart';
+import 'package:plan_z/features/vendor_features/vendor_home/ui/screens/vendor_home_screen.dart';
 import 'package:plan_z/firebase_options.dart';
 
 // ✅ Local Notifications plugin instance
@@ -164,6 +172,19 @@ class _PlanZState extends State<PlanZ> {
         child: MaterialApp(
           debugShowCheckedModeBanner: false,
           home: OnBoardingScreen(),
+          routes: {
+            '/create_event': (_) => SelectEventTypeScreen(),
+            '/notifications': (_) => NotificationsScreen(),
+            '/vendor_dashboard': (_) => VendorHomeScreen(),
+            '/attendee_dashboard': (_) => AttendeeHomeScreen(),
+            '/owner_overview': (_) => FinancialOverviewScreen(),
+            '/chat_bot': (_) => ChatScreen(),
+            '/vendor_financial': (_) => VendorEarningsScreen(),
+            '/vendor_requests': (_) => VendorHomeScreen(),
+            '/add_paackage': (_) => CreatePackageScreen(),
+            '/invitation': (_) => MyInvitationsScreen(),
+
+          },
         ),
       ),
     );
