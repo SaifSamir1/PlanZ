@@ -3,6 +3,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:plan_z/features/attandee/cubit/attendee_state.dart';
 import 'package:plan_z/features/attandee/data/attandee_repo.dart';
+ import 'package:plan_z/features/event_owners/create_event_screen/data/models/event_invitation_model.dart';
 import 'package:plan_z/features/attandee/data/models/app_notification_model.dart';
 import 'package:plan_z/features/new_owner_features/create_event_screen/data/models/event_invitation_model.dart';
 

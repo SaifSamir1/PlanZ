@@ -2,8 +2,8 @@
 
 import 'package:dartz/dartz.dart';
 import 'package:plan_z/core/error/failures.dart';
-import 'package:plan_z/features/new_owner_features/create_event_screen/data/models/event_invitation_model.dart';
-import 'package:plan_z/features/new_owner_features/create_event_screen/data/models/event_model.dart';
+import 'package:plan_z/features/event_owners/create_event_screen/data/models/event_invitation_model.dart';
+import 'package:plan_z/features/event_owners/create_event_screen/data/models/event_model.dart';
 
 abstract class AttendeeRepository {
   // ============================================

@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:plan_z/core/utils/app_colors.dart';
 import 'package:plan_z/features/attandee/ui/home/ui/widgets/invitation_status_badge.dart';
-import 'package:plan_z/features/new_owner_features/create_event_screen/data/models/event_invitation_model.dart';
+import 'package:plan_z/features/event_owners/create_event_screen/data/models/event_invitation_model.dart';
 
 class InvitationDetailsHeader extends StatelessWidget {
   final EventInvitationModel invitation;
@@ -46,19 +46,7 @@ class InvitationDetailsHeader extends StatelessWidget {
                 color: Colors.grey,
               ),
             ),
-            // Gradient Overlay
-            Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.transparent,
-                    Colors.black.withOpacity(0.7),
-                  ],
-                ),
-              ),
-            ),
+            
             // Event Name + Status Badge
             Positioned(
               bottom: 16,
@@ -74,7 +62,7 @@ class InvitationDetailsHeader extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      color: AppColors.textPrimary,
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,

@@ -14,7 +14,7 @@ import 'package:plan_z/features/attandee/ui/home/ui/widgets/invitation_details_h
 import 'package:plan_z/features/attandee/ui/home/ui/widgets/invitation_details_loading.dart';
 import 'package:plan_z/features/attandee/ui/home/ui/widgets/personal_message_section.dart';
 import 'package:plan_z/features/attandee/ui/home/ui/widgets/response_message_input.dart';
-import 'package:plan_z/features/new_owner_features/create_event_screen/data/models/event_invitation_model.dart';
+import 'package:plan_z/features/event_owners/create_event_screen/data/models/event_invitation_model.dart';
 
 class InvitationDetailsScreen extends StatefulWidget {
   final String invitationId;
@@ -100,10 +100,7 @@ class _InvitationDetailsScreenState extends State<InvitationDetailsScreen> {
     return CustomScrollView(
       slivers: [
         // Header with Image
-        FadeIn(
-          duration: const Duration(milliseconds: 500),
-          child: InvitationDetailsHeader(invitation: invitation),
-        ),
+        InvitationDetailsHeader(invitation: invitation),
 
         // Content
         SliverToBoxAdapter(

@@ -25,7 +25,6 @@ class _WithdrawalRequestsScreenState extends State<WithdrawalRequestsScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-    // ✅ Load pending withdrawals on init
     Future.microtask(() {
       context.read<AppOwnerCubit>().loadPendingWithdrawals();
     });
@@ -41,7 +40,6 @@ class _WithdrawalRequestsScreenState extends State<WithdrawalRequestsScreen>
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () {
-        // ✅ Clear messages when leaving
         context.read<AppOwnerCubit>().clearMessages();
         return Future.value(true);
       },
@@ -53,14 +51,8 @@ class _WithdrawalRequestsScreenState extends State<WithdrawalRequestsScreen>
         ),
         body: BlocListener<AppOwnerCubit, AppOwnerState>(
           listener: (context, state) {
-            // ✅ Show error
             if (state.errorMessage != null && state.errorMessage!.isNotEmpty) {
-              _showSnackBar(
-                context,
-                state.errorMessage!,
-                isError: true,
-              );
-              // Clear message after showing
+              _showSnackBar(context, state.errorMessage!, isError: true);
               Future.delayed(const Duration(seconds: 3), () {
                 if (mounted) {
                   context.read<AppOwnerCubit>().clearMessages();
@@ -68,14 +60,8 @@ class _WithdrawalRequestsScreenState extends State<WithdrawalRequestsScreen>
               });
             }
 
-            // ✅ Show success
             if (state.successMessage != null && state.successMessage!.isNotEmpty) {
-              _showSnackBar(
-                context,
-                state.successMessage!,
-                isError: false,
-              );
-              // Clear message after showing
+              _showSnackBar(context, state.successMessage!, isError: false);
               Future.delayed(const Duration(seconds: 2), () {
                 if (mounted) {
                   context.read<AppOwnerCubit>().clearMessages();
@@ -87,13 +73,7 @@ class _WithdrawalRequestsScreenState extends State<WithdrawalRequestsScreen>
             builder: (context, state) {
               return Column(
                 children: [
-                  // ✅ Summary Card
-                  _buildSummaryCard(state),
-
-                  // ✅ Tabs
                   _buildTabs(),
-
-                  // ✅ Tab Content
                   Expanded(
                     child: TabBarView(
                       controller: _tabController,
@@ -121,22 +101,20 @@ class _WithdrawalRequestsScreenState extends State<WithdrawalRequestsScreen>
             Icon(
               isError ? Icons.error : Icons.check_circle,
               color: Colors.white,
-              size: 20,
+              size: 18,
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: 10),
             Expanded(
               child: Text(
                 message,
-                style: const TextStyle(color: Colors.white),
+                style: const TextStyle(color: Colors.white, fontSize: 13),
               ),
             ),
           ],
         ),
         backgroundColor: isError ? Colors.red : AppColors.success,
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         duration: const Duration(seconds: 3),
       ),
     );
@@ -149,8 +127,8 @@ class _WithdrawalRequestsScreenState extends State<WithdrawalRequestsScreen>
     }
 
     return Container(
-      margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.all(20),
+      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
@@ -160,22 +138,20 @@ class _WithdrawalRequestsScreenState extends State<WithdrawalRequestsScreen>
             AppColors.success.withOpacity(0.05),
           ],
         ),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: AppColors.success.withOpacity(0.3),
-        ),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.success.withOpacity(0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Total Pending Withdrawals',
+            'Total Pending',
             style: AppTextStyles.body.copyWith(
               color: AppColors.textSecondary,
-              fontSize: 14,
+              fontSize: 11,
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 6),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -183,7 +159,7 @@ class _WithdrawalRequestsScreenState extends State<WithdrawalRequestsScreen>
                 child: Text(
                   'EGP ${totalPending.toStringAsFixed(2)}',
                   style: AppTextStyles.title.copyWith(
-                    fontSize: 32,
+                    fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: AppColors.success,
                   ),
@@ -191,33 +167,29 @@ class _WithdrawalRequestsScreenState extends State<WithdrawalRequestsScreen>
                 ),
               ),
               Container(
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.all(7),
                 decoration: BoxDecoration(
                   color: AppColors.success.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(10),
                 ),
                 child: const Icon(
                   Icons.account_balance_wallet,
                   color: AppColors.success,
-                  size: 32,
+                  size: 18,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 6),
           Row(
             children: [
-              Icon(
-                Icons.info_outline,
-                size: 16,
-                color: AppColors.textSecondary,
-              ),
-              const SizedBox(width: 8),
+              Icon(Icons.info_outline, size: 12, color: AppColors.textSecondary),
+              const SizedBox(width: 5),
               Text(
-                '${state.pendingWithdrawals.length} requests awaiting approval',
+                '${state.pendingWithdrawals.length} requests',
                 style: AppTextStyles.body.copyWith(
                   color: AppColors.textSecondary,
-                  fontSize: 12,
+                  fontSize: 10,
                 ),
               ),
             ],
@@ -229,30 +201,26 @@ class _WithdrawalRequestsScreenState extends State<WithdrawalRequestsScreen>
 
   Widget _buildTabs() {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
+      height: 50,
+      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: Colors.grey.shade100,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(7),
       ),
       child: TabBar(
         controller: _tabController,
         indicator: BoxDecoration(
           color: AppColors.success,
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(7),
         ),
         labelColor: Colors.white,
         unselectedLabelColor: AppColors.textSecondary,
-        labelStyle: const TextStyle(
-          fontWeight: FontWeight.w600,
-          fontSize: 14,
-        ),
+        labelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 11),
         indicatorSize: TabBarIndicatorSize.tab,
-        labelPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        indicatorPadding: const EdgeInsets.all(4),
-        tabs: const [
-          Tab(text: 'Pending'),
-          Tab(text: 'Processed'),
-        ],
+        
+        labelPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+        indicatorPadding: const EdgeInsets.all(2),
+        tabs: const [Tab(text: 'Pending'), Tab(text: 'Processed')],
       ),
     );
   }
@@ -266,40 +234,53 @@ class _WithdrawalRequestsScreenState extends State<WithdrawalRequestsScreen>
             const CircularProgressIndicator(
               valueColor: AlwaysStoppedAnimation<Color>(AppColors.success),
             ),
-            const SizedBox(height: 16),
-            Text(
-              'Loading withdrawals...',
-              style: AppTextStyles.body,
-            ),
+            const SizedBox(height: 12),
+            Text('Loading...', style: AppTextStyles.body.copyWith(fontSize: 12)),
           ],
         ),
       );
     }
 
     if (state.pendingWithdrawals.isEmpty) {
-      return _buildEmptyState(
-        icon: Icons.inbox,
-        message: 'No pending withdrawal requests',
+      return SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        child: _buildEmptyState(
+          icon: Icons.inbox,
+          message: 'No pending requests',
+        ),
       );
     }
 
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: state.pendingWithdrawals.length,
-      itemBuilder: (context, index) {
-        return _buildWithdrawalCard(
-          state.pendingWithdrawals[index],
-          context,
-          isPending: true,
-        );
-      },
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      child: Column(
+        children: [
+          _buildSummaryCard(state),
+          const SizedBox(height: 6),
+          ...List.generate(
+            state.pendingWithdrawals.length,
+            (index) => Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: _buildWithdrawalCard(
+                state.pendingWithdrawals[index],
+                context,
+                isPending: true,
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+        ],
+      ),
     );
   }
 
   Widget _buildProcessedList(AppOwnerState state) {
-    return _buildEmptyState(
-      icon: Icons.done_all,
-      message: 'No processed withdrawal requests',
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      child: _buildEmptyState(
+        icon: Icons.done_all,
+        message: 'No processed requests',
+      ),
     );
   }
 
@@ -309,105 +290,91 @@ class _WithdrawalRequestsScreenState extends State<WithdrawalRequestsScreen>
     required bool isPending,
   }) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(11),
         border: Border.all(
           color: isPending
               ? AppColors.warning.withOpacity(0.3)
               : AppColors.success.withOpacity(0.3),
-          width: 2,
+          width: 1.5,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ✅ Header
+          // Header
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 9),
             decoration: BoxDecoration(
               color: isPending
-                  ? AppColors.warning.withOpacity(0.1)
-                  : AppColors.success.withOpacity(0.1),
+                  ? AppColors.warning.withOpacity(0.08)
+                  : AppColors.success.withOpacity(0.08),
               borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(14),
-                topRight: Radius.circular(14),
+                topLeft: Radius.circular(10),
+                topRight: Radius.circular(10),
               ),
             ),
             child: Row(
               children: [
-                // Vendor Avatar
                 CircleAvatar(
-                  radius: 24,
+                  radius: 16,
                   backgroundColor: AppColors.primaryGold.withOpacity(0.3),
-                  child: const Icon(
-                    Icons.person,
-                    color: AppColors.primaryGold,
-                  ),
+                  child: const Icon(Icons.person, color: AppColors.primaryGold, size: 16),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 9),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Withdrawal Request',
+                        'Withdrawal',
                         style: AppTextStyles.body.copyWith(
                           fontWeight: FontWeight.bold,
-                          fontSize: 14,
+                          fontSize: 11,
                           color: AppColors.textSecondary,
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 2),
                       Text(
-                        'Vendor ID: ${withdrawal.vendorId?.substring(0, 8) ?? 'Unknown'}',
+                        'ID: ${withdrawal.vendorId?.substring(0, 8) ?? 'Unknown'}',
                         style: AppTextStyles.body.copyWith(
                           fontWeight: FontWeight.w600,
-                          fontSize: 15,
+                          fontSize: 10,
                         ),
                       ),
                     ],
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
                   decoration: BoxDecoration(
                     color: isPending
                         ? AppColors.warning.withOpacity(0.2)
                         : AppColors.success.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(14),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
-                        isPending
-                            ? Icons.access_time
-                            : Icons.check_circle,
-                        size: 14,
-                        color: isPending
-                            ? AppColors.warning
-                            : AppColors.success,
+                        isPending ? Icons.access_time : Icons.check_circle,
+                        size: 11,
+                        color: isPending ? AppColors.warning : AppColors.success,
                       ),
-                      const SizedBox(width: 4),
+                      const SizedBox(width: 3),
                       Text(
-                        isPending ? 'Pending' : 'Completed',
+                        isPending ? 'Pending' : 'Done',
                         style: TextStyle(
-                          color: isPending
-                              ? AppColors.warning
-                              : AppColors.success,
-                          fontSize: 12,
+                          color: isPending ? AppColors.warning : AppColors.success,
+                          fontSize: 9,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -418,58 +385,54 @@ class _WithdrawalRequestsScreenState extends State<WithdrawalRequestsScreen>
             ),
           ),
 
-          // ✅ Details
+          // Details
           Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(10),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Amount Card
+                // Amount
                 Container(
-                  padding: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.all(9),
                   decoration: BoxDecoration(
-                    color: AppColors.primaryGold.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
+                    color: AppColors.primaryGold.withOpacity(0.08),
+                    borderRadius: BorderRadius.circular(10),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Withdrawal Amount',
+                        'Amount',
                         style: AppTextStyles.body.copyWith(
                           color: AppColors.textSecondary,
-                          fontSize: 14,
+                          fontSize: 10,
                         ),
                       ),
                       Text(
                         'EGP ${withdrawal.amount.toStringAsFixed(2)}',
                         style: AppTextStyles.title.copyWith(
                           color: AppColors.primaryGold,
-                          fontSize: 18,
+                          fontSize: 12,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 8),
 
-                // Wallet Info
+                // Wallet Type
                 Row(
                   children: [
-                    Icon(
-                      Icons.wallet_giftcard,
-                      color: AppColors.primaryDark,
-                      size: 20,
-                    ),
-                    const SizedBox(width: 8),
+                    Icon(Icons.wallet_giftcard, color: AppColors.primaryDark, size: 15),
+                    const SizedBox(width: 6),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Wallet Type',
+                          'Wallet',
                           style: AppTextStyles.body.copyWith(
-                            fontSize: 12,
+                            fontSize: 10,
                             color: AppColors.textSecondary,
                           ),
                         ),
@@ -477,32 +440,28 @@ class _WithdrawalRequestsScreenState extends State<WithdrawalRequestsScreen>
                           withdrawal.walletType ?? 'Unknown',
                           style: AppTextStyles.body.copyWith(
                             fontWeight: FontWeight.w600,
-                            fontSize: 14,
+                            fontSize: 11,
                           ),
                         ),
                       ],
                     ),
                   ],
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 8),
 
                 // Wallet Number
                 if (withdrawal.walletNumber != null && withdrawal.walletNumber!.isNotEmpty)
                   Row(
                     children: [
-                      Icon(
-                        Icons.credit_card,
-                        color: AppColors.primaryDark,
-                        size: 20,
-                      ),
-                      const SizedBox(width: 8),
+                      Icon(Icons.credit_card, color: AppColors.primaryDark, size: 15),
+                      const SizedBox(width: 6),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Wallet Number',
+                            'Number',
                             style: AppTextStyles.body.copyWith(
-                              fontSize: 12,
+                              fontSize: 10,
                               color: AppColors.textSecondary,
                             ),
                           ),
@@ -510,7 +469,7 @@ class _WithdrawalRequestsScreenState extends State<WithdrawalRequestsScreen>
                             withdrawal.walletNumber!,
                             style: AppTextStyles.body.copyWith(
                               fontWeight: FontWeight.w600,
-                              fontSize: 14,
+                              fontSize: 11,
                               fontFamily: 'Courier',
                             ),
                           ),
@@ -518,57 +477,54 @@ class _WithdrawalRequestsScreenState extends State<WithdrawalRequestsScreen>
                       ),
                     ],
                   ),
-                const SizedBox(height: 12),
-
-                // Date
+                if (withdrawal.walletNumber != null && withdrawal.walletNumber!.isNotEmpty)
+                  const SizedBox(height: 8),
+// Date
                 Row(
                   children: [
-                    Icon(
-                      Icons.calendar_today,
-                      color: AppColors.textSecondary,
-                      size: 16,
-                    ),
-                    const SizedBox(width: 8),
+                    Icon(Icons.calendar_today, color: AppColors.textSecondary, size: 14),
+                    const SizedBox(width: 6),
                     Text(
                       _formatDate(withdrawal.requestedAt),
                       style: AppTextStyles.body.copyWith(
                         color: AppColors.textSecondary,
-                        fontSize: 13,
+                        fontSize: 10,
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
-
-                // Action Buttons
+                const SizedBox(height: 10),
+// Action Buttons
                 if (isPending)
                   Row(
                     children: [
                       Expanded(
                         child: ElevatedButton.icon(
-                          onPressed: () =>
-                              _approveWithdrawalDialog(withdrawal, context),
-                          icon: const Icon(Icons.check_circle, size: 18),
-                          label: const Text('Approve & Transfer'),
+                          onPressed: () => _approveWithdrawalDialog(withdrawal, context),
+                          icon: const Icon(Icons.check_circle, size: 14),
+                          label: const Text('Approve', style: TextStyle(fontSize: 10)),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.success,
                             foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            padding: const EdgeInsets.symmetric(vertical: 6),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
+                              borderRadius: BorderRadius.circular(6),
                             ),
                           ),
                         ),
                       ),
-                      const SizedBox(width: 8),
-                      IconButton(
-                        onPressed: () =>
-                            _rejectWithdrawalDialog(withdrawal, context),
-                        icon: const Icon(Icons.cancel),
-                        color: AppColors.error,
-                        style: IconButton.styleFrom(
-                          backgroundColor: AppColors.error.withOpacity(0.1),
-                          padding: const EdgeInsets.all(12),
+                      const SizedBox(width: 6),
+                      SizedBox(
+                        width: 36,
+                        height: 32,
+                        child: IconButton(
+                          onPressed: () => _rejectWithdrawalDialog(withdrawal, context),
+                          icon: const Icon(Icons.cancel, size: 16),
+                          color: AppColors.error,
+                          style: IconButton.styleFrom(
+                            backgroundColor: AppColors.error.withOpacity(0.1),
+                            padding: const EdgeInsets.all(0),
+                          ),
                         ),
                       ),
                     ],
@@ -589,17 +545,13 @@ class _WithdrawalRequestsScreenState extends State<WithdrawalRequestsScreen>
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            icon,
-            size: 80,
-            color: AppColors.textSecondary.withOpacity(0.3),
-          ),
-          const SizedBox(height: 16),
+          Icon(icon, size: 60, color: AppColors.textSecondary.withOpacity(0.3)),
+          const SizedBox(height: 12),
           Text(
             message,
             style: AppTextStyles.body.copyWith(
               color: AppColors.textSecondary,
-              fontSize: 16,
+              fontSize: 14,
             ),
           ),
         ],
@@ -618,28 +570,22 @@ class _WithdrawalRequestsScreenState extends State<WithdrawalRequestsScreen>
       context: context,
       barrierDismissible: false,
       builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Row(
           children: [
             Container(
-              padding: const EdgeInsets.all(8),
+              padding: const EdgeInsets.all(6),
               decoration: BoxDecoration(
                 color: AppColors.success.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(8),
               ),
-              child: const Icon(
-                Icons.check_circle,
-                color: AppColors.success,
-                size: 28,
-              ),
+              child: const Icon(Icons.check_circle, color: AppColors.success, size: 24),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: 10),
             Expanded(
               child: Text(
-                'Approve Withdrawal?',
-                style: AppTextStyles.title.copyWith(fontSize: 18),
+                'Approve?',
+                style: AppTextStyles.title.copyWith(fontSize: 16),
                 overflow: TextOverflow.ellipsis,
               ),
             ),
@@ -653,11 +599,11 @@ class _WithdrawalRequestsScreenState extends State<WithdrawalRequestsScreen>
             children: [
               Text(
                 'Transfer EGP ${withdrawal.amount.toStringAsFixed(2)} to ${withdrawal.walletType}?',
-                style: AppTextStyles.body.copyWith(fontSize: 15),
+                style: AppTextStyles.body.copyWith(fontSize: 13),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
               Container(
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
                   color: AppColors.primaryGold.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(8),
@@ -666,59 +612,54 @@ class _WithdrawalRequestsScreenState extends State<WithdrawalRequestsScreen>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Transaction Details:',
+                      'Details:',
                       style: AppTextStyles.body.copyWith(
                         fontWeight: FontWeight.bold,
-                        fontSize: 13,
+                        fontSize: 11,
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 6),
                     Text(
                       'Amount: EGP ${withdrawal.amount.toStringAsFixed(2)}',
                       style: AppTextStyles.body.copyWith(
-                        fontSize: 12,
+                        fontSize: 11,
                         color: AppColors.textSecondary,
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 3),
                     Text(
                       'Wallet: ${withdrawal.walletNumber ?? 'N/A'}',
                       style: AppTextStyles.body.copyWith(
-                        fontSize: 12,
+                        fontSize: 11,
                         color: AppColors.textSecondary,
                       ),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
               Text(
-                'Enter Transaction Reference:',
-                style: AppTextStyles.body.copyWith(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 13,
-                ),
+                'Reference:',
+                style: AppTextStyles.body.copyWith(fontWeight: FontWeight.w600, fontSize: 11),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 6),
               TextFormField(
                 controller: referenceController,
                 decoration: InputDecoration(
-                  hintText: 'Reference number (e.g., TXN-12345)',
-                  prefixIcon: const Icon(Icons.confirmation_number),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+                  hintText: 'TXN-12345',
+                  hintStyle: const TextStyle(fontSize: 12),
+                  prefixIcon: const Icon(Icons.confirmation_number, size: 18),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                   focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(
-                      color: AppColors.success,
-                      width: 2,
-                    ),
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: const BorderSide(color: AppColors.success, width: 2),
                   ),
+                  contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
                 ),
+                style: const TextStyle(fontSize: 12),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return 'Please enter transaction reference';
+                    return 'Required';
                   }
                   return null;
                 },
@@ -729,27 +670,25 @@ class _WithdrawalRequestsScreenState extends State<WithdrawalRequestsScreen>
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
+            child: const Text('Cancel', style: TextStyle(fontSize: 11)),
           ),
           ElevatedButton(
             onPressed: () {
               if (formKey.currentState!.validate()) {
-                // ✅ Call Cubit approve method
                 context.read<AppOwnerCubit>().approveWithdrawal(
-                      withdrawalId: withdrawal.id ?? '',
-                      transactionReference: referenceController.text,
-                    );
+                  withdrawalId: withdrawal.id ?? '',
+                  transactionReference: referenceController.text,
+                );
                 Navigator.pop(ctx);
               }
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.success,
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
             ),
-            child: const Text('Approve & Transfer'),
+            child: const Text('Approve', style: TextStyle(fontSize: 11)),
           ),
         ],
       ),
@@ -767,28 +706,22 @@ class _WithdrawalRequestsScreenState extends State<WithdrawalRequestsScreen>
       context: context,
       barrierDismissible: false,
       builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Row(
           children: [
             Container(
-              padding: const EdgeInsets.all(8),
+              padding: const EdgeInsets.all(6),
               decoration: BoxDecoration(
                 color: AppColors.error.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(8),
               ),
-              child: const Icon(
-                Icons.cancel,
-                color: AppColors.error,
-                size: 28,
-              ),
+              child: const Icon(Icons.cancel, color: AppColors.error, size: 24),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: 10),
             Expanded(
               child: Text(
-                'Reject Withdrawal',
-                style: AppTextStyles.title.copyWith(fontSize: 18),
+                'Reject?',
+                style: AppTextStyles.title.copyWith(fontSize: 16),
                 overflow: TextOverflow.ellipsis,
               ),
             ),
@@ -801,7 +734,7 @@ class _WithdrawalRequestsScreenState extends State<WithdrawalRequestsScreen>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
                   color: AppColors.error.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(8),
@@ -811,57 +744,45 @@ class _WithdrawalRequestsScreenState extends State<WithdrawalRequestsScreen>
                   children: [
                     Text(
                       'Rejecting:',
-                      style: AppTextStyles.body.copyWith(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 12,
-                      ),
+                      style: AppTextStyles.body.copyWith(fontWeight: FontWeight.bold, fontSize: 11),
                     ),
                     Text(
-                      'EGP ${withdrawal.amount.toStringAsFixed(2)} withdrawal',
+                      'EGP ${withdrawal.amount.toStringAsFixed(2)}',
                       style: AppTextStyles.body.copyWith(
                         fontWeight: FontWeight.w600,
-                        fontSize: 14,
+                        fontSize: 12,
                         color: AppColors.error,
                       ),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
               Text(
-                'Rejection Reason:',
-                style: AppTextStyles.body.copyWith(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 13,
-                ),
+                'Reason:',
+                style: AppTextStyles.body.copyWith(fontWeight: FontWeight.w600, fontSize: 11),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 6),
               TextFormField(
                 controller: reasonController,
                 maxLines: 3,
                 decoration: InputDecoration(
-                  hintText: 'Enter rejection reason...',
-                  prefixIcon: const Padding(
-                    padding: EdgeInsets.only(top: 12),
-                    child: Icon(Icons.notes),
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+                  hintText: 'Enter reason...',
+                  hintStyle: const TextStyle(fontSize: 12),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                   focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(
-                      color: AppColors.error,
-                      width: 2,
-                    ),
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: const BorderSide(color: AppColors.error, width: 2),
                   ),
+                  contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
                 ),
+                style: const TextStyle(fontSize: 12),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return 'Please provide a reason';
+                    return 'Required';
                   }
-                  if (value.length < 10) {
-                    return 'Reason must be at least 10 characters';
+                  if (value.length < 8) {
+                    return 'Min 8 chars';
                   }
                   return null;
                 },
@@ -872,27 +793,25 @@ class _WithdrawalRequestsScreenState extends State<WithdrawalRequestsScreen>
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
+            child: const Text('Cancel', style: TextStyle(fontSize: 11)),
           ),
           ElevatedButton(
             onPressed: () {
               if (formKey.currentState!.validate()) {
-                // ✅ Call Cubit reject method
                 context.read<AppOwnerCubit>().rejectWithdrawal(
-                      withdrawalId: withdrawal.id ?? '',
-                      rejectionReason: reasonController.text,
-                    );
+                  withdrawalId: withdrawal.id ?? '',
+                  rejectionReason: reasonController.text,
+                );
                 Navigator.pop(ctx);
               }
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.error,
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
             ),
-            child: const Text('Reject'),
+            child: const Text('Reject', style: TextStyle(fontSize: 11)),
           ),
         ],
       ),

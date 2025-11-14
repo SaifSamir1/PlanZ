@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:plan_z/core/theming/text_styles.dart';
 import 'package:plan_z/features/attandee/cubit/attendee_cubit.dart';
 import 'package:plan_z/features/attandee/cubit/attendee_state.dart';
+import 'package:plan_z/features/attandee/ui/home/ui/screens/event_details_screen.dart';
 import 'package:plan_z/features/attandee/ui/home/ui/screens/my_invitations_screen.dart';
 import 'package:plan_z/features/attandee/ui/home/ui/widgets/attendee_event_card.dart';
 import 'package:plan_z/features/attandee/ui/home/ui/widgets/empty_events_widget.dart';
@@ -69,7 +70,16 @@ class UpcomingEventsSection extends StatelessWidget {
 
               return Column(
                 children: displayEvents
-                    .map((event) => AttendeeEventCard(event: event))
+                    .map((event) => AttendeeEventCard(
+                      event: event,
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => EventDetailsScreen(event: event),
+                          ),
+                        );
+                      },
+                    ))
                     .toList(),
               );
             }

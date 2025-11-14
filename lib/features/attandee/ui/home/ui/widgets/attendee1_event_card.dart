@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:plan_z/core/theming/text_styles.dart';
 import 'package:plan_z/core/utils/app_colors.dart';
 import 'package:plan_z/features/attandee/ui/home/ui/widgets/event_date_badge.dart';
-import 'package:plan_z/features/new_owner_features/create_event_screen/data/models/event_model.dart';
+import 'package:plan_z/features/event_owners/create_event_screen/data/models/event_model.dart';
 
 class Attendee1EventCard extends StatelessWidget {
   final EventModel event;

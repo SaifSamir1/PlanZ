@@ -10,6 +10,8 @@ import 'package:plan_z/features/app_owner/cubit/app_owner_state.dart';
 import 'package:plan_z/features/app_owner/ui/screens/financial_overview_screen.dart';
 import 'package:plan_z/features/app_owner/ui/screens/package_approval_screen.dart';
 import 'package:plan_z/features/app_owner/ui/screens/withdrawal_requests_screen.dart';
+import 'package:plan_z/features/auth/logic/auth_cubit/auth_cubit.dart';
+import 'package:plan_z/features/on_boarding/ui/on_boarding_view.dart';
 import 'package:shimmer/shimmer.dart';
 
 class OwnerDashboardScreen extends StatefulWidget {
@@ -25,6 +27,9 @@ class _OwnerDashboardScreenState extends State<OwnerDashboardScreen> {
     super.initState();
     // ✅ Load dashboard stats on init
     context.read<AppOwnerCubit>().loadDashboardStats();
+    
+    // ✅ Load owner profits (جلب كل الأرباح من collection)
+    context.read<AppOwnerCubit>().getOwnerProfits();
   }
 
   @override
@@ -39,6 +44,10 @@ class _OwnerDashboardScreenState extends State<OwnerDashboardScreen> {
             onPressed: () {
               // TODO: Handle notifications
             },
+          ),
+          IconButton(
+            icon: const Icon(Icons.logout, color: Colors.white),
+            onPressed: () => _showLogoutDialog(context),
           ),
         ],
       ),
@@ -78,16 +87,12 @@ class _OwnerDashboardScreenState extends State<OwnerDashboardScreen> {
                 _buildFinancialCard(context, state),
                 const SizedBox(height: 20),
 
-                // ✅ Stats Grid
-                _buildStatsGrid(state),
-                const SizedBox(height: 20),
+                // ✅ Owner Profits Card
+                _buildOwnerProfitsCard(state),
+                const SizedBox(height: 24),
 
                 // ✅ Quick Actions
                 _buildQuickActions(context),
-                const SizedBox(height: 24),
-
-                // ✅ Recent Activities
-                _buildRecentActivities(),
               ],
             ),
           );
@@ -101,7 +106,7 @@ class _OwnerDashboardScreenState extends State<OwnerDashboardScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Welcome Back, Admin! 👋',
+          'Welcome Back, Admin! ',
           style: AppTextStyles.title.copyWith(
             fontSize: 24,
             fontWeight: FontWeight.bold,
@@ -298,108 +303,158 @@ class _OwnerDashboardScreenState extends State<OwnerDashboardScreen> {
     );
   }
 
-  Widget _buildStatsGrid(AppOwnerState state) {
-    final stats = state.dashboardStats ?? {};
-    final pendingPackages = stats['pendingPackagesCount'] as int? ?? 0;
-    final pendingWithdrawals = stats['pendingWithdrawalsCount'] as int? ?? 0;
-    final activeVendors = stats['activeVendorsCount'] as int? ?? 0;
+  Widget _buildOwnerProfitsCard(AppOwnerState state) {
+    final profits = state.ownerProfits ?? {};
+    final totalProfit = (profits['totalProfit'] as num?)?.toDouble() ?? 0.0;
+    final totalTransactions = profits['totalTransactions'] as int? ?? 0;
+    // ✅ Owner profit = 20% من الفلوس الكلية
+    final ownerProfit = totalProfit * 0.20;
 
-    return Column(
-      children: [
-        Row(
-          children: [
-            Expanded(
-              child: _buildStatCard(
-                icon: Icons.pending_actions,
-                title: 'Pending Packages',
-                value: pendingPackages.toString(),
-                color: AppColors.warning,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _buildStatCard(
-                icon: Icons.monetization_on,
-                title: 'Pending Withdrawals',
-                value: pendingWithdrawals.toString(),
-                color: AppColors.error,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        Row(
-          children: [
-            Expanded(
-              child: _buildStatCard(
-                icon: Icons.store,
-                title: 'Active Vendors',
-                value: activeVendors.toString(),
-                color: AppColors.success,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _buildStatCard(
-                icon: Icons.payments,
-                title: 'Pending Amount',
-                value: 'EGP ${(stats['pendingWithdrawalAmount'] as double? ?? 0.0).toStringAsFixed(0)}',
-                color: AppColors.primaryGold,
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildStatCard({
-    required IconData icon,
-    required String title,
-    required String value,
-    required Color color,
-  }) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            AppColors.primaryGold.withOpacity(0.15),
+            AppColors.primaryGold.withOpacity(0.05),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: color.withOpacity(0.3),
-          width: 1,
+          color: AppColors.primaryGold.withOpacity(0.3),
+          width: 1.5,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
+            color: AppColors.primaryGold.withOpacity(0.1),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: color, size: 28),
-          const SizedBox(height: 12),
-          Text(
-            value,
-            style: AppTextStyles.title.copyWith(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Your Platform Earnings',
+                    style: AppTextStyles.body.copyWith(
+                      color: AppColors.textSecondary,
+                      fontSize: 13,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  if (state.isLoading)
+                    const SizedBox(
+                      width: 120,
+                      height: 36,
+                      child: Shimmer(
+                        gradient: LinearGradient(
+                          colors: [Colors.grey, Colors.white30],
+                        ),
+                        child: CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
+                        ),
+                      ),
+                    )
+                  else
+                    Text(
+                      'EGP ${ownerProfit.toStringAsFixed(2)}',
+                      style: AppTextStyles.title.copyWith(
+                        color: AppColors.primaryGold,
+                        fontSize: 32,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '20% من إجمالي الأرباح',
+                    style: AppTextStyles.body.copyWith(
+                      color: AppColors.textSecondary,
+                      fontSize: 11,
+                    ),
+                  ),
+                ],
+              ),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: AppColors.primaryGold.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(
+                  Icons.trending_up,
+                  color: AppColors.primaryGold,
+                  size: 24,
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 4),
-          Text(
-            title,
-            style: AppTextStyles.body.copyWith(
-              color: AppColors.textSecondary,
-              fontSize: 12,
+          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            decoration: BoxDecoration(
+              color: AppColors.primaryGold.withOpacity(0.08),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Total Revenue',
+                      style: AppTextStyles.body.copyWith(
+                        color: AppColors.textSecondary,
+                        fontSize: 12,
+                      ),
+                    ),
+                    Text(
+                      'EGP ${totalProfit.toStringAsFixed(2)}',
+                      style: AppTextStyles.body.copyWith(
+                        color: AppColors.primaryDark,
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Transactions',
+                      style: AppTextStyles.body.copyWith(
+                        color: AppColors.textSecondary,
+                        fontSize: 12,
+                      ),
+                    ),
+                    Text(
+                      totalTransactions.toString(),
+                      style: AppTextStyles.body.copyWith(
+                        color: AppColors.primaryDark,
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
         ],
       ),
     );
   }
+
 
   Widget _buildQuickActions(BuildContext context) {
     return Column(
@@ -497,112 +552,65 @@ class _OwnerDashboardScreenState extends State<OwnerDashboardScreen> {
     );
   }
 
-  Widget _buildRecentActivities() {
-    final activities = [
-      {
-        'icon': Icons.check_circle,
-        'color': AppColors.success,
-        'title': 'Package Approved',
-        'subtitle': 'Premium Catering Package by Ahmed',
-        'time': '2 hours ago',
-      },
-      {
-        'icon': Icons.monetization_on,
-        'color': AppColors.warning,
-        'title': 'New Withdrawal Request',
-        'subtitle': 'Sara requested EGP 500 withdrawal',
-        'time': '5 hours ago',
-      },
-      {
-        'icon': Icons.cancel,
-        'color': AppColors.error,
-        'title': 'Package Rejected',
-        'subtitle': 'Basic DJ Package by Mohamed',
-        'time': '1 day ago',
-      },
-    ];
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Recent Activities',
-          style: AppTextStyles.title.copyWith(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
+  // ✅ Logout Dialog
+  void _showLogoutDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
         ),
-        const SizedBox(height: 12),
-        ListView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: activities.length,
-          itemBuilder: (context, index) {
-            final activity = activities[index];
-            return Container(
-              margin: const EdgeInsets.only(bottom: 12),
-              padding: const EdgeInsets.all(12),
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 10,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
+                color: AppColors.error.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(10),
               ),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: (activity['color'] as Color).withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Icon(
-                      activity['icon'] as IconData,
-                      color: activity['color'] as Color,
-                      size: 24,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          activity['title'] as String,
-                          style: AppTextStyles.body.copyWith(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          activity['subtitle'] as String,
-                          style: AppTextStyles.body.copyWith(
-                            color: AppColors.textSecondary,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Text(
-                    activity['time'] as String,
-                    style: AppTextStyles.body.copyWith(
-                      color: AppColors.textSecondary,
-                      fontSize: 11,
-                    ),
-                  ),
-                ],
+              child: const Icon(
+                Icons.logout,
+                color: AppColors.error,
+                size: 24,
               ),
-            );
-          },
+            ),
+            const SizedBox(width: 12),
+            const Expanded(
+              child: Text('Logout'),
+            ),
+          ],
         ),
-      ],
+        content: Text(
+          'Are you sure you want to logout?',
+          style: AppTextStyles.body.copyWith(fontSize: 14),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              // ✅ Call signOut from AuthCubit
+               context.read<AuthCubit>().signOut();
+              // ✅ Navigate to OnBoardingScreen
+              Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(builder: (context) => const OnBoardingScreen()),
+              (route) => false,
+            );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.error,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            child: const Text('Logout'),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -12,6 +12,7 @@ class AppOwnerState {
   final List<WithdrawalRequestModel> pendingWithdrawals;
   final AppOwnerFinancialOverview? financialOverview;
   final Map<String, dynamic>? dashboardStats;
+  final Map<String, dynamic>? ownerProfits;
 
   const AppOwnerState({
     this.isLoading = false,
@@ -21,6 +22,7 @@ class AppOwnerState {
     this.pendingWithdrawals = const [],
     this.financialOverview,
     this.dashboardStats,
+    this.ownerProfits,
   });
 
   AppOwnerState copyWith({
@@ -31,6 +33,7 @@ class AppOwnerState {
     List<WithdrawalRequestModel>? pendingWithdrawals,
     AppOwnerFinancialOverview? financialOverview,
     Map<String, dynamic>? dashboardStats,
+    Map<String, dynamic>? ownerProfits,
   }) {
     return AppOwnerState(
       isLoading: isLoading ?? this.isLoading,
@@ -40,6 +43,7 @@ class AppOwnerState {
       pendingWithdrawals: pendingWithdrawals ?? this.pendingWithdrawals,
       financialOverview: financialOverview ?? this.financialOverview,
       dashboardStats: dashboardStats ?? this.dashboardStats,
+      ownerProfits: ownerProfits ?? this.ownerProfits,
     );
   }
 }
