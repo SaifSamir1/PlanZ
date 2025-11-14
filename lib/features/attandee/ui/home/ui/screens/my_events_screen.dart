@@ -12,7 +12,7 @@ import 'package:plan_z/features/attandee/ui/home/ui/widgets/empty1_events_widget
 import 'package:plan_z/features/attandee/ui/home/ui/widgets/event_filter_tabs.dart';
 import 'package:plan_z/features/attandee/ui/home/ui/widgets/my_events_loading_shimmer.dart';
 import 'package:plan_z/features/auth/data/models/user_manager.dart';
-import 'package:plan_z/features/new_owner_features/create_event_screen/data/models/event_model.dart';
+import 'package:plan_z/features/event_owners/create_event_screen/data/models/event_model.dart';
 
 enum EventFilter { all, upcoming, past }
 
@@ -50,15 +50,23 @@ class _MyEventsScreenState extends State<MyEventsScreen>
   }
 
   void _loadEvents() {
+    debugPrint('📥 Loading attendee events with filter: $selectedFilter');
+    final userId = userManager.currentUser?.id;
+    
+    if (userId == null) {
+      debugPrint('❌ User ID is null');
+      return;
+    }
+
     switch (selectedFilter) {
       case EventFilter.all:
-        context.read<AttendeeCubit>().getMyAcceptedEvents(userManager.currentUser!.id);
+        context.read<AttendeeCubit>().getMyAcceptedEvents(userId);
         break;
       case EventFilter.upcoming:
-        context.read<AttendeeCubit>().getUpcomingEvents(userManager.currentUser!.id);
+        context.read<AttendeeCubit>().getUpcomingEvents(userId);
         break;
       case EventFilter.past:
-        context.read<AttendeeCubit>().getPastEvents(userManager.currentUser!.id);
+        context.read<AttendeeCubit>().getPastEvents(userId);
         break;
     }
   }
@@ -80,20 +88,7 @@ class _MyEventsScreenState extends State<MyEventsScreen>
       backgroundColor: AppColors.background,
       appBar: CustomAppBar(
         title: "My Events",
-        actions: [
-          IconButton(
-            onPressed: () {
-              // TODO: Navigate to Search Screen
-            },
-            icon: const Icon(Icons.search_rounded),
-          ),
-          IconButton(
-            onPressed: () {
-              // TODO: Navigate to Calendar View
-            },
-            icon: const Icon(Icons.calendar_month_rounded),
-          ),
-        ],
+        
       ),
       body: Column(
         children: [

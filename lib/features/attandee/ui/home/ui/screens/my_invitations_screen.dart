@@ -13,7 +13,7 @@ import 'package:plan_z/features/attandee/ui/home/ui/widgets/invitation_card.dart
 import 'package:plan_z/features/attandee/ui/home/ui/widgets/invitation_filter_chips.dart';
 import 'package:plan_z/features/attandee/ui/home/ui/widgets/invitations_loading_shimmer.dart';
 import 'package:plan_z/features/auth/data/models/user_manager.dart';
-import 'package:plan_z/features/new_owner_features/create_event_screen/data/models/event_invitation_model.dart';
+import 'package:plan_z/features/event_owners/create_event_screen/data/models/event_invitation_model.dart';
 
 class MyInvitationsScreen extends StatefulWidget {
   const MyInvitationsScreen({super.key});

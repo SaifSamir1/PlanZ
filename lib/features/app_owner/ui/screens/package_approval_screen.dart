@@ -16,22 +16,12 @@ class PackageApprovalScreen extends StatefulWidget {
   State<PackageApprovalScreen> createState() => _PackageApprovalScreenState();
 }
 
-class _PackageApprovalScreenState extends State<PackageApprovalScreen>
-    with SingleTickerProviderStateMixin {
-  late TabController _tabController;
-
+class _PackageApprovalScreenState extends State<PackageApprovalScreen> {
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
     // ✅ Load pending packages on init
     context.read<AppOwnerCubit>().loadPendingPackages();
-  }
-
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
   }
 
   @override
@@ -93,20 +83,11 @@ class _PackageApprovalScreenState extends State<PackageApprovalScreen>
             children: [
               // ✅ Stats Summary
               _buildStatsSummary(state),
+              const SizedBox(height: 8),
 
-              // ✅ Tabs
-              _buildTabs(),
-
-              // ✅ Tab Views
+              // ✅ Pending List
               Expanded(
-                child: TabBarView(
-                  controller: _tabController,
-                  children: [
-                    _buildPendingList(state),
-                    _buildApprovedList(state),
-                    _buildRejectedList(state),
-                  ],
-                ),
+                child: _buildPendingList(state),
               ),
             ],
           );
@@ -119,116 +100,72 @@ class _PackageApprovalScreenState extends State<PackageApprovalScreen>
     final pendingCount = state.pendingPackages.length;
 
     return Container(
-      margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            AppColors.primaryGold.withOpacity(0.1),
-            AppColors.primaryGold.withOpacity(0.05),
+            AppColors.primaryGold.withOpacity(0.08),
+            AppColors.primaryGold.withOpacity(0.03),
           ],
         ),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(10),
         border: Border.all(
-          color: AppColors.primaryGold.withOpacity(0.3),
+          color: AppColors.primaryGold.withOpacity(0.2),
+          width: 1,
         ),
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _buildStatItem(
-            icon: Icons.pending_actions,
-            label: 'Pending',
-            value: pendingCount.toString(),
+          Icon(
+            Icons.pending_actions,
             color: AppColors.warning,
+            size: 24,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Pending Packages',
+                  style: AppTextStyles.body.copyWith(
+                    color: AppColors.textSecondary,
+                    fontSize: 12,
+                  ),
+                ),
+                Text(
+                  pendingCount.toString(),
+                  style: AppTextStyles.title.copyWith(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
           ),
           Container(
-            width: 1,
-            height: 40,
-            color: Colors.grey.shade300,
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: AppColors.warning.withOpacity(0.15),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              'Review',
+              style: AppTextStyles.body.copyWith(
+                color: AppColors.warning,
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ),
-          // _buildStatItem(
-          //   icon: Icons.check_circle,
-          //   label: 'Approved',
-          //   value: '5', // TODO: Get from state
-          //   color: AppColors.success,
-          // ),
-          // Container(
-          //   width: 1,
-          //   height: 40,
-          //   color: Colors.grey.shade300,
-          // ),
-          // _buildStatItem(
-          //   icon: Icons.cancel,
-          //   label: 'Rejected',
-          //   value: '2', // TODO: Get from state
-          //   color: AppColors.error,
-          // ),
         ],
       ),
     );
   }
 
-  Widget _buildStatItem({
-    required IconData icon,
-    required String label,
-    required String value,
-    required Color color,
-  }) {
-    return Column(
-      children: [
-        Icon(icon, color: color, size: 28),
-        const SizedBox(height: 8),
-        Text(
-          value,
-          style: AppTextStyles.title.copyWith(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        Text(
-          label,
-          style: AppTextStyles.body.copyWith(
-            color: AppColors.textSecondary,
-            fontSize: 12,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildTabs() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      decoration: BoxDecoration(
-        color: Colors.grey.shade100,
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: TabBar(
-        controller: _tabController,
-        indicator: BoxDecoration(
-          color: AppColors.primaryGold,
-          borderRadius: BorderRadius.circular(10),
-        ),
-        labelColor: Colors.white,
-        unselectedLabelColor: AppColors.textSecondary,
-        labelStyle: const TextStyle(
-          fontWeight: FontWeight.w600,
-          fontSize: 14,
-        ),
-        indicatorSize: TabBarIndicatorSize.tab,
-        labelPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        indicatorPadding: const EdgeInsets.all(4),
-        tabs: const [
-          Tab(text: 'Pending'),
-          Tab(text: 'Approved'),
-          Tab(text: 'Rejected'),
-        ],
-      ),
-    );
-  }
 
   Widget _buildPendingList(AppOwnerState state) {
     if (state.isLoading) {
@@ -255,7 +192,7 @@ class _PackageApprovalScreenState extends State<PackageApprovalScreen>
     }
 
     return ListView.builder(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(vertical: 8),
       itemCount: state.pendingPackages.length,
       itemBuilder: (context, index) {
         return _buildPendingPackageCard(
@@ -266,36 +203,23 @@ class _PackageApprovalScreenState extends State<PackageApprovalScreen>
     );
   }
 
-  Widget _buildApprovedList(AppOwnerState state) {
-    return _buildEmptyState(
-      icon: Icons.check_circle_outline,
-      message: 'No approved packages yet',
-    );
-  }
-
-  Widget _buildRejectedList(AppOwnerState state) {
-    return _buildEmptyState(
-      icon: Icons.cancel_outlined,
-      message: 'No rejected packages',
-    );
-  }
 
   Widget _buildPendingPackageCard(
       PackageModel package, BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
+      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppColors.warning.withOpacity(0.3),
-          width: 2,
+          color: AppColors.warning.withOpacity(0.2),
+          width: 1.5,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
@@ -304,26 +228,27 @@ class _PackageApprovalScreenState extends State<PackageApprovalScreen>
         children: [
           // ✅ Header
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: AppColors.warning.withOpacity(0.1),
+              color: AppColors.warning.withOpacity(0.08),
               borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(14),
-                topRight: Radius.circular(14),
+                topLeft: Radius.circular(11),
+                topRight: Radius.circular(11),
               ),
             ),
             child: Row(
               children: [
-                // Vendor Avatar (TODO: Add vendor image)
+                // Vendor Avatar
                 CircleAvatar(
-                  radius: 24,
-                  backgroundColor: AppColors.primaryGold.withOpacity(0.3),
+                  radius: 18,
+                  backgroundColor: AppColors.primaryGold.withOpacity(0.2),
                   child: const Icon(
-                    Icons.person,
+                    Icons.store,
                     color: AppColors.primaryGold,
+                    size: 20,
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 10),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -331,58 +256,29 @@ class _PackageApprovalScreenState extends State<PackageApprovalScreen>
                       Text(
                         package.vendorName ?? 'Unknown Vendor',
                         style: AppTextStyles.body.copyWith(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 13,
                         ),
                       ),
-                      // const SizedBox(height: 4),
-                      // Row(
-                      //   children: [
-                      //     const Icon(
-                      //       Icons.category,
-                      //       size: 14,
-                      //       color: AppColors.textSecondary,
-                      //     ),
-                      //     const SizedBox(width: 4),
-                      //     Text(
-                      //       'Catering Package', // TODO: Get category
-                      //       style: AppTextStyles.body.copyWith(
-                      //         color: AppColors.textSecondary,
-                      //         fontSize: 12,
-                      //       ),
-                      //     ),
-                      //   ],
-                      // ),
                     ],
                   ),
                 ),
                 Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
+                    horizontal: 10,
+                    vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: AppColors.warning.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(20),
+                    color: AppColors.warning.withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(6),
                   ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.access_time,
-                        size: 14,
-                        color: AppColors.warning,
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        'Pending',
-                        style: TextStyle(
-                          color: AppColors.warning,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
+                  child: Text(
+                    'Pending',
+                    style: TextStyle(
+                      color: AppColors.warning,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               ],
@@ -391,29 +287,29 @@ class _PackageApprovalScreenState extends State<PackageApprovalScreen>
 
           // ✅ Content
           Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(12),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   package.packageName ?? 'Package Name',
                   style: AppTextStyles.title.copyWith(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 6),
                 Text(
                   package.description ?? 'No description',
                   style: AppTextStyles.body.copyWith(
                     color: AppColors.textSecondary,
-                    fontSize: 14,
-                    height: 1.5,
+                    fontSize: 12,
+                    height: 1.4,
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 10),
 
                 // ✅ Price
                 Row(
@@ -421,35 +317,37 @@ class _PackageApprovalScreenState extends State<PackageApprovalScreen>
                     const Icon(
                       Icons.attach_money,
                       color: AppColors.primaryGold,
-                      size: 20,
+                      size: 18,
                     ),
                     Text(
-                      'EGP ${(package.price ).toStringAsFixed(2)}',
+                      'EGP ${(package.price).toStringAsFixed(2)}',
                       style: AppTextStyles.title.copyWith(
                         color: AppColors.primaryGold,
-                        fontSize: 20,
+                        fontSize: 16,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
 
                 // ✅ Action Buttons
                 Row(
                   children: [
                     Expanded(
-                      child: ElevatedButton.icon(
+                      child: OutlinedButton.icon(
                         onPressed: () => _showPackageDetails(
                           package,
                           context,
                         ),
-                        icon: const Icon(Icons.visibility, size: 18),
-                        label: const Text('View Details'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primaryDark,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 12),
+                        icon: const Icon(Icons.visibility, size: 16),
+                        label: const Text('Details'),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: AppColors.primaryDark,
+                          side: BorderSide(
+                            color: AppColors.primaryDark.withOpacity(0.3),
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 8),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
@@ -461,12 +359,12 @@ class _PackageApprovalScreenState extends State<PackageApprovalScreen>
                       child: ElevatedButton.icon(
                         onPressed: () =>
                             _approvePackageDialog(package, context),
-                        icon: const Icon(Icons.check_circle, size: 18),
+                        icon: const Icon(Icons.check_circle, size: 16),
                         label: const Text('Approve'),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.success,
                           foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          padding: const EdgeInsets.symmetric(vertical: 8),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
@@ -474,13 +372,18 @@ class _PackageApprovalScreenState extends State<PackageApprovalScreen>
                       ),
                     ),
                     const SizedBox(width: 8),
-                    IconButton(
-                      onPressed: () =>
-                          _rejectPackageDialog(package, context),
-                      icon: const Icon(Icons.cancel),
-                      color: AppColors.error,
-                      style: IconButton.styleFrom(
-                        backgroundColor: AppColors.error.withOpacity(0.1),
+                    SizedBox(
+                      width: 44,
+                      height: 40,
+                      child: IconButton(
+                        onPressed: () =>
+                            _rejectPackageDialog(package, context),
+                        icon: const Icon(Icons.close, size: 18),
+                        color: AppColors.error,
+                        style: IconButton.styleFrom(
+                          backgroundColor: AppColors.error.withOpacity(0.1),
+                          padding: EdgeInsets.zero,
+                        ),
                       ),
                     ),
                   ],

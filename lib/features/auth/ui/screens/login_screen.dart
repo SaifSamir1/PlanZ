@@ -9,7 +9,7 @@ import 'package:plan_z/features/auth/ui/widgets/app_logo.dart';
 import 'package:plan_z/features/auth/ui/widgets/login_form.dart';
 import 'package:plan_z/features/auth/ui/widgets/login_welcom_method.dart';
 import 'package:plan_z/features/auth/ui/widgets/sign_up_redirect.dart';
-import 'package:plan_z/features/new_owner_features/event_owner_home/ui/screens/navigation_screen.dart';
+import 'package:plan_z/features/event_owners/event_owner_home/ui/screens/navigation_screen.dart';
 import 'package:plan_z/features/vendor_features/vendor_home/ui/screens/vendor_home_screen.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:plan_z/features/auth/logic/auth_cubit/auth_cubit.dart';

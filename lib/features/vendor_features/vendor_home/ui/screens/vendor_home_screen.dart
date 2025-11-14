@@ -1,16 +1,24 @@
 // lib/features/vendor_features/vendor_home/ui/screens/vendor_home_screen.dart
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
- import 'package:plan_z/core/utils/app_colors.dart';
+import 'package:plan_z/core/utils/app_colors.dart';
 import 'package:plan_z/core/theming/text_styles.dart';
 import 'package:plan_z/core/widgets/custom_app_bar.dart';
 import 'package:plan_z/features/auth/data/models/user_manager.dart';
+import 'package:plan_z/features/auth/logic/auth_cubit/auth_cubit.dart';
+import 'package:plan_z/features/auth/logic/auth_cubit/auth_state.dart';
+import 'package:plan_z/features/on_boarding/ui/on_boarding_view.dart';
 import 'package:plan_z/features/vendor_features/packages_mangment/cubit/vendor_cubit.dart';
 import 'package:plan_z/features/vendor_features/packages_mangment/cubit/vendor_state.dart';
 import 'package:plan_z/features/vendor_features/packages_mangment/data/models/package_request_model.dart';
-  import 'package:plan_z/features/vendor_features/packages_mangment/ui/screens/all_packages_screen.dart';
+import 'package:plan_z/features/vendor_features/packages_mangment/ui/screens/all_packages_screen.dart';
 import 'package:plan_z/features/vendor_features/vendor_home/ui/screens/vendor_earnings_screen.dart';
+import 'package:plan_z/features/vendor_features/vendor_home/ui/screens/request_details_screen.dart';
+import 'package:plan_z/features/event_owners/chat_bot/cubits/chat_cubit.dart';
+import 'package:plan_z/features/event_owners/chat_bot/ui/chat_bot_screen.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 
 class VendorHomeScreen extends StatefulWidget {
@@ -24,30 +32,135 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
   final UserManager _userManager = UserManager();
   int selectedTab = 0; // 0 = Requests, 1 = Notifications
 
+  // ✅ Cache the balance locally
+  double _cachedBalance = 0.0;
+  
+  // ✅ Cache stats locally
+  int _cachedActiveJobs = 0;
+  int _cachedPendingRequests = 0;
+  int _cachedTotalPackages = 0;
+
   @override
   void initState() {
     super.initState();
+    // Initialize date formatting for Arabic locale
+    initializeDateFormatting('ar_SA', null);
     _loadData();
   }
 
   /// Load all required data
   void _loadData() {
     final vendorId = _userManager.userId;
+    debugPrint('📱 [VendorHomeScreen._loadData] Starting...');
+    debugPrint('   vendorId: $vendorId');
+    debugPrint('   userName: ${_userManager.userName}');
+    debugPrint('   userEmail: ${_userManager.userEmail}');
+    
     if (vendorId != null) {
+      // ✅ Load vendor balance (المهم!)
+      debugPrint('💰 [VendorHomeScreen._loadData] Loading balance...');
+      context.read<VendorCubit>().getVendorBalance(vendorId);
+      
       // ✅ Load vendor requests
+      debugPrint('🔄 [VendorHomeScreen._loadData] Loading requests...');
       context.read<VendorCubit>().getVendorRequests(vendorId);
       
       // ✅ Load vendor stats
+      debugPrint('📊 [VendorHomeScreen._loadData] Loading stats...');
       context.read<VendorCubit>().getVendorStats(vendorId);
       
       // ✅ Load vendor packages (for count)
+      debugPrint('📦 [VendorHomeScreen._loadData] Loading packages...');
       context.read<VendorCubit>().getVendorPackages(vendorId);
+    } else {
+      debugPrint('❌ [VendorHomeScreen._loadData] vendorId is null!');
     }
   }
 
   /// Refresh data
   Future<void> _refreshData() async {
     _loadData();
+  }
+
+  /// 🔴 Show logout confirmation dialog
+  void _showLogoutConfirmation() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text(
+            "Logout Confirmation",
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          content: const Text(
+            'Are you sure you want to logout?',
+            style: TextStyle(fontSize: 16),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text(
+                'Cancel',
+                style: TextStyle(color: Colors.grey, fontSize: 16),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                _performLogout();
+              },
+              child: const Text(
+                'Logout',
+                style: TextStyle(
+                  color: Colors.red,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  /// 🔴 Perform logout
+  void _performLogout() {
+    debugPrint('🔴 [VendorHomeScreen._performLogout] Starting logout...');
+    context.read<AuthCubit>().signOut();
+  }
+
+  /// ============================================
+  /// Chat Floating Action Button
+  /// ============================================
+  Widget _buildChatFAB() {
+    return FloatingActionButton(
+      onPressed: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => BlocProvider(
+              create: (context) => ChatCubit(),
+              child: const ChatScreen(),
+            ),
+          ),
+        );
+      },
+      backgroundColor: AppColors.primaryGold,
+      foregroundColor: Colors.white,
+      elevation: 8,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      tooltip: 'Chat with Assistant',
+      child: const Icon(
+        Icons.chat_bubble_rounded,
+        size: 26,
+      ),
+    );
   }
 
   @override
@@ -59,55 +172,111 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 16),
-            child: CircleAvatar(
-              radius: 18,
-              backgroundColor:Colors.white,
-              child: Text(
-                _userManager.getUserInitials(),
-                style: AppTextStyles.body.copyWith(
-                  color: AppColors.primaryDark,
-                  fontWeight: FontWeight.bold,
+            child: GestureDetector(
+              onTap: _showLogoutConfirmation,
+              child: CircleAvatar(
+                radius: 18,
+                backgroundColor: Colors.white,
+                child: Text(
+                  _userManager.getUserInitials(),
+                  style: AppTextStyles.body.copyWith(
+                    color: AppColors.primaryDark,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ),
           ),
         ],
       ),
-      body: RefreshIndicator(
-        onRefresh: _refreshData,
-        color: AppColors.primaryGold,
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Welcome Message
-              _buildWelcomeMessage(),
-              const SizedBox(height: 20),
+      floatingActionButton: _buildChatFAB(),
+      body: BlocListener<AuthCubit, AuthState>(
+        listenWhen: (previous, current) => current is AuthSignOutSuccess,
+        listener: (context, state) {
+          if (state is AuthSignOutSuccess) {
+            debugPrint('✅ [BlocListener] Logout successful, navigating to OnBoarding');
+            Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(builder: (context) => const OnBoardingScreen()),
+              (route) => false,
+            );
+          }
+        },
+        child: BlocListener<VendorCubit, VendorState>(
+          listenWhen: (previous, current) {
+            // ✅ Listen to balance, requests, and packages updates
+            return current is GetVendorBalanceSuccess ||
+                current is GetVendorRequestsSuccess ||
+                current is GetVendorPackagesSuccess;
+          },
+          listener: (context, state) {
+            // ✅ Cache balance when it arrives
+            if (state is GetVendorBalanceSuccess) {
+              setState(() {
+                _cachedBalance = state.balance;
+              });
+              debugPrint('💰 [BlocListener] Cached balance: $_cachedBalance');
+            }
+            
+            // ✅ Cache requests stats when they arrive
+            if (state is GetVendorRequestsSuccess) {
+              setState(() {
+                _cachedPendingRequests = state.requests
+                    .where((r) => r.status == RequestStatus.pending)
+                    .length;
+                _cachedActiveJobs = state.requests
+                    .where((r) => r.status == RequestStatus.accepted)
+                    .length;
+              });
+              debugPrint('📊 [BlocListener] Cached stats - Active: $_cachedActiveJobs, Pending: $_cachedPendingRequests');
+            }
+            
+            // ✅ Cache packages count when they arrive
+            if (state is GetVendorPackagesSuccess) {
+              setState(() {
+                _cachedTotalPackages = state.packages.length;
+              });
+              debugPrint('📦 [BlocListener] Cached packages: $_cachedTotalPackages');
+            }
+          },
+          child: RefreshIndicator(
+            onRefresh: _refreshData,
+            color: AppColors.primaryGold,
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Welcome Message
+                  _buildWelcomeMessage(),
+                  const SizedBox(height: 20),
 
-              // Earnings Summary Card
-              _buildEarningsSummaryCard(),
-              const SizedBox(height: 20),
+                  // Earnings Summary Card
+                  _buildEarningsSummaryCard(),
+                  const SizedBox(height: 20),
 
-              // Quick Stats
-              _buildQuickStats(),
-              const SizedBox(height: 20),
+                  // Quick Stats
+                  _buildQuickStats(),
+                  const SizedBox(height: 20),
 
-              // Quick Actions
-              _buildQuickActions(),
-              const SizedBox(height: 24),
+                  // Quick Actions
+                  _buildQuickActions(),
+                  const SizedBox(height: 24),
 
-              // Tabs
-              _buildTabs(),
-              const SizedBox(height: 16),
+                  // Tabs
+                  _buildTabs(),
+                  const SizedBox(height: 16),
 
-              // Requests List
-              if (selectedTab == 0) _buildRequestsList(),
+                  // Requests List (separate builder)
+                  if (selectedTab == 0) 
+                    _buildRequestsListWidget(),
 
-              // Notifications List
-              if (selectedTab == 1) _buildNotificationsList(),
-            ],
+                  // Notifications List
+                  if (selectedTab == 1) 
+                    _buildNotificationsList(),
+                ],
+              ),
+            ),
           ),
         ),
       ),
@@ -142,15 +311,48 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
   /// Earnings Summary Card
   Widget _buildEarningsSummaryCard() {
     return BlocBuilder<VendorCubit, VendorState>(
+      buildWhen: (previous, current) {
+        // ✅ Only rebuild for requests-related states
+        final isRequestsState = current is GetVendorRequestsLoading ||
+            current is GetVendorRequestsSuccess ||
+            current is GetVendorRequestsError;
+        
+        debugPrint('🔄 [_buildEarningsSummaryCard.buildWhen] Current: ${current.runtimeType}, Rebuild: $isRequestsState');
+        return isRequestsState;
+      },
       builder: (context, state) {
-        // ✅ Get stats from Cubit
-        double totalEarnings = 0.0;
-        double availableBalance = 0.0;
-
-        if (state is GetVendorStatsSuccess) {
-          totalEarnings = (state.stats['totalEarnings'] ?? 0.0).toDouble();
-          availableBalance = (state.stats['availableBalance'] ?? 0.0).toDouble();
+        // ✅ Show loading state
+        if (state is GetVendorRequestsLoading || state is GetVendorBalanceLoading) {
+          return _buildLoadingCard();
         }
+
+        // ✅ Get earnings from accepted requests
+        double totalEarnings = 0.0;
+        int acceptedCount = 0;
+
+        // ✅ Calculate from accepted requests
+        if (state is GetVendorRequestsSuccess) {
+          final acceptedRequests = state.requests
+              .where((r) => r.status == RequestStatus.accepted)
+              .toList();
+          
+          acceptedCount = acceptedRequests.length;
+          
+          totalEarnings = acceptedRequests.fold<double>(
+            0,
+            (sum, request) {
+              final price = request.packagePrice ?? 0.0;
+              debugPrint('💰 Request: ${request.packageName} - Price: $price');
+              return sum + price;
+            },
+          );
+          
+          debugPrint('💰 [EarningsSummary] Accepted requests: $acceptedCount');
+          debugPrint('   Total Earnings (calculated): $totalEarnings');
+        }
+
+        // ✅ Use cached balance (always available!)
+        debugPrint('💰 [EarningsSummary] Available Balance (cached): $_cachedBalance');
 
         return GestureDetector(
           onTap: () {
@@ -244,7 +446,7 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            '\$${availableBalance.toStringAsFixed(2)}',
+                            'EGP ${_cachedBalance.toStringAsFixed(2)}',
                             style: AppTextStyles.body.copyWith(
                               color: Colors.white,
                               fontSize: 18,
@@ -285,29 +487,34 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
   /// Quick Stats
   Widget _buildQuickStats() {
     return BlocBuilder<VendorCubit, VendorState>(
+      buildWhen: (previous, current) {
+        // ✅ Only rebuild for requests and packages states
+        final isRelevantState = current is GetVendorRequestsLoading ||
+            current is GetVendorRequestsSuccess ||
+            current is GetVendorRequestsError ||
+            current is GetVendorPackagesLoading ||
+            current is GetVendorPackagesSuccess ||
+            current is GetVendorPackagesError;
+        
+        debugPrint('🔄 [_buildQuickStats.buildWhen] Current: ${current.runtimeType}, Rebuild: $isRelevantState');
+        return isRelevantState;
+      },
       builder: (context, state) {
-        int activeJobs = 0;
-        int pendingRequests = 0;
-        int totalPackages = 0;
-
-        // ✅ Get stats from different states
-        if (state is GetVendorStatsSuccess) {
-          activeJobs = state.stats['activeJobs'] ?? 0;
-          pendingRequests = state.stats['pendingRequests'] ?? 0;
+        // ✅ Show loading state
+        if (state is GetVendorRequestsLoading || state is GetVendorPackagesLoading) {
+          return Row(
+            children: [
+              Expanded(child: _buildLoadingStatCard()),
+              const SizedBox(width: 12),
+              Expanded(child: _buildLoadingStatCard()),
+              const SizedBox(width: 12),
+              Expanded(child: _buildLoadingStatCard()),
+            ],
+          );
         }
 
-        if (state is GetVendorPackagesSuccess) {
-          totalPackages = state.packages.length;
-        }
-
-        if (state is GetVendorRequestsSuccess) {
-          pendingRequests = state.requests
-              .where((r) => r.status == RequestStatus.pending)
-              .length;
-          activeJobs = state.requests
-              .where((r) => r.status == RequestStatus.accepted)
-              .length;
-        }
+        // ✅ Use cached values (always available!)
+        debugPrint('📊 [QuickStats] Using cached - Active: $_cachedActiveJobs, Pending: $_cachedPendingRequests, Packages: $_cachedTotalPackages');
 
         return Row(
           children: [
@@ -315,7 +522,7 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
               child: _buildStatCard(
                 icon: Icons.event_available,
                 title: 'Active Jobs',
-                value: activeJobs.toString(),
+                value: _cachedActiveJobs.toString(),
                 color: AppColors.success,
               ),
             ),
@@ -324,7 +531,7 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
               child: _buildStatCard(
                 icon: Icons.pending_actions,
                 title: 'Pending',
-                value: pendingRequests.toString(),
+                value: _cachedPendingRequests.toString(),
                 color: AppColors.warning,
               ),
             ),
@@ -333,7 +540,7 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
               child: _buildStatCard(
                 icon: Icons.inventory_2,
                 title: 'Packages',
-                value: totalPackages.toString(),
+                value: _cachedTotalPackages.toString(),
                 color: AppColors.primaryGold,
               ),
             ),
@@ -522,11 +729,23 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
   }
 
   /// Requests List (from Firestore)
-  Widget _buildRequestsList() {
+  Widget _buildRequestsListWidget() {
     return BlocBuilder<VendorCubit, VendorState>(
+      buildWhen: (previous, current) {
+        // ✅ Only rebuild when requests-related states change
+        final isRequestsState = current is GetVendorRequestsLoading ||
+            current is GetVendorRequestsSuccess ||
+            current is GetVendorRequestsError;
+        
+        debugPrint('🔄 [_buildRequestsListWidget.buildWhen] Current: ${current.runtimeType}, Rebuild: $isRequestsState');
+        return isRequestsState;
+      },
       builder: (context, state) {
+        debugPrint('📋 [_buildRequestsList] State: ${state.runtimeType}');
+        
         // ✅ Loading State
         if (state is GetVendorRequestsLoading) {
+          debugPrint('⏳ [_buildRequestsList] Loading...');
           return const Center(
             child: Padding(
               padding: EdgeInsets.all(40.0),
@@ -539,6 +758,7 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
 
         // ✅ Error State
         if (state is GetVendorRequestsError) {
+          debugPrint('❌ [_buildRequestsList] Error: ${state.message}');
           return Center(
             child: Padding(
               padding: const EdgeInsets.all(40),
@@ -582,8 +802,14 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
         // ✅ Success State
         if (state is GetVendorRequestsSuccess) {
           final requests = state.requests;
+          debugPrint('✅ [_buildRequestsList] Success: ${requests.length} requests');
+          
+          for (var i = 0; i < requests.length; i++) {
+            debugPrint('   [$i] ${requests[i].packageName} - ${requests[i].status.name}');
+          }
 
           if (requests.isEmpty) {
+            debugPrint('📭 [_buildRequestsList] No requests');
             return _buildEmptyRequestsState();
           }
 
@@ -593,6 +819,7 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
         }
 
         // ✅ Initial/Empty State
+        debugPrint('❓ [_buildRequestsList] Initial state');
         return _buildEmptyRequestsState();
       },
     );
@@ -733,19 +960,47 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
             ),
             const SizedBox(height: 12),
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Icon(Icons.calendar_today, size: 14, color: AppColors.textSecondary),
-                const SizedBox(width: 6),
-                Text(
-                  DateFormat('dd/MM/yyyy').format(request.createdAt),
-                  style: AppTextStyles.body.copyWith(
-                    color: AppColors.textSecondary,
-                    fontSize: 13,
+                Row(
+                  children: [
+                    Icon(Icons.calendar_today, size: 14, color: AppColors.textSecondary),
+                    const SizedBox(width: 6),
+                    Text(
+                      _formatDate(request.createdAt),
+                      style: AppTextStyles.body.copyWith(
+                        color: AppColors.textSecondary,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ],
+                ),
+                // ✅ Show package price
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryGold.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.attach_money,
+                        size: 14,
+                        color: AppColors.primaryGold,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        'EGP ${(request.packagePrice ?? 0.0).toStringAsFixed(2)}',
+                        style: AppTextStyles.body.copyWith(
+                          color: AppColors.primaryGold,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(width: 16),
-                Icon(Icons.attach_money, size: 14, color: AppColors.textSecondary),
-                
               ],
             ),
             const SizedBox(height: 12),
@@ -756,101 +1011,47 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
     );
   }
 
-  /// Request Actions (Accept/Reject/Message)
+  /// Request Actions (Details Button Only)
   Widget _buildRequestActions(PackageRequestModel request) {
-    if (request.status == RequestStatus.rejected ||
-        request.status == RequestStatus.expired) {
-      return Row(
-        children: [
-          Expanded(
-            child: OutlinedButton(
-              onPressed: () {
-                // TODO: View details
-              },
-              style: OutlinedButton.styleFrom(
-                foregroundColor: AppColors.primaryDark,
-                padding: const EdgeInsets.symmetric(vertical: 10),
-                side: const BorderSide(color: AppColors.primaryDark),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              child: const Text('View Details'),
-            ),
-          ),
-        ],
-      );
-    }
-
-    return Row(
-      children: [
-        if (request.status == RequestStatus.pending)
-          Expanded(
-            child: ElevatedButton(
-              onPressed: () => _acceptRequest(request.requestId),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.success,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 10),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              child: const Text('Accept'),
-            ),
-          ),
-        if (request.status == RequestStatus.pending) const SizedBox(width: 8),
-        if (request.status == RequestStatus.pending)
-          Expanded(
-            child: ElevatedButton(
-              onPressed: () => _rejectRequest(request.requestId),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.error,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 10),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              child: const Text('Reject'),
-            ),
-          ),
-        if (request.status == RequestStatus.pending) const SizedBox(width: 8),
-        Expanded(
-          child: OutlinedButton(
-            onPressed: () {
-              // TODO: Message
-            },
-            style: OutlinedButton.styleFrom(
-              foregroundColor: AppColors.primaryDark,
-              padding: const EdgeInsets.symmetric(vertical: 10),
-              side: const BorderSide(color: AppColors.primaryDark),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-            child: const Text('Message'),
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton.icon(
+        onPressed: () => _showRequestDetails(request),
+        icon: const Icon(Icons.info_outline, size: 18),
+        label: const Text('View Details'),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.primaryGold,
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
           ),
         ),
-      ],
+      ),
     );
   }
 
-  /// Accept Request
-  void _acceptRequest(String requestId) {
-    context.read<VendorCubit>().acceptRequest(
-          requestId: requestId,
-          vendorResponse: 'Request accepted',
-        );
+  /// Show Request Details
+  void _showRequestDetails(PackageRequestModel request) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => RequestDetailsScreen(request: request),
+      ),
+    );
   }
 
-  /// Reject Request
-  void _rejectRequest(String requestId) {
-    // TODO: Show dialog to get rejection reason
-    context.read<VendorCubit>().rejectRequest(
-          requestId: requestId,
-          rejectionReason: 'Not available for this date',
-        );
+  /// Format date safely
+  String _formatDate(DateTime date) {
+    try {
+      // Initialize locale if not already done
+      initializeDateFormatting('ar_SA', null);
+      return DateFormat('dd/MM/yyyy').format(date);
+    } catch (e) {
+      // Fallback to simple format
+      debugPrint('⚠️ [_formatDate] Error formatting date: $e');
+      return '${date.day}/${date.month}/${date.year}';
+    }
   }
 
   /// Notifications List
@@ -874,6 +1075,154 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  /// ============================================
+  /// Loading Widgets
+  /// ============================================
+  
+  /// Loading Card for Earnings Summary
+  Widget _buildLoadingCard() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            AppColors.primaryGold.withOpacity(0.3),
+            AppColors.primaryDark.withOpacity(0.3),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    height: 12,
+                    width: 100,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.3),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Container(
+                    height: 32,
+                    width: 150,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.3),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                  ),
+                ],
+              ),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(
+                  Icons.account_balance_wallet,
+                  color: Colors.white54,
+                  size: 28,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      height: 10,
+                      width: 80,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.3),
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Container(
+                      height: 18,
+                      width: 100,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.3),
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Loading Card for Stats
+  Widget _buildLoadingStatCard() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Container(
+            height: 24,
+            width: 24,
+            decoration: BoxDecoration(
+              color: Colors.grey[300],
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Container(
+            height: 20,
+            width: 40,
+            decoration: BoxDecoration(
+              color: Colors.grey[300],
+              borderRadius: BorderRadius.circular(6),
+            ),
+          ),
+          const SizedBox(height: 4),
+          Container(
+            height: 11,
+            width: 60,
+            decoration: BoxDecoration(
+              color: Colors.grey[300],
+              borderRadius: BorderRadius.circular(6),
+            ),
+          ),
+        ],
       ),
     );
   }

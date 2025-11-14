@@ -33,7 +33,7 @@ class AppOwnerRepositoryImpl implements AppOwnerRepository {
       // ✅ تصفية يدويا في البرنامج (بدون index)
       final packages = querySnapshot.docs
           .map((doc) => PackageModel.fromJson(doc.data()))
-          .where((pkg) => pkg.status == 'pending' && pkg.isApprovedByOwner != true)
+          .where((pkg) => pkg.status == PackageStatus.pending && pkg.isApprovedByOwner != true)
           .toList()
         ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
@@ -122,7 +122,7 @@ class AppOwnerRepositoryImpl implements AppOwnerRepository {
 
       final withdrawals = querySnapshot.docs
           .map((doc) => WithdrawalRequestModel.fromJson(doc.data()))
-          .where((w) => w.status == 'pending')
+          .where((w) => w.status == WithdrawalStatus.pending)
           .toList()
         ..sort((a, b) => b.requestedAt.compareTo(a.requestedAt));
 
@@ -289,7 +289,7 @@ class AppOwnerRepositoryImpl implements AppOwnerRepository {
         final request = PackageRequestModel.fromJson(doc.data());
 
         // التحقق من الحالة والتاريخ
-        if (request.status == 'accepted' &&
+        if (request.status == RequestStatus.accepted &&
             request.acceptedAt != null &&
             request.acceptedAt!.isAfter(startDate)) {
           totalRevenue += request.packagePrice ?? 0.0;
@@ -320,7 +320,7 @@ class AppOwnerRepositoryImpl implements AppOwnerRepository {
       double pendingPayments = 0;
       for (var doc in pendingSnapshot.docs) {
         final withdrawal = WithdrawalRequestModel.fromJson(doc.data());
-        if (withdrawal.status == 'pending') {
+        if (withdrawal.status == WithdrawalStatus.pending) {
           pendingPayments += withdrawal.amount;
         }
       }

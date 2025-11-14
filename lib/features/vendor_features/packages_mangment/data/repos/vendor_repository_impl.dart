@@ -1,5 +1,6 @@
 // lib/features/vendor/data/repositories/vendor_repo_impl.dart
 
+import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:plan_z/core/constants/constants.dart';
@@ -314,21 +315,34 @@ class VendorRepositoryImpl implements VendorRepository {
     String vendorId,
   ) async {
     try {
+      debugPrint('🔍 [getVendorRequests] Searching for vendorId: $vendorId');
+      
       final querySnapshot = await _firestore
           .collection(FirebaseCollections.packageRequests)
           .where('vendorId', isEqualTo: vendorId)
           .get(); // ✅ Removed .orderBy('requestedAt')
 
+      debugPrint('📊 [getVendorRequests] Found ${querySnapshot.docs.length} requests');
+      
       // ✅ Sort manually in memory
       final requests = querySnapshot.docs
-          .map((doc) => PackageRequestModel.fromJson(doc.data()))
+          .map((doc) {
+            debugPrint('   📄 Request: ${doc.id}');
+            debugPrint('      vendorId: ${doc['vendorId']}');
+            debugPrint('      packageName: ${doc['packageName']}');
+            debugPrint('      status: ${doc['status']}');
+            return PackageRequestModel.fromJson(doc.data());
+          })
           .toList()
         ..sort((a, b) => b.requestedAt.compareTo(a.requestedAt));
 
+      debugPrint('✅ [getVendorRequests] Returning ${requests.length} requests');
       return Right(requests);
     } on FirebaseException catch (e) {
+      debugPrint('❌ [getVendorRequests] Firebase Error: ${e.message}');
       return Left(ServerFailure(e.message ?? 'Failed to get requests'));
     } catch (e) {
+      debugPrint('❌ [getVendorRequests] Error: $e');
       return Left(ServerFailure(e.toString()));
     }
   }
@@ -367,22 +381,73 @@ class VendorRepositoryImpl implements VendorRepository {
 @override
 Future<Either<Failure, double>> getVendorBalance(String vendorId) async {
   try {
-    final docSnapshot = await _firestore
+    final docRef = _firestore
         .collection(FirebaseCollections.vendors)
-        .doc(vendorId)
-        .get();
+        .doc(vendorId);
+    
+    final docSnapshot = await docRef.get();
 
     if (!docSnapshot.exists) {
+      debugPrint('⚠️ [getVendorBalance] Vendor document not found!');
       return const Right(0.0);
     }
 
     final data = docSnapshot.data() as Map<String, dynamic>;
-    final balance = (data['availableBalance'] as num?)?.toDouble() ?? 0.0;
-
-    return Right(balance);
+    final currentBalance = (data['availableBalance'] as num?)?.toDouble() ?? 0.0;
+    
+    // ✅ Check if availableBalance is missing or zero (needs recalculation)
+    if (!data.containsKey('availableBalance') || currentBalance == 0.0) {
+      debugPrint('⚠️ [getVendorBalance] availableBalance missing or zero! Recalculating...');
+      
+      // ✅ Calculate balance from accepted requests
+      final requestsSnapshot = await _firestore
+          .collection(FirebaseCollections.packageRequests)
+          .where('vendorId', isEqualTo: vendorId)
+          .where('status', isEqualTo: 'accepted')
+          .get();
+      
+      double calculatedBalance = 0.0;
+      debugPrint('📊 [getVendorBalance] Found ${requestsSnapshot.docs.length} accepted requests');
+      
+      for (var doc in requestsSnapshot.docs) {
+        final requestData = doc.data();
+        
+        // ✅ Try to get packagePrice from root or customRequirements
+        double? price = (requestData['packagePrice'] as num?)?.toDouble();
+        if (price == null && requestData['customRequirements'] != null) {
+          final customReqs = requestData['customRequirements'] as Map<String, dynamic>;
+          price = (customReqs['packagePrice'] as num?)?.toDouble();
+        }
+        price ??= 0.0;
+        
+        debugPrint('   📄 Request: ${requestData['packageName']} - Price: $price');
+        debugPrint('      Has packagePrice in root: ${requestData.containsKey('packagePrice')}');
+        debugPrint('      Has customRequirements: ${requestData.containsKey('customRequirements')}');
+        
+        calculatedBalance += price;
+      }
+      
+      debugPrint('✅ [getVendorBalance] Calculated total balance: $calculatedBalance');
+      
+      // ✅ Update the field if calculation found earnings
+      if (calculatedBalance > 0) {
+        await docRef.update({
+          'availableBalance': calculatedBalance,
+          'updatedAt': Timestamp.now(),
+        });
+        debugPrint('✅ [getVendorBalance] Updated Firestore with balance: $calculatedBalance');
+      }
+      
+      return Right(calculatedBalance);
+    }
+    
+    debugPrint('💰 [getVendorBalance] Current balance: $currentBalance');
+    return Right(currentBalance);
   } on FirebaseException catch (e) {
+    debugPrint('❌ [getVendorBalance] Firebase error: ${e.message}');
     return Left(ServerFailure(e.message ?? 'Failed to get balance'));
   } catch (e) {
+    debugPrint('❌ [getVendorBalance] Error: $e');
     return Left(ServerFailure(e.toString()));
   }
 }
@@ -570,6 +635,8 @@ Future<Either<Failure, List<Map<String, dynamic>>>> getTransactionHistory(
       }
 
       final now = DateTime.now();
+      
+      // ✅ Update the package request
       await docRef.update({
         'status': RequestStatus.accepted.name,
         'isAccepted': true,
@@ -579,6 +646,79 @@ Future<Either<Failure, List<Map<String, dynamic>>>> getTransactionHistory(
         'ownerNotifiedOfResponse': false,
         'updatedAt': Timestamp.fromDate(now),
       });
+
+      // ✅ Update vendor's available balance
+      final packagePrice = request.packagePrice ?? 0.0;
+      if (packagePrice > 0) {
+        final vendorRef = _firestore
+            .collection(FirebaseCollections.vendors)
+            .doc(request.vendorId);
+        
+        final vendorDoc = await vendorRef.get();
+        if (vendorDoc.exists) {
+          final currentBalance = (vendorDoc.data()?['availableBalance'] as num?)?.toDouble() ?? 0.0;
+          final newBalance = currentBalance + packagePrice;
+          
+          await vendorRef.update({
+            'availableBalance': newBalance,
+            'updatedAt': Timestamp.fromDate(now),
+          });
+          
+          debugPrint('💰 [acceptRequest] Updated vendor balance: $currentBalance → $newBalance (+$packagePrice)');
+        }
+      }
+
+      // ✅ Update the Event with vendor approval status
+      debugPrint('');
+      debugPrint('🔄 [acceptRequest] Updating Event Model...');
+      debugPrint('   Event ID: ${request.eventId}');
+      debugPrint('   Service ID: ${request.serviceId}');
+      
+      final eventRef = _firestore
+          .collection(FirebaseCollections.events)
+          .doc(request.eventId);
+      
+      final eventDoc = await eventRef.get();
+      if (eventDoc.exists) {
+        final eventData = eventDoc.data() as Map<String, dynamic>;
+        
+        // ✅ Get current services list
+        final servicesList = (eventData['services'] as List<dynamic>?)?.cast<Map<String, dynamic>>() ?? [];
+        
+        // ✅ Update the specific service with vendorApproved = true
+        final updatedServices = servicesList.map((service) {
+          if (service['serviceId'] == request.serviceId) {
+            debugPrint('   ✅ Found service: ${service['serviceName']}');
+            return {...service, 'vendorApproved': true};
+          }
+          return service;
+        }).toList();
+        
+        // ✅ Recalculate vendor counts
+        final totalVendorsCount = eventData['totalVendorsCount'] as int? ?? 0;
+        final approvedCount = updatedServices.where((s) => s['vendorApproved'] == true).length;
+        final pendingCount = totalVendorsCount - approvedCount;
+        final allApproved = approvedCount == totalVendorsCount;
+        
+        debugPrint('   📊 Updated Counts:');
+        debugPrint('      Total: $totalVendorsCount');
+        debugPrint('      Approved: $approvedCount');
+        debugPrint('      Pending: $pendingCount');
+        debugPrint('      All Approved: $allApproved');
+        
+        // ✅ Update the event document
+        await eventRef.update({
+          'services': updatedServices,
+          'approvedVendorsCount': approvedCount,
+          'pendingVendorsCount': pendingCount,
+          'allVendorsApproved': allApproved,
+          'updatedAt': Timestamp.fromDate(now),
+        });
+        
+        debugPrint('   ✅ Event updated successfully!');
+      } else {
+        debugPrint('   ⚠️ Event not found: ${request.eventId}');
+      }
 
       final updatedRequest = request.copyWith(
         status: RequestStatus.accepted,
@@ -630,6 +770,48 @@ Future<Either<Failure, List<Map<String, dynamic>>>> getTransactionHistory(
         'ownerNotifiedOfResponse': false,
         'updatedAt': Timestamp.fromDate(now),
       });
+
+      // ✅ Update the Event with vendor rejection status
+      debugPrint('');
+      debugPrint('🔄 [rejectRequest] Updating Event Model...');
+      debugPrint('   Event ID: ${request.eventId}');
+      debugPrint('   Service ID: ${request.serviceId}');
+      
+      final eventRef = _firestore
+          .collection(FirebaseCollections.events)
+          .doc(request.eventId);
+      
+      final eventDoc = await eventRef.get();
+      if (eventDoc.exists) {
+        final eventData = eventDoc.data() as Map<String, dynamic>;
+        
+        // ✅ Get current counts
+        final totalVendorsCount = eventData['totalVendorsCount'] as int? ?? 0;
+        final currentRejectedCount = eventData['rejectedVendorsCount'] as int? ?? 0;
+        final currentPendingCount = eventData['pendingVendorsCount'] as int? ?? 0;
+        
+        // ✅ Update counts: pending - 1, rejected + 1
+        final newRejectedCount = currentRejectedCount + 1;
+        final newPendingCount = currentPendingCount - 1;
+        final newApprovedCount = eventData['approvedVendorsCount'] as int? ?? 0;
+        
+        debugPrint('   📊 Updated Counts:');
+        debugPrint('      Total: $totalVendorsCount');
+        debugPrint('      Approved: $newApprovedCount');
+        debugPrint('      Pending: $currentPendingCount → $newPendingCount');
+        debugPrint('      Rejected: $currentRejectedCount → $newRejectedCount');
+        
+        // ✅ Update the event document
+        await eventRef.update({
+          'rejectedVendorsCount': newRejectedCount,
+          'pendingVendorsCount': newPendingCount,
+          'updatedAt': Timestamp.fromDate(now),
+        });
+        
+        debugPrint('   ✅ Event updated successfully!');
+      } else {
+        debugPrint('   ⚠️ Event not found: ${request.eventId}');
+      }
 
       final updatedRequest = request.copyWith(
         status: RequestStatus.rejected,

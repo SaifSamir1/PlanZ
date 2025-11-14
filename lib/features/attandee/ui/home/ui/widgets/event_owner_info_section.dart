@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:plan_z/core/theming/text_styles.dart';
 import 'package:plan_z/core/utils/app_colors.dart';
-import 'package:plan_z/features/new_owner_features/create_event_screen/data/models/event_invitation_model.dart';
+import 'package:plan_z/features/event_owners/create_event_screen/data/models/event_invitation_model.dart';
 
 class EventOwnerInfoSection extends StatelessWidget {
   final EventInvitationModel invitation;

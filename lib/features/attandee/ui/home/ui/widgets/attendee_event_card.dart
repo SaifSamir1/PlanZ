@@ -1,102 +1,87 @@
-// lib/features/attendee/presentation/widgets/home/attendee_event_card.dart
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:plan_z/core/theming/text_styles.dart';
 import 'package:plan_z/core/utils/app_colors.dart';
-import 'package:plan_z/features/new_owner_features/create_event_screen/data/models/event_model.dart';
+import 'package:plan_z/features/event_owners/create_event_screen/data/models/event_model.dart';
 
 class AttendeeEventCard extends StatelessWidget {
   final EventModel event;
+  final VoidCallback? onTap;
 
   const AttendeeEventCard({
     super.key,
     required this.event,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 130,
       margin: const EdgeInsets.only(bottom: 12),
       child: Card(
-        elevation: 1,
-        color: AppColors.background,
+        elevation: 2,
+        color: Colors.white,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
           side: BorderSide(color: Colors.grey[200]!, width: 1),
         ),
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
-          onTap: () {
-            // Navigate to Event Details Screen
-            // Navigator.pushNamed(
-            //   context,
-            //   '/event-details',
-            //   arguments: event.eventId,
-            // );
-          },
+          onTap: onTap,
           child: Padding(
             padding: const EdgeInsets.all(12),
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Event Image
                 _buildEventImage(),
-
                 const SizedBox(width: 12),
-
-                // Event Info
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      // Event Name
                       Text(
                         event.eventName,
                         style: AppTextStyles.subtitle.copyWith(
                           fontWeight: FontWeight.w600,
+                          fontSize: 14,
                         ),
-                        maxLines: 2,
+                        maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-
                       const SizedBox(height: 6),
-
-                      // Event Date
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: AppColors.buttonPrimary.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          event.eventTypeName,
+                          style: AppTextStyles.caption.copyWith(
+                            color: AppColors.buttonPrimary,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
                       Row(
                         children: [
                           Icon(
                             Icons.calendar_today_rounded,
-                            size: 14,
+                            size: 13,
                             color: Colors.grey[600],
                           ),
-                          const SizedBox(width: 6),
-                          Text(
-                            _formatEventDate(event.eventDate),
-                            style: AppTextStyles.caption.copyWith(
-                              color: Colors.grey[600],
-                            ),
-                          ),
-                        ],
-                      ),
-
-                      const SizedBox(height: 4),
-
-                      // Event Location
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.location_on_outlined,
-                            size: 14,
-                            color: Colors.grey[600],
-                          ),
-                          const SizedBox(width: 6),
+                          const SizedBox(width: 5),
                           Expanded(
                             child: Text(
-                              event.location,
+                              _formatEventDate(event.eventDate),
                               style: AppTextStyles.caption.copyWith(
                                 color: Colors.grey[600],
+                                fontSize: 11,
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -104,20 +89,38 @@ class AttendeeEventCard extends StatelessWidget {
                           ),
                         ],
                       ),
-
-                      const SizedBox(height: 8),
-
-                      // Countdown Badge (if event is soon)
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.location_on_outlined,
+                            size: 13,
+                            color: Colors.grey[600],
+                          ),
+                          const SizedBox(width: 5),
+                          Expanded(
+                            child: Text(
+                              event.location,
+                              style: AppTextStyles.caption.copyWith(
+                                color: Colors.grey[600],
+                                fontSize: 11,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 6),
                       if (_isEventSoon(event.eventDate))
                         _buildCountdownBadge(event.eventDate),
                     ],
                   ),
                 ),
-
-                // Arrow Icon
+                const SizedBox(width: 8),
                 Icon(
                   Icons.arrow_forward_ios_rounded,
-                  size: 16,
+                  size: 14,
                   color: Colors.grey[400],
                 ),
               ],
@@ -136,12 +139,12 @@ class AttendeeEventCard extends StatelessWidget {
         width: 100,
         color: AppColors.buttonPrimary.withOpacity(0.1),
         child: Image.network(
-                "https://cdn-cjhkj.nitrocdn.com/krXSsXVqwzhduXLVuGLToUwHLNnSxUxO/assets/images/optimized/rev-ff94111/spotme.com/wp-content/uploads/2020/07/Hero-1.jpg",
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return _buildPlaceholderImage();
-                },
-              )
+          "https://cdn-cjhkj.nitrocdn.com/krXSsXVqwzhduXLVuGLToUwHLNnSxUxO/assets/images/optimized/rev-ff94111/spotme.com/wp-content/uploads/2020/07/Hero-1.jpg",
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) {
+            return _buildPlaceholderImage();
+          },
+        ),
       ),
     );
   }
@@ -184,12 +187,13 @@ class AttendeeEventCard extends StatelessWidget {
     );
   }
 
+  // ✅ الحل: حدد locale مباشرة
   String _formatEventDate(DateTime date) {
-    return DateFormat('EEE, MMM d, y • h:mm a').format(date);
+    return DateFormat('EEE, MMM d, y • h:mm a', 'en_US').format(date);
   }
 
   bool _isEventSoon(DateTime eventDate) {
     final daysUntil = eventDate.difference(DateTime.now()).inDays;
-    return daysUntil >= 0 && daysUntil <= 7; // Within 7 days
+    return daysUntil >= 0 && daysUntil <= 7;
   }
 }

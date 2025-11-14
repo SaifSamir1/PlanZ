@@ -408,11 +408,18 @@ class _VendorEarningsScreenState extends State<VendorEarningsScreen> {
         showBackButton: true,
       ),
       body: BlocListener<VendorCubit, VendorState>(
+        listenWhen: (previous, current) {
+          // ✅ Only listen to balance and withdrawal states
+          return current is GetVendorBalanceSuccess ||
+              current is RequestWithdrawalSuccess ||
+              current is RequestWithdrawalError;
+        },
         listener: (context, state) {
           if (state is GetVendorBalanceSuccess) {
             setState(() {
               _availableBalance = state.balance;
             });
+            debugPrint('💰 [BlocListener] Balance updated: $_availableBalance');
           } else if (state is RequestWithdrawalSuccess) {
             Navigator.pop(context);
             ScaffoldMessenger.of(context).showSnackBar(
@@ -437,65 +444,103 @@ class _VendorEarningsScreenState extends State<VendorEarningsScreen> {
         },
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
-          child: BlocBuilder<VendorCubit, VendorState>(
-            builder: (context, state) {
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // ✅ Balance Card (separate builder)
+              BlocBuilder<VendorCubit, VendorState>(
+                buildWhen: (previous, current) {
+                  // ✅ Only rebuild for balance-related states
+                  return current is GetVendorBalanceSuccess ||
+                      current is GetVendorBalanceLoading ||
+                      current is GetVendorBalanceError;
+                },
+                builder: (context, state) {
                   if (state is GetVendorBalanceSuccess)
-                    _buildBalanceCard(state.balance)
+                    return _buildBalanceCard(state.balance);
                   else if (state is GetVendorBalanceLoading)
-                    _buildLoadingCard()
+                    return _buildLoadingCard();
                   else if (state is GetVendorBalanceError)
-                    _buildErrorCard(state.message)
+                    return _buildErrorCard(state.message);
                   else
-                    _buildEmptyCard(),
+                    return _buildBalanceCard(_availableBalance);
+                },
+              ),
 
-                  const SizedBox(height: 20),
+              const SizedBox(height: 20),
 
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      onPressed: _showWithdrawalBottomSheet,
-                      icon: const Icon(Icons.send),
-                      label: const Text('Request Withdrawal'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primaryGold,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.primaryGold.withOpacity(0.3),
+                      blurRadius: 15,
+                      offset: const Offset(0, 6),
+                    ),
+                  ],
+                ),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: _showWithdrawalBottomSheet,
+                    icon: const Icon(Icons.send_rounded, size: 22),
+                    label: const Text(
+                      'Request Withdrawal',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.5,
                       ),
                     ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primaryGold,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 18),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      elevation: 0,
+                    ),
                   ),
+                ),
+              ),
 
-                  const SizedBox(height: 24),
+              const SizedBox(height: 24),
 
-                  Text(
-                    'Transaction History',
-                    style: AppTextStyles.headline3,
-                  ),
-                  const SizedBox(height: 12),
+              Text(
+                'Transaction History',
+                style: AppTextStyles.headline3,
+              ),
+              const SizedBox(height: 12),
 
+              // ✅ Transaction History (separate builder)
+              BlocBuilder<VendorCubit, VendorState>(
+                buildWhen: (previous, current) {
+                  // ✅ Only rebuild for transaction-related states
+                  return current is GetTransactionHistorySuccess ||
+                      current is GetTransactionHistoryLoading ||
+                      current is GetTransactionHistoryError;
+                },
+                builder: (context, state) {
                   if (state is GetTransactionHistorySuccess)
-                    _buildTransactionList(state.transactions)
+                    return _buildTransactionList(state.transactions);
                   else if (state is GetTransactionHistoryLoading)
-                    const Center(
+                    return const Center(
                       child: Padding(
                         padding: EdgeInsets.all(32),
                         child: CircularProgressIndicator(
                           color: AppColors.primaryGold,
                         ),
                       ),
-                    )
+                    );
                   else if (state is GetTransactionHistoryError)
-                    _buildTransactionError(state.message)
+                    return _buildTransactionError(state.message);
                   else
-                    _buildEmptyTransactions(),
-                ],
-              );
-            },
+                    return _buildEmptyTransactions();
+                },
+              ),
+            ],
           ),
         ),
       ),
@@ -505,42 +550,80 @@ class _VendorEarningsScreenState extends State<VendorEarningsScreen> {
   // Helper Widgets
   Widget _buildBalanceCard(double balance) {
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(28),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
             AppColors.primaryGold,
-            AppColors.primaryGold.withOpacity(0.8),
+            AppColors.primaryGold.withOpacity(0.75),
           ],
         ),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primaryGold.withOpacity(0.4),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
+            color: AppColors.primaryGold.withOpacity(0.35),
+            blurRadius: 25,
+            offset: const Offset(0, 10),
+          ),
+          BoxShadow(
+            color: AppColors.primaryGold.withOpacity(0.15),
+            blurRadius: 40,
+            offset: const Offset(0, 20),
           ),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Available Balance',
-            style: AppTextStyles.body.copyWith(
-              color: Colors.white.withOpacity(0.9),
-              fontSize: 14,
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Available Balance',
+                style: AppTextStyles.body.copyWith(
+                  color: Colors.white.withOpacity(0.95),
+                  fontSize: 15,
+                  fontWeight: FontWeight.w500,
+                  letterSpacing: 0.5,
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  'Ready to Withdraw',
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.9),
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.3,
+                  ),
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 16),
           Text(
             'EGP ${balance.toStringAsFixed(2)}',
             style: AppTextStyles.title.copyWith(
               color: Colors.white,
-              fontSize: 36,
-              fontWeight: FontWeight.bold,
+              fontSize: 42,
+              fontWeight: FontWeight.w800,
+              letterSpacing: -0.5,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Container(
+            height: 3,
+            width: 60,
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.4),
+              borderRadius: BorderRadius.circular(2),
             ),
           ),
         ],
@@ -579,47 +662,6 @@ class _VendorEarningsScreenState extends State<VendorEarningsScreen> {
             'Error: $message',
             style: const TextStyle(color: Colors.red),
             textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildEmptyCard() {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            AppColors.primaryGold.withOpacity(0.15),
-            AppColors.primaryGold.withOpacity(0.05),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: AppColors.primaryGold.withOpacity(0.2),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Available Balance',
-            style: AppTextStyles.body.copyWith(
-              color: AppColors.textSecondary,
-              fontSize: 14,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'EGP 0.00',
-            style: AppTextStyles.title.copyWith(
-              color: AppColors.textPrimary,
-              fontSize: 36,
-              fontWeight: FontWeight.bold,
-            ),
           ),
         ],
       ),

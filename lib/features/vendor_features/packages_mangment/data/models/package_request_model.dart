@@ -112,8 +112,17 @@ class PackageRequestModel {
         updatedAt = updatedAt ?? DateTime.now();
 
   factory PackageRequestModel.fromJson(Map<String, dynamic> json) {
+    // ✅ Get packagePrice from root or customRequirements
+    double? packagePrice = (json['packagePrice'] as num?)?.toDouble();
+    
+    // ✅ If not in root, check customRequirements
+    if (packagePrice == null && json['customRequirements'] != null) {
+      final customReqs = json['customRequirements'] as Map<String, dynamic>;
+      packagePrice = (customReqs['packagePrice'] as num?)?.toDouble();
+    }
+    
     return PackageRequestModel(
-      packagePrice: (json['packagePrice'] as num?)?.toDouble(),
+      packagePrice: packagePrice,
       requestId: json['requestId'] ?? '',
       eventOwnerId: json['eventOwnerId'] ?? '',
       eventOwnerName: json['eventOwnerName'] ?? '',
@@ -198,6 +207,7 @@ class PackageRequestModel {
       'vendorName': vendorName,
       'packageId': packageId,
       'packageName': packageName,
+      'packagePrice': packagePrice,
       'serviceId': serviceId,
       'serviceName': serviceName,
       'eventId': eventId,

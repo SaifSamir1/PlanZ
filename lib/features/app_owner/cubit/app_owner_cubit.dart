@@ -1,13 +1,15 @@
 // lib/features/app_owner/presentation/cubits/app_owner_cubit.dart
 
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:plan_z/features/app_owner/data/repo/app_owner_repository.dart';
+import 'package:plan_z/features/event_owners/create_event_screen/data/repo/event_owner_repo.dart';
 import 'app_owner_state.dart';
 
 class AppOwnerCubit extends Cubit<AppOwnerState> {
   final AppOwnerRepository _repository;
-
-  AppOwnerCubit(this._repository) : super(const AppOwnerState());
+  final EventOwnerRepository _eventOwnerRepository;
+  AppOwnerCubit(this._repository,this._eventOwnerRepository) : super(const AppOwnerState());
 
   // ===== Package Approval =====
   
@@ -187,7 +189,34 @@ class AppOwnerCubit extends Cubit<AppOwnerState> {
       )),
     );
   }
+// ============================================
+  // 29. GET OWNER PROFITS
+  // ============================================
+  Future<void> getOwnerProfits() async {
+    emit(state.copyWith(isLoading: true));
 
+    debugPrint('💰 [AppOwnerCubit.getOwnerProfits] Fetching all profits from collection');
+
+    // ✅ نمرر أي value (ما بيتم استخدامه) لأن الـ repository بجيب كل الـ documents
+    final result = await _eventOwnerRepository.getOwnerProfits();
+
+    result.fold(
+      (failure) {
+        debugPrint('❌ [AppOwnerCubit.getOwnerProfits] Error: ${failure.message}');
+        emit(state.copyWith(
+          isLoading: false,
+          errorMessage: failure.message,
+        ));
+      },
+      (profits) {
+        debugPrint('✅ [AppOwnerCubit.getOwnerProfits] Success! Total profit: ${profits['totalProfit']}');
+        emit(state.copyWith(
+          isLoading: false,
+          ownerProfits: profits,
+        ));
+      },
+    );
+  }
   // ===== Clear Messages =====
   void clearMessages() {
     emit(state.copyWith(

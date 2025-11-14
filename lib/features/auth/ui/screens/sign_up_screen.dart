@@ -12,7 +12,7 @@ import 'package:plan_z/features/vendor_features/vendor_home/ui/screens/vendor_ho
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:plan_z/features/auth/logic/auth_cubit/auth_cubit.dart';
 import 'package:plan_z/features/auth/logic/auth_cubit/auth_state.dart';
-import 'package:plan_z/features/new_owner_features/event_owner_home/ui/screens/navigation_screen.dart';
+import 'package:plan_z/features/event_owners/event_owner_home/ui/screens/navigation_screen.dart';
 
 class SignUpScreen extends StatefulWidget {
   final UserType userType;

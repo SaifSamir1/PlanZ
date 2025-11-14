@@ -5,8 +5,8 @@ import 'package:dartz/dartz.dart';
 import 'package:plan_z/core/constants/constants.dart';
 import 'package:plan_z/core/error/failures.dart';
 import 'package:plan_z/features/attandee/data/attandee_repo.dart';
-import 'package:plan_z/features/new_owner_features/create_event_screen/data/models/event_invitation_model.dart';
-import 'package:plan_z/features/new_owner_features/create_event_screen/data/models/event_model.dart';
+import 'package:plan_z/features/event_owners/create_event_screen/data/models/event_invitation_model.dart';
+import 'package:plan_z/features/event_owners/create_event_screen/data/models/event_model.dart';
 
 class AttendeeRepositoryImpl implements AttendeeRepository {
   final FirebaseFirestore _firestore;
