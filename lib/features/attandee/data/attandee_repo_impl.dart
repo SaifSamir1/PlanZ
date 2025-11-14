@@ -2,6 +2,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:plan_z/core/constants/constants.dart';
 import 'package:plan_z/core/error/failures.dart';
 import 'package:plan_z/features/attandee/data/attandee_repo.dart';
@@ -11,9 +12,8 @@ import 'package:plan_z/features/event_owners/create_event_screen/data/models/eve
 class AttendeeRepositoryImpl implements AttendeeRepository {
   final FirebaseFirestore _firestore;
 
-  AttendeeRepositoryImpl({
-    FirebaseFirestore? firestore,
-  }) : _firestore = firestore ?? FirebaseFirestore.instance;
+  AttendeeRepositoryImpl({FirebaseFirestore? firestore})
+    : _firestore = firestore ?? FirebaseFirestore.instance;
 
   // ============================================
   // 1. INVITATIONS MANAGEMENT
@@ -30,10 +30,12 @@ class AttendeeRepositoryImpl implements AttendeeRepository {
           .get();
 
       final invitations = snapshot.docs
-          .map((doc) => EventInvitationModel.fromJson({
-                ...doc.data(),
-                'invitationId': doc.id,
-              }))
+          .map(
+            (doc) => EventInvitationModel.fromJson({
+              ...doc.data(),
+              'invitationId': doc.id,
+            }),
+          )
           .toList();
 
       return Right(invitations);
@@ -55,10 +57,12 @@ class AttendeeRepositoryImpl implements AttendeeRepository {
           .get();
 
       final invitations = snapshot.docs
-          .map((doc) => EventInvitationModel.fromJson({
-                ...doc.data(),
-                'invitationId': doc.id,
-              }))
+          .map(
+            (doc) => EventInvitationModel.fromJson({
+              ...doc.data(),
+              'invitationId': doc.id,
+            }),
+          )
           .toList();
 
       return Right(invitations);
@@ -113,7 +117,9 @@ class AttendeeRepositoryImpl implements AttendeeRepository {
       });
 
       if (invitation.inviteeEmail?.toLowerCase() != email.toLowerCase()) {
-        return Left(FirestoreFailure(message: 'Email does not match invitation'));
+        return Left(
+          FirestoreFailure(message: 'Email does not match invitation'),
+        );
       }
 
       return Right(invitation);
@@ -143,7 +149,9 @@ class AttendeeRepositoryImpl implements AttendeeRepository {
       });
 
       if (invitation.inviteePhone != phone) {
-        return Left(FirestoreFailure(message: 'Phone does not match invitation'));
+        return Left(
+          FirestoreFailure(message: 'Phone does not match invitation'),
+        );
       }
 
       return Right(invitation);
@@ -192,8 +200,9 @@ class AttendeeRepositoryImpl implements AttendeeRepository {
 
       return Right(updatedInvitation);
     } catch (e) {
-      return Left(FirestoreFailure(
-          message: 'Failed to respond to invitation: $e'));
+      return Left(
+        FirestoreFailure(message: 'Failed to respond to invitation: $e'),
+      );
     }
   }
 
@@ -243,11 +252,11 @@ class AttendeeRepositoryImpl implements AttendeeRepository {
             .where(FieldPath.documentId, whereIn: batch)
             .get();
 
-        events.addAll(eventsSnapshot.docs.map((doc) =>
-            EventModel.fromJson({
-              ...doc.data(),
-              'eventId': doc.id,
-            })));
+        events.addAll(
+          eventsSnapshot.docs.map(
+            (doc) => EventModel.fromJson({...doc.data(), 'eventId': doc.id}),
+          ),
+        );
       }
 
       events.sort((a, b) => a.eventDate.compareTo(b.eventDate));
@@ -263,18 +272,17 @@ class AttendeeRepositoryImpl implements AttendeeRepository {
   }) async {
     try {
       final result = await getMyAcceptedEvents(attendeeId: attendeeId);
-      return result.fold(
-        (failure) => Left(failure),
-        (events) {
-          final now = DateTime.now();
-          final upcomingEvents =
-              events.where((event) => event.eventDate.isAfter(now)).toList();
-          return Right(upcomingEvents);
-        },
-      );
+      return result.fold((failure) => Left(failure), (events) {
+        final now = DateTime.now();
+        final upcomingEvents = events
+            .where((event) => event.eventDate.isAfter(now))
+            .toList();
+        return Right(upcomingEvents);
+      });
     } catch (e) {
-      return Left(FirestoreFailure(
-          message: 'Failed to load upcoming events: $e'));
+      return Left(
+        FirestoreFailure(message: 'Failed to load upcoming events: $e'),
+      );
     }
   }
 
@@ -284,18 +292,15 @@ class AttendeeRepositoryImpl implements AttendeeRepository {
   }) async {
     try {
       final result = await getMyAcceptedEvents(attendeeId: attendeeId);
-      return result.fold(
-        (failure) => Left(failure),
-        (events) {
-          final now = DateTime.now();
-          final pastEvents =
-              events.where((event) => event.eventDate.isBefore(now)).toList();
-          return Right(pastEvents);
-        },
-      );
+      return result.fold((failure) => Left(failure), (events) {
+        final now = DateTime.now();
+        final pastEvents = events
+            .where((event) => event.eventDate.isBefore(now))
+            .toList();
+        return Right(pastEvents);
+      });
     } catch (e) {
-      return Left(
-          FirestoreFailure(message: 'Failed to load past events: $e'));
+      return Left(FirestoreFailure(message: 'Failed to load past events: $e'));
     }
   }
 
@@ -313,15 +318,13 @@ class AttendeeRepositoryImpl implements AttendeeRepository {
         return Left(FirestoreFailure(message: 'Event not found'));
       }
 
-      final event = EventModel.fromJson({
-        ...doc.data()!,
-        'eventId': doc.id,
-      });
+      final event = EventModel.fromJson({...doc.data()!, 'eventId': doc.id});
 
       return Right(event);
     } catch (e) {
-      return Left(FirestoreFailure(
-          message: 'Failed to load event details: $e'));
+      return Left(
+        FirestoreFailure(message: 'Failed to load event details: $e'),
+      );
     }
   }
 
@@ -340,10 +343,12 @@ class AttendeeRepositoryImpl implements AttendeeRepository {
           .get();
 
       final invitations = invitationsSnapshot.docs
-          .map((doc) => EventInvitationModel.fromJson({
-                ...doc.data(),
-                'invitationId': doc.id,
-              }))
+          .map(
+            (doc) => EventInvitationModel.fromJson({
+              ...doc.data(),
+              'invitationId': doc.id,
+            }),
+          )
           .toList();
 
       final total = invitations.length;
@@ -433,6 +438,46 @@ class AttendeeRepositoryImpl implements AttendeeRepository {
       return Right(updatedInvitation);
     } catch (e) {
       return Left(FirestoreFailure(message: 'Failed to link attendee: $e'));
+    }
+  }
+
+  @override
+  Stream<List<Map<String, dynamic>>> getAttendeeNotifications(
+    String attendeeId,
+  ) {
+    return FirebaseFirestore.instance
+        .collection('notifications')
+        .where('receiverId', isEqualTo: attendeeId)
+        .where('receiverRole', isEqualTo: 'attendee')
+        .orderBy('timestamp', descending: true)
+        .snapshots()
+        .map(
+          (snapshot) => snapshot.docs
+              .map((doc) => doc.data() as Map<String, dynamic>)
+              .toList(),
+        );
+  }
+
+  @override
+  Future<Either<Failure, Unit>> sendAttendeeNotification({
+    required String receiverId,
+    required String title,
+    required String body,
+  }) async {
+    try {
+      final token = await FirebaseMessaging.instance.getToken();
+
+      await _firestore.collection('notifications').add({
+        'receiverId': receiverId,
+        'title': title,
+        'body': body,
+        'tokens': token != null ? [token] : [],
+        'createdAt': DateTime.now(),
+      });
+      return Right(unit);
+    } catch (e) {
+      print("❌ Error sending notification: $e");
+      return Left(FirestoreFailure(message: 'Failed to send notification: $e'));
     }
   }
 }

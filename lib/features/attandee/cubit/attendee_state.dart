@@ -305,3 +305,28 @@ class LinkAttendeeToInvitationError extends AttendeeState {
   @override
   List<Object?> get props => [message];
 }
+
+// ============================================
+// 5. NOTIFICATIONS STATES
+// ============================================
+
+class GetNotificationsLoading extends AttendeeState {}
+
+class GetNotificationsSuccess extends AttendeeState {
+  final List<Map<String, dynamic>> notifications;
+
+  const GetNotificationsSuccess(this.notifications);
+
+  @override
+  List<Object?> get props => [notifications];
+}
+
+class GetNotificationsError extends AttendeeState {
+  final String message;
+
+  const GetNotificationsError(this.message);
+
+  @override
+  List<Object?> get props => [message];
+}
+

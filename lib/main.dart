@@ -1,4 +1,5 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -6,7 +7,6 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:plan_z/features/app_owner/cubit/app_owner_cubit.dart';
 import 'package:plan_z/features/app_owner/data/repo/app_owner_repo_impl.dart';
-import 'package:plan_z/features/app_owner/ui/screens/owner_dashboard_screen.dart';
 import 'package:plan_z/features/attandee/cubit/attendee_cubit.dart';
 import 'package:plan_z/features/attandee/data/attandee_repo_impl.dart';
 import 'package:plan_z/features/attandee/ui/home/ui/screens/attendee_home_screen.dart';
@@ -25,6 +25,13 @@ import 'package:plan_z/features/vendor_features/vendor_home/ui/screens/vendor_ho
 
 import 'package:plan_z/firebase_options.dart';
 
+
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  print("🔔 تم استلام إشعار في الخلفية: ${message.notification?.title}");
+}
+
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -37,6 +44,22 @@ void main() async {
   // ✅ 3. Initialize Firebase
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
+  // ✅ إعداد FCM background handler
+FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
+// ✅ طلب الإذن بالإشعارات
+NotificationSettings settings = await FirebaseMessaging.instance.requestPermission(
+  alert: true,
+  badge: true,
+  sound: true,
+);
+print("🔔 FCM Permission: ${settings.authorizationStatus}");
+
+// ✅ احضار الـ Token (تقدري تحفظيه في Firestore لاحقًا)
+final fcmToken = await FirebaseMessaging.instance.getToken();
+print("📱 FCM Token: $fcmToken");
+
+
   // ✅ 4. Initialize UserManager (after Hive init)
   await UserManager().init();
 
@@ -44,7 +67,7 @@ void main() async {
   runApp(const PlanZ());
 }
 
-class PlanZ extends StatelessWidget {
+class PlanZ extends StatefulWidget {
   const PlanZ({super.key});
 
   /// 🔍 Determine home screen based on login status
@@ -88,6 +111,39 @@ class PlanZ extends StatelessWidget {
     return const OnBoardingScreen();
   }
 
+  @override
+
+  
+  State<PlanZ> createState() => _PlanZState();
+}
+
+class _PlanZState extends State<PlanZ> {
+  @override
+void initState() {
+  super.initState();
+
+  // ✅ إشعارات أثناء تشغيل التطبيق
+  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    if (message.notification != null) {
+      print("📨 إشعار أثناء التشغيل: ${message.notification!.title}");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message.notification!.title ?? "إشعار جديد 🎉"),
+          backgroundColor: Colors.deepPurple,
+        ),
+      );
+    }
+  });
+
+  // ✅ عند الضغط على الإشعار (من الخلفية أو الإغلاق الكامل)
+  FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+    print("📬 تم فتح التطبيق من إشعار: ${message.notification?.title}");
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const NotificationsScreen()),
+    );
+  });
+}
   @override
   Widget build(BuildContext context) {
     return ScreenUtilInit(
