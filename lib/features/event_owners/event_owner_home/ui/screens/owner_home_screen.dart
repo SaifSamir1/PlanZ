@@ -3,6 +3,7 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/material.dart';
+import 'package:plan_z/core/services/notification_service.dart';
 import 'package:plan_z/core/theming/text_styles.dart';
 import 'package:plan_z/core/utils/app_colors.dart';
 import 'package:plan_z/core/widgets/custom_app_bar.dart';
@@ -352,10 +353,106 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
                 ),
               ),
             ),
+            // Test Notification Button
+            GestureDetector(
+              onTap: () => _testNotification(context),
+              child: SlideInLeft(
+                duration: const Duration(milliseconds: 800),
+                delay: const Duration(milliseconds: 200),
+                child: _quickAction(
+                  Icons.notifications_active,
+                  "Test Notification",
+                  "Send test notification",
+                ),
+              ),
+            ),
           ],
         ),
       ],
     );
+  }
+
+  /// ============================================
+  /// Test Notification Method
+  /// ============================================
+  Future<void> _testNotification(BuildContext context) async {
+    final userId = UserManager().userId;
+    
+    if (userId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('❌ User ID not found')),
+      );
+      return;
+    }
+
+    // Show loading dialog
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        title: const Text('📤 Sending Test Notification'),
+        content: const Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CircularProgressIndicator(),
+            SizedBox(height: 16),
+            Text('Sending notification to your account...'),
+          ],
+        ),
+      ),
+    );
+
+    try {
+      // 1. Send notification to Firestore
+      await NotificationService.sendNotification(
+        receiverId: userId,
+        receiverRole: 'event_owner',
+        title: '✅ Test Notification',
+        body: 'This is a test notification from PlanZ app!',
+        type: 'test',
+        data: {
+          'testId': DateTime.now().millisecondsSinceEpoch.toString(),
+          'message': 'Test notification successfully sent!',
+        },
+        fcmToken: 'cwcBijL2RGK20WFfNM38JW:APA91bHlZA6i8BPUAJPZudhp9_ZULvC8f7aGgYdMa1YBj9wekAa0Eck78wnVf8HkAfkeeOm-YxfEp6mBkWvpsvTOJeI5wzGMAsQt05WtrYXPCyESUfjAiow',
+      );
+
+      // 2. Show local notification immediately (for instant feedback)
+      await NotificationService.showLocalNotification(
+        title: '✅ Test Notification',
+        body: 'This is a test notification from PlanZ app!',
+      );
+
+      // Close loading dialog
+      if (context.mounted) Navigator.pop(context);
+
+      // Show success snackbar
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('✅ Notification sent successfully!'),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 3),
+          ),
+        );
+      }
+      debugPrint('✅ [Test Notification] Sent successfully to $userId');
+    } catch (e) {
+      // Close loading dialog
+      if (context.mounted) Navigator.pop(context);
+
+      // Show error snackbar
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('❌ Error: $e'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+      debugPrint('❌ [Test Notification] Error: $e');
+    }
   }
 
 

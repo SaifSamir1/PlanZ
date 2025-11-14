@@ -13,6 +13,7 @@ class PackageModel {
   final String packageId;
   final String vendorId;
   final String vendorName;
+  final String? vendorFcmToken;  // ✅ FCM Token للـ Vendor
   
   // Service Info
   final String serviceId; // من الـ services_collection.json
@@ -64,6 +65,7 @@ class PackageModel {
     required this.packageId,
     required this.vendorId,
     required this.vendorName,
+    this.vendorFcmToken,
     required this.serviceId,
     required this.serviceName,
     required this.packageName,
@@ -96,6 +98,7 @@ class PackageModel {
       packageId: json['packageId'] ?? '',
       vendorId: json['vendorId'] ?? '',
       vendorName: json['vendorName'] ?? '',
+      vendorFcmToken: json['vendorFcmToken'],
       serviceId: json['serviceId'] ?? '',
       serviceName: json['serviceName'] ?? '',
       packageName: json['packageName'] ?? '',
@@ -157,6 +160,7 @@ class PackageModel {
       'packageId': packageId,
       'vendorId': vendorId,
       'vendorName': vendorName,
+      'vendorFcmToken': vendorFcmToken,
       'serviceId': serviceId,
       'serviceName': serviceName,
       'packageName': packageName,
@@ -188,6 +192,7 @@ class PackageModel {
     String? packageId,
     String? vendorId,
     String? vendorName,
+    String? vendorFcmToken,
     String? serviceId,
     String? serviceName,
     String? packageName,
@@ -217,6 +222,7 @@ class PackageModel {
       packageId: packageId ?? this.packageId,
       vendorId: vendorId ?? this.vendorId,
       vendorName: vendorName ?? this.vendorName,
+      vendorFcmToken: vendorFcmToken ?? this.vendorFcmToken,
       serviceId: serviceId ?? this.serviceId,
       serviceName: serviceName ?? this.serviceName,
       packageName: packageName ?? this.packageName,

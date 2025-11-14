@@ -25,6 +25,7 @@ abstract class VendorRepository {
     required List<String> keywords,
     required List<PortfolioItem> portfolioLinks,
     Map<String, dynamic>? attributes,
+    String? vendorFcmToken,  // ✅ FCM Token للـ Vendor
   });
 
   /// Update an existing package

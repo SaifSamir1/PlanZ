@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:plan_z/core/utils/app_colors.dart';
 import 'package:plan_z/features/event_owners/create_event_screen/cubits/event_creation_cubit/event_creation_cubit.dart';
+import 'package:plan_z/features/event_owners/create_event_screen/data/cities_area_data.dart';
 import 'package:plan_z/features/event_owners/create_event_screen/ui/screens/budget_setup_screen.dart';
 // lib/features/events/presentation/screens/basic_event_info_screen.dart
 
@@ -37,26 +38,7 @@ class _BasicEventInfoScreenState extends State<BasicEventInfoScreen> {
   String? _selectedCity;
   String? _selectedArea;
 
-  // Mock Cities and Areas (يمكن استبدالها بـ JSON أو API)
-  final List<String> _cities = [
-    'Cairo',
-    'Giza',
-    'Alexandria',
-    'Sharm El Sheikh',
-    'Hurghada',
-    'Luxor',
-    'Aswan',
-  ];
 
-  final Map<String, List<String>> _areas = {
-    'Cairo': ['Nasr City', 'Heliopolis', 'Maadi', 'Zamalek', 'Downtown'],
-    'Giza': ['6th October', 'Sheikh Zayed', 'Dokki', 'Mohandessin'],
-    'Alexandria': ['Miami', 'Smouha', 'Stanley', 'Sidi Gaber'],
-    'Sharm El Sheikh': ['Naama Bay', 'Sharks Bay', 'Hadaba'],
-    'Hurghada': ['Sakkala', 'Dahar', 'Marina'],
-    'Luxor': ['East Bank', 'West Bank'],
-    'Aswan': ['City Center', 'Nile Corniche'],
-  };
 
   @override
   void dispose() {
@@ -314,7 +296,7 @@ class _BasicEventInfoScreenState extends State<BasicEventInfoScreen> {
         filled: true,
         fillColor: AppColors.cardBackground,
       ),
-      items: _cities.map((city) {
+      items: cities.map((city) {
         return DropdownMenuItem(
           value: city,
           child: Text(city),
@@ -337,7 +319,7 @@ class _BasicEventInfoScreenState extends State<BasicEventInfoScreen> {
 
   /// Area Dropdown
   Widget _buildAreaDropdown() {
-    final areas = _selectedCity != null ? _areas[_selectedCity!] ?? [] : [];
+    final areas1 = _selectedCity != null ? areas[_selectedCity!] ?? [] : [];
 
     return DropdownButtonFormField<String>(
       value: _selectedArea,
@@ -350,9 +332,9 @@ class _BasicEventInfoScreenState extends State<BasicEventInfoScreen> {
         filled: true,
         fillColor: AppColors.cardBackground,
       ),
-      items: areas.isEmpty
+      items: areas1.isEmpty
           ? []
-          : areas.map((area) {
+          : areas1.map((area) {
               return DropdownMenuItem<String>(
                 value: area,
                 child: Text(area),

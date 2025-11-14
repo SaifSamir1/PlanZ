@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -21,6 +22,7 @@ import 'package:plan_z/features/auth/data/auth_repo/auth_repo_impl.dart';
 import 'package:plan_z/features/auth/data/models/user_manager.dart';
 import 'package:plan_z/features/auth/data/models/user_model.dart';
 import 'package:plan_z/features/auth/logic/auth_cubit/auth_cubit.dart';
+import 'package:plan_z/features/event_owners/chat_bot/cubits/chat_cubit.dart';
 import 'package:plan_z/features/event_owners/chat_bot/ui/chat_bot_screen.dart';
 import 'package:plan_z/features/event_owners/create_event_screen/cubits/create_event_cubit/create_event_cubit.dart';
 import 'package:plan_z/features/event_owners/create_event_screen/cubits/event_creation_cubit/event_creation_cubit.dart';
@@ -152,9 +154,14 @@ class _PlanZState extends State<PlanZ> {
   void initState() {
     super.initState();
 
-    // ✅ Foreground messages (show local notifications)
+    // ✅ Listen to Firestore notifications collection for real-time updates
+    _listenToFirestoreNotifications();
+
+    // ✅ Foreground messages (show local notifications when app is open)
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      print("📨 إشعار أثناء التشغيل: ${message.notification?.title}");
+      debugPrint("📨 [onMessage] Notification received while app is open");
+      debugPrint("   Title: ${message.notification?.title}");
+      debugPrint("   Body: ${message.notification?.body}");
 
       if (message.notification != null) {
         // Local notification details
@@ -178,10 +185,12 @@ class _PlanZState extends State<PlanZ> {
         // Show local notification
         flutterLocalNotificationsPlugin.show(
           message.hashCode,
-          message.notification?.title,
-          message.notification?.body,
+          message.notification?.title ?? 'Notification',
+          message.notification?.body ?? '',
           platformDetails,
         );
+        
+        debugPrint("✅ [onMessage] Local notification displayed");
       }
     });
 
@@ -193,6 +202,79 @@ class _PlanZState extends State<PlanZ> {
         MaterialPageRoute(builder: (_) => const NotificationsScreen()),
       );
     });
+  }
+
+  /// ✅ Listen to Firestore notifications collection for real-time updates
+  void _listenToFirestoreNotifications() {
+    final userManager = UserManager();
+    final userId = userManager.userId;
+    final userRole = userManager.userType?.name ?? 'unknown';
+
+    if (userId == null) {
+      debugPrint('⚠️ [_listenToFirestoreNotifications] User ID not available');
+      return;
+    }
+
+    debugPrint('📡 [_listenToFirestoreNotifications] Listening for notifications...');
+    debugPrint('   User ID: $userId');
+    debugPrint('   User Role: $userRole');
+
+    // Listen to notifications collection for current user
+    FirebaseFirestore.instance
+        .collection('notifications')
+        .where('receiverId', isEqualTo: userId)
+        .where('receiverRole', isEqualTo: userRole)
+        .orderBy('createdAt', descending: true)
+        .limit(1)
+        .snapshots()
+        .listen(
+          (snapshot) {
+            if (snapshot.docs.isNotEmpty) {
+              final notifData = snapshot.docs.first.data();
+              final title = notifData['title'] as String?;
+              final body = notifData['body'] as String?;
+
+              debugPrint('🔔 [_listenToFirestoreNotifications] New notification from Firestore');
+              debugPrint('   Title: $title');
+              debugPrint('   Body: $body');
+
+              // Show local notification
+              if (title != null && body != null) {
+                _showLocalNotification(title, body);
+              }
+            }
+          },
+          onError: (error) {
+            debugPrint('❌ [_listenToFirestoreNotifications] Error: $error');
+          },
+        );
+  }
+
+  /// ✅ Show local notification
+  Future<void> _showLocalNotification(String title, String body) async {
+    const AndroidNotificationDetails androidDetails =
+        AndroidNotificationDetails(
+          'plan_z_channel',
+          'PlanZ Notifications',
+          importance: Importance.max,
+          priority: Priority.high,
+          showWhen: true,
+          icon: '@drawable/ic_notification',
+          largeIcon: DrawableResourceAndroidBitmap('planz_logo'),
+        );
+
+    const NotificationDetails platformDetails = NotificationDetails(
+      android: androidDetails,
+    );
+
+    await flutterLocalNotificationsPlugin.show(
+      DateTime.now().millisecond,
+      title,
+      body,
+      platformDetails,
+    );
+
+    debugPrint('✅ [_showLocalNotification] Local notification displayed');
   }
 
   @override
@@ -218,6 +300,7 @@ class _PlanZState extends State<PlanZ> {
           BlocProvider(create: (context) => AttendeeCubit(
             AttendeeRepositoryImpl()
           )),
+          BlocProvider(create: (context) =>  ChatCubit())
          ],
         child: MaterialApp(
           home: widget.getHomeScreen(),

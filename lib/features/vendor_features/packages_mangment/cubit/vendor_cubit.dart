@@ -31,6 +31,7 @@ class VendorCubit extends Cubit<VendorState> {
     required List<String> keywords,
     required List<PortfolioItem> portfolioLinks,
     Map<String, dynamic>? attributes,
+    String? vendorFcmToken,  // ✅ إضافة FCM Token
   }) async {
     emit(CreatePackageLoading());
 
@@ -48,6 +49,7 @@ class VendorCubit extends Cubit<VendorState> {
       keywords: keywords,
       portfolioLinks: portfolioLinks,
       attributes: attributes,
+      vendorFcmToken: vendorFcmToken,  // ✅ تمرير FCM Token
     );
 
     result.fold(

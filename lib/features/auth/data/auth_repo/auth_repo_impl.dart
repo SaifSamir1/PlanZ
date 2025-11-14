@@ -2,6 +2,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:plan_z/features/auth/data/auth_repo/auth_repo.dart';
 import 'package:uuid/uuid.dart';
 import 'package:plan_z/core/constants/constants.dart';
@@ -18,9 +19,9 @@ class AuthRepositoryImpl implements AuthRepository {
     FirebaseAuth? firebaseAuth,
     FirebaseFirestore? firestore,
     Uuid? uuid,
-  })  : _firebaseAuth = firebaseAuth ?? FirebaseAuth.instance,
-        _firestore = firestore ?? FirebaseFirestore.instance,
-        _uuid = uuid ?? const Uuid();
+  }) : _firebaseAuth = firebaseAuth ?? FirebaseAuth.instance,
+       _firestore = firestore ?? FirebaseFirestore.instance,
+       _uuid = uuid ?? const Uuid();
 
   @override
   Future<Either<Failure, UserModel>> signUp({
@@ -41,7 +42,7 @@ class AuthRepositoryImpl implements AuthRepository {
       if (credential.user == null) {
         return const Left(AuthFailure('Failed to create user account'));
       }
-
+      final fcmToken = await FirebaseMessaging.instance.getToken();
       // تحديث الاسم في Firebase Auth
       await credential.user!.updateDisplayName(name);
 
@@ -57,6 +58,7 @@ class AuthRepositoryImpl implements AuthRepository {
         phoneNumber: phoneNumber,
         isActive: true,
         additionalInfo: additionalInfo,
+        fcmToken: fcmToken,
       );
 
       // تحديد اسم الكولكشن حسب نوع المستخدم
@@ -197,7 +199,9 @@ class AuthRepositoryImpl implements AuthRepository {
         return const Right(false);
       }
     } catch (e) {
-      return Left(CacheFailure('Failed to check login status: ${e.toString()}'));
+      return Left(
+        CacheFailure('Failed to check login status: ${e.toString()}'),
+      );
     }
   }
 
@@ -207,7 +211,10 @@ class AuthRepositoryImpl implements AuthRepository {
       // البحث في جميع الكولكشنز
       for (final userType in UserType.values) {
         final collectionName = _getCollectionName(userType);
-        final doc = await _firestore.collection(collectionName).doc(userId).get();
+        final doc = await _firestore
+            .collection(collectionName)
+            .doc(userId)
+            .get();
 
         if (doc.exists) {
           final userModel = UserModel.fromJson(doc.data()!);
@@ -225,17 +232,17 @@ class AuthRepositoryImpl implements AuthRepository {
 
   // دالة مساعدة لتحديد اسم الكولكشن حسب نوع المستخدم
   String _getCollectionName(UserType userType) {
-  switch (userType) {
-    case UserType.vendor:
-      return FirebaseCollections.vendors;
-    case UserType.eventOwner:
-      return FirebaseCollections.eventOwners;
-    case UserType.attendee:
-      return FirebaseCollections.attendees;
-    case UserType.admin:
-      return FirebaseCollections.admins; // ✅ Add this
+    switch (userType) {
+      case UserType.vendor:
+        return FirebaseCollections.vendors;
+      case UserType.eventOwner:
+        return FirebaseCollections.eventOwners;
+      case UserType.attendee:
+        return FirebaseCollections.attendees;
+      case UserType.admin:
+        return FirebaseCollections.admins; // ✅ Add this
+    }
   }
-}
 
   // دالة مساعدة لتحويل أخطاء Firebase Auth إلى رسائل مفهومة
   String _getAuthErrorMessage(String errorCode) {

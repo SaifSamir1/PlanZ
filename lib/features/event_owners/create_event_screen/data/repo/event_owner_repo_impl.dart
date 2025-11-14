@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:plan_z/core/constants/constants.dart';
 import 'package:plan_z/core/error/failures.dart';
+import 'package:plan_z/core/services/notification_service.dart';
 import 'package:plan_z/features/event_owners/create_event_screen/data/models/event_invitation_model.dart';
 import 'package:plan_z/features/event_owners/create_event_screen/data/models/event_model.dart';
 import 'package:plan_z/features/event_owners/create_event_screen/data/models/event_model_enum.dart';
@@ -820,6 +821,10 @@ class EventOwnerRepositoryImpl implements EventOwnerRepository {
       final List<EventInvitationModel> invitations = [];
       final batch = _firestore.batch();
 
+      debugPrint('📨 [EventOwnerRepository.sendBulkInvitations] Starting...');
+      debugPrint('   Event: $eventName');
+      debugPrint('   Total invitees: ${invitees.length}');
+
       for (var invitee in invitees) {
         final invitationId = _uuid.v4();
 
@@ -856,6 +861,48 @@ class EventOwnerRepositoryImpl implements EventOwnerRepository {
 
         batch.set(docRef, invitation.toJson());
         invitations.add(invitation);
+
+        // ✅ إرسال notification للـ attendee
+        final attendeeId = invitee['attendeeId'] as String?;
+        final attendeeFcmToken = invitee['attendeeFcmToken'] as String?;
+        final inviteeName = invitee['inviteeName'] as String?;
+
+        if (attendeeId != null && attendeeFcmToken != null && attendeeFcmToken.isNotEmpty) {
+          try {
+            debugPrint('📤 [EventOwnerRepository] Sending notification to: $inviteeName');
+            debugPrint('   Attendee ID: $attendeeId');
+            debugPrint('   FCM Token: $attendeeFcmToken');
+
+            await NotificationService.sendNotification(
+              receiverId: attendeeId,
+              receiverRole: 'attendee',
+              title: '🎉 Event Invitation',
+              body: 'You\'re invited to: $eventName',
+              type: 'invitation',
+              data: {
+                'invitationId': invitationId,
+                'eventId': eventId,
+                'eventName': eventName,
+                'eventDate': eventDate.toIso8601String(),
+                'eventOwnerName': eventOwnerName,
+              },
+              fcmToken: attendeeFcmToken,
+            );
+
+            // عرض local notification فوراً
+            await NotificationService.showLocalNotification(
+              title: '🎉 Event Invitation',
+              body: 'You\'re invited to: $eventName',
+            );
+
+            debugPrint('✅ [EventOwnerRepository] Notification sent to: $inviteeName');
+          } catch (e) {
+            debugPrint('⚠️ [EventOwnerRepository] Error sending notification to $inviteeName: $e');
+            // لا نوقف العملية إذا فشل الـ notification
+          }
+        } else {
+          debugPrint('⚠️ [EventOwnerRepository] No FCM token for attendee: $inviteeName');
+        }
       }
 
       await batch.commit();
@@ -863,6 +910,7 @@ class EventOwnerRepositoryImpl implements EventOwnerRepository {
       // Update event invitation counts
       await updateInvitationCounts(eventId);
 
+      debugPrint('✅ [EventOwnerRepository.sendBulkInvitations] Completed! ${invitations.length} invitations sent');
       return Right(invitations);
     } on FirebaseException catch (e) {
       return Left(ServerFailure(e.message ?? 'Failed to send invitations'));

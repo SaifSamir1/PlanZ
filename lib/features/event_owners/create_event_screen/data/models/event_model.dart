@@ -420,6 +420,7 @@ class EventService {
   final String vendorId;
   final String vendorName;
   final double packagePrice;
+  final String? vendorFcmToken;  // ✅ FCM Token للـ Vendor
   final bool vendorApproved;
   final String requestId;
 
@@ -433,6 +434,7 @@ class EventService {
     required this.vendorId,
     required this.vendorName,
     required this.packagePrice,
+    this.vendorFcmToken,
     this.vendorApproved = false,
     required this.requestId,
   });
@@ -451,6 +453,7 @@ class EventService {
       vendorId: json['vendorId'] as String? ?? '',
       vendorName: json['vendorName'] as String? ?? '',
       packagePrice: (json['packagePrice'] as num?)?.toDouble() ?? 0.0,
+      vendorFcmToken: json['vendorFcmToken'] as String?,
       vendorApproved: json['vendorApproved'] as bool? ?? false,
       requestId: json['requestId'] as String? ?? '',
     );
@@ -467,6 +470,7 @@ class EventService {
       'vendorId': vendorId,
       'vendorName': vendorName,
       'packagePrice': packagePrice,
+      'vendorFcmToken': vendorFcmToken,
       'vendorApproved': vendorApproved,
       'requestId': requestId,
     };
@@ -482,6 +486,7 @@ class EventService {
     String? vendorId,
     String? vendorName,
     double? packagePrice,
+    String? vendorFcmToken,
     bool? vendorApproved,
     String? requestId,
   }) {
@@ -495,6 +500,7 @@ class EventService {
       vendorId: vendorId ?? this.vendorId,
       vendorName: vendorName ?? this.vendorName,
       packagePrice: packagePrice ?? this.packagePrice,
+      vendorFcmToken: vendorFcmToken ?? this.vendorFcmToken,
       vendorApproved: vendorApproved ?? this.vendorApproved,
       requestId: requestId ?? this.requestId,
     );

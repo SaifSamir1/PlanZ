@@ -38,6 +38,7 @@ class VendorRepositoryImpl implements VendorRepository {
     required List<String> keywords,
     required List<PortfolioItem> portfolioLinks,
     Map<String, dynamic>? attributes,
+    String? vendorFcmToken,  // ✅ إضافة FCM Token
   }) async {
     try {
       final packageId = _uuid.v4();
@@ -45,6 +46,7 @@ class VendorRepositoryImpl implements VendorRepository {
         packageId: packageId,
         vendorId: vendorId,
         vendorName: vendorName,
+        vendorFcmToken: vendorFcmToken,  // ✅ تمرير FCM Token
         serviceId: serviceId,
         serviceName: serviceName,
         packageName: packageName,
@@ -61,11 +63,17 @@ class VendorRepositoryImpl implements VendorRepository {
         isApprovedByOwner: false,
       );
 
+      debugPrint('📦 [VendorRepository.createPackage] Creating package...');
+      debugPrint('   Package ID: $packageId');
+      debugPrint('   Vendor ID: $vendorId');
+      debugPrint('   Vendor FCM Token: $vendorFcmToken');
+
       await _firestore
           .collection(FirebaseCollections.packages)
           .doc(packageId)
           .set(package.toJson());
 
+      debugPrint('✅ [VendorRepository.createPackage] Package created successfully');
       return Right(package);
     } on FirebaseException catch (e) {
       return Left(ServerFailure(e.message ?? 'Failed to create package'));

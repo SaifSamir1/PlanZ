@@ -1,6 +1,3 @@
-
-
-
 // ignore_for_file: deprecated_member_use
 
 // lib/widgets/typing_indicator.dart
@@ -69,13 +66,19 @@ class _TypingIndicatorState extends State<TypingIndicator>
                       return Row(
                         children: List.generate(3, (index) {
                           final delay = index * 0.2;
-                          final opacity = (0.4 +
-                                  0.6 *
-                                      (0.5 +
-                                          0.5 *
-                                              math.sin((_animationController.value * 2 * math.pi) +
-                                                  delay * 2 * math.pi)))
-                              .clamp(0.0, 1.0);
+                          final opacity =
+                              (0.4 +
+                                      0.6 *
+                                          (0.5 +
+                                              0.5 *
+                                                  math.sin(
+                                                    (_animationController
+                                                                .value *
+                                                            2 *
+                                                            math.pi) +
+                                                        delay * 2 * math.pi,
+                                                  )))
+                                  .clamp(0.0, 1.0);
 
                           return Container(
                             margin: EdgeInsets.only(right: index < 2 ? 2 : 0),

@@ -4,11 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:plan_z/core/utils/app_colors.dart';
+import 'package:plan_z/core/services/notification_service.dart';
 import 'package:plan_z/features/auth/data/models/user_manager.dart';
 import 'package:plan_z/features/event_owners/create_event_screen/cubits/create_event_cubit/create_event_cubit.dart';
 import 'package:plan_z/features/event_owners/create_event_screen/cubits/create_event_cubit/create_event_state.dart';
 import 'package:plan_z/features/event_owners/event_owner_home/ui/screens/navigation_screen.dart';
-import 'package:plan_z/features/event_owners/event_owner_home/ui/screens/owner_home_screen.dart';
 import 'package:plan_z/features/vendor_features/packages_mangment/data/models/package_model.dart';
 
 class EventReviewScreen extends StatefulWidget {
@@ -369,7 +369,7 @@ class _EventReviewScreenState extends State<EventReviewScreen> {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  package.vendorName ?? 'Unknown Vendor',
+                  package.vendorName ,
                   style: TextStyle(
                     fontSize: 13,
                     color: AppColors.textSecondary,
@@ -620,6 +620,58 @@ class _EventReviewScreenState extends State<EventReviewScreen> {
   }
 
   /// ============================================
+  /// Send Vendor Notifications ✅ جديد
+  /// ============================================
+  Future<void> _sendVendorNotifications() async {
+    debugPrint('📢 [EventReviewScreen._sendVendorNotifications] Starting...');
+    debugPrint('   Total packages: ${widget.selectedPackages.length}');
+
+    for (var entry in widget.selectedPackages.entries) {
+      final package = entry.value;  // PackageModel
+
+      debugPrint('📤 [EventReviewScreen] Sending to vendor: ${package.vendorName}');
+      debugPrint('   Vendor ID: ${package.vendorId}');
+      debugPrint('   FCM Token: ${package.vendorFcmToken}');
+      debugPrint('   Package: ${package.packageName}');
+
+      // إرسال الـ notification فقط إذا كان هناك FCM token
+      if (package.vendorFcmToken != null && package.vendorFcmToken!.isNotEmpty) {
+        try {
+          await NotificationService.sendNotification(
+            receiverId: package.vendorId,
+            receiverRole: 'vendor',
+            title: '📦 New Package Request',
+            body: 'Event Owner selected your package: ${package.packageName}',
+            type: 'package_request',
+            data: {
+              'packageId': package.packageId,
+              'packageName': package.packageName,
+              'eventName': widget.eventInfo['eventName'] ?? 'Unknown Event',
+              'eventDate': widget.eventInfo['eventDate']?.toString() ?? '',
+              'vendorId': package.vendorId,
+            },
+            fcmToken: package.vendorFcmToken,
+          );
+
+          // عرض local notification فوراً
+          await NotificationService.showLocalNotification(
+            title: '📦 New Package Request',
+            body: 'Event Owner selected your package: ${package.packageName}',
+          );
+
+          debugPrint('✅ [EventReviewScreen] Notification sent to ${package.vendorName}');
+        } catch (e) {
+          debugPrint('❌ [EventReviewScreen] Error sending notification: $e');
+        }
+      } else {
+        debugPrint('⚠️ [EventReviewScreen] No FCM token for vendor: ${package.vendorName}');
+      }
+    }
+
+    debugPrint('✅ [EventReviewScreen._sendVendorNotifications] Completed!');
+  }
+
+  /// ============================================
   /// Submit Event ✅ معدّل
   /// ============================================
   void _submitEvent() async {
@@ -745,6 +797,10 @@ class _EventReviewScreenState extends State<EventReviewScreen> {
       debugPrint('✅ [EventReviewScreen] customRequirements ready: ${customRequirements['selectedPackagesData']?.length} packages');
 
       if (!mounted) return;
+
+      // ✅ إرسال notifications للـ vendors قبل إنشاء الـ event
+      debugPrint('📢 [EventReviewScreen._submitEvent] Sending vendor notifications...');
+      await _sendVendorNotifications();
 
       context.read<EventOwnerCubit>().createEvent(
         eventOwnerId: eventOwnerId,

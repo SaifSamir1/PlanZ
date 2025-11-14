@@ -1516,6 +1516,7 @@ Sent via PlanZ App
             'invitationType': 'inApp',
             'guestCount': 1,
             'personalMessage': personalMessage.isEmpty ? null : personalMessage,
+            'attendeeFcmToken': attendee.fcmToken,  // ✅ إضافة FCM Token
           });
         }
       }

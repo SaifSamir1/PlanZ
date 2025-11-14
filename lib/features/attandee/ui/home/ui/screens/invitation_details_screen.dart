@@ -8,7 +8,6 @@ import 'package:plan_z/features/attandee/cubit/attendee_cubit.dart';
 import 'package:plan_z/features/attandee/cubit/attendee_state.dart';
 import 'package:plan_z/features/attandee/ui/home/ui/widgets/event_info_section.dart';
 import 'package:plan_z/features/attandee/ui/home/ui/widgets/event_owner_info_section.dart';
-import 'package:plan_z/features/attandee/ui/home/ui/widgets/guest_count_input.dart';
 import 'package:plan_z/features/attandee/ui/home/ui/widgets/invitation_action_buttons.dart';
 import 'package:plan_z/features/attandee/ui/home/ui/widgets/invitation_details_header.dart';
 import 'package:plan_z/features/attandee/ui/home/ui/widgets/invitation_details_loading.dart';
@@ -30,7 +29,6 @@ class InvitationDetailsScreen extends StatefulWidget {
 }
 
 class _InvitationDetailsScreenState extends State<InvitationDetailsScreen> {
-  final TextEditingController _guestCountController = TextEditingController();
   final TextEditingController _responseMessageController =
       TextEditingController();
 
@@ -46,7 +44,6 @@ class _InvitationDetailsScreenState extends State<InvitationDetailsScreen> {
 
   @override
   void dispose() {
-    _guestCountController.dispose();
     _responseMessageController.dispose();
     super.dispose();
   }
@@ -92,8 +89,6 @@ class _InvitationDetailsScreenState extends State<InvitationDetailsScreen> {
   Widget _buildInvitationDetails(EventInvitationModel invitation) {
     // Set initial values for already responded invitations
     if (invitation.status != InvitationStatus.pending) {
-      _guestCountController.text =
-          invitation.confirmedGuestCount?.toString() ?? '';
       _responseMessageController.text = invitation.responseMessage ?? '';
     }
 
@@ -140,25 +135,11 @@ class _InvitationDetailsScreenState extends State<InvitationDetailsScreen> {
                     invitation.personalMessage!.isNotEmpty)
                   const SizedBox(height: 20),
 
-                // Guest Count Input (for pending invitations)
-                if (invitation.status == InvitationStatus.pending)
-                  FadeInUp(
-                    duration: const Duration(milliseconds: 600),
-                    delay: const Duration(milliseconds: 400),
-                    child: GuestCountInput(
-                      controller: _guestCountController,
-                      maxGuests: invitation.guestCount,
-                    ),
-                  ),
-
-                if (invitation.status == InvitationStatus.pending)
-                  const SizedBox(height: 16),
-
                 // Response Message Input (optional)
                 if (invitation.status == InvitationStatus.pending)
                   FadeInUp(
                     duration: const Duration(milliseconds: 600),
-                    delay: const Duration(milliseconds: 500),
+                    delay: const Duration(milliseconds: 400),
                     child: ResponseMessageInput(
                       controller: _responseMessageController,
                     ),
@@ -201,27 +182,11 @@ class _InvitationDetailsScreenState extends State<InvitationDetailsScreen> {
     EventInvitationModel invitation,
     InvitationStatus status,
   ) {
-    // Validate guest count for Accept/Maybe
-    if (status == InvitationStatus.accepted ||
-        status == InvitationStatus.maybeAttending) {
-      final guestCount = int.tryParse(_guestCountController.text.trim());
-      if (guestCount == null || guestCount <= 0) {
-        _showErrorSnackbar("Please enter a valid guest count");
-        return;
-      }
-      if (guestCount > invitation.guestCount) {
-        _showErrorSnackbar(
-          "Guest count cannot exceed ${invitation.guestCount}",
-        );
-        return;
-      }
-    }
-
-    // Call Cubit
+    // ✅ Call Cubit directly without guest count validation
     context.read<AttendeeCubit>().respondToInvitation(
           invitationId: invitation.invitationId,
           status: status,
-          confirmedGuestCount: int.tryParse(_guestCountController.text.trim()),
+          confirmedGuestCount: null,  // ✅ No guest count required
           responseMessage: _responseMessageController.text.trim().isEmpty
               ? null
               : _responseMessageController.text.trim(),
