@@ -7,8 +7,10 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:plan_z/features/app_owner/cubit/app_owner_cubit.dart';
 import 'package:plan_z/features/app_owner/data/repo/app_owner_repo_impl.dart';
+import 'package:plan_z/features/app_owner/ui/screens/owner_dashboard_screen.dart';
 import 'package:plan_z/features/attandee/cubit/attendee_cubit.dart';
 import 'package:plan_z/features/attandee/data/attandee_repo_impl.dart';
+import 'package:plan_z/features/attandee/ui/home/ui/screens/attandee_notification.dart';
 import 'package:plan_z/features/attandee/ui/home/ui/screens/attendee_home_screen.dart';
 import 'package:plan_z/features/auth/data/auth_repo/auth_repo_impl.dart';
 import 'package:plan_z/features/auth/data/models/user_manager.dart';
@@ -71,7 +73,7 @@ class PlanZ extends StatefulWidget {
   const PlanZ({super.key});
 
   /// 🔍 Determine home screen based on login status
-  Widget _getHomeScreen() {
+  Widget getHomeScreen() {
     final userManager = UserManager();
     
     debugPrint('🔍 [PlanZ._getHomeScreen] Checking login status...');
@@ -170,7 +172,7 @@ void initState() {
           )),
          ],
         child: MaterialApp(
-          home: _getHomeScreen(),
+          home: widget.getHomeScreen(),
           // title: 'PlanZ Chat',
           debugShowCheckedModeBanner: false,
         ),
