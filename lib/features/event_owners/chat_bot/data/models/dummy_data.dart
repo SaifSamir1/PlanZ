@@ -3,1128 +3,686 @@
 import 'chat_models.dart';
 
 class DummyData {
-  /// ============================================
-  /// Chat Bot - يساعد الـ User يتنقل في التطبيق
-  /// ============================================
-  /// الـ Flow: معلومات → تطبيق مباشر
-
   static final Map<String, ChatQuestion> questions = {
-    // ============================================
-    // القائمة الرئيسية
-    // ============================================
     'start': ChatQuestion(
       id: 'start',
-      text: '🎉 مرحباً بك في PlanZ!\n\nتطبيقك الأول لتخطيط الأحداث والحفلات\n\n👇 اختر من فضلك:',
+      text:
+          '🎉 مرحباً بك في PlanZ!\n\nهذا المساعد مصمم لمساعدتك في إدارة الفعاليات والخدمات والتواصل داخل التطبيق.\n\n👇 اختر من فضلك الدور الذي تريد المساعدة به:',
       isStart: true,
       options: [
         ChatOption(
           id: 'attendee_info',
-          text: '👥 أنا حضور في حدث',
+          text: '👥 أنا مدعو (Attendee)',
           nextQuestionId: 'attendee_questions',
-          responseText: 'حسناً! سأساعدك تجد كل اللي تحتاجه 🎯',
+          responseText: 'حسناً — سأساعدك في متابعة الدعوات وتفاصيل الفعالية.',
         ),
         ChatOption(
           id: 'vendor_info',
-          text: '🏢 أنا عارض خدمات (Vendor)',
+          text: '🏢 مزوِّد خدمات (Vendor)',
           nextQuestionId: 'vendor_questions',
-          responseText: 'ممتاز! سأساعدك تدير خدماتك 💼',
+          responseText: 'ممتاز — سأساعدك في إدارة الخدمات والطلبات والإيرادات.',
         ),
         ChatOption(
           id: 'organizer_info',
-          text: '📅 أنا منظم حدث',
+          text: '📅 منظّم فعالية (Event Owner)',
           nextQuestionId: 'organizer_questions',
-          responseText: 'تمام! سأساعدك تنظم حدثك 🚀',
+          responseText: 'تمام — سأرشدك إلى إنشاء الحدث وإدارة الدعوات والتواصل مع Vendors.',
+        ),
+        ChatOption(
+          id: 'app_owner_info',
+          text: '🔑 مالك التطبيق (App Owner)',
+          nextQuestionId: 'app_owner_questions',
+          responseText: 'حسنًا — ستجد أدوات لإدارة النظام والإحصائيات والإشعارات.',
+        ),
+        ChatOption(
+          id: 'support_info',
+          text: '🛠️ الدعم الفني',
+          nextQuestionId: 'support_channels',
+          responseText: 'سأعرض لك طرق التواصل وإرشادات الحلول السريعة.',
         ),
       ],
     ),
 
-    // ============================================
-    // مسار الحاضر (Attendee)
-    // ============================================
     'attendee_questions': ChatQuestion(
       id: 'attendee_questions',
-      text: '✨ الحاضر في الحدث يقدر يعمل إيه؟',
+      text:
+          '✨ بصفتك مدعوًا (Attendee)، يمكنك متابعة الدعوات ومعرفة تفاصيل الفعالية والتحديثات.\n\nما الذي ترغب بالاطلاع عليه؟',
       options: [
         ChatOption(
-          id: 'registration_guide',
-          text: '✍️ كيف أسجل في حدث؟',
-          nextQuestionId: 'attendee_registration',
-          responseText: 'الحمد لله! الطريقة سهلة جداً:',
+          id: 'invitations_view',
+          text: '📨 عرض الدعوات (Invitations)',
+          nextQuestionId: 'attendee_invitations',
+          responseText: 'سأعرض لك قائمة الدعوات والخيارات المتاحة.',
         ),
         ChatOption(
-          id: 'payment_guide',
-          text: '💳 معلومات الدفع والباقات',
-          nextQuestionId: 'attendee_payment',
-          responseText: 'تمام! هنا الباقات والأسعار:',
-        ),
-        ChatOption(
-          id: 'ticket_guide',
-          text: '🎫 البحث عن تذكرتي',
-          nextQuestionId: 'attendee_ticket',
-          responseText: 'تذكرتك موجودة فين؟',
-        ),
-        ChatOption(
-          id: 'event_details',
-          text: '📋 معلومات الحدث',
+          id: 'event_info',
+          text: '📋 تفاصيل الفعالية (Event Details)',
           nextQuestionId: 'attendee_event_info',
-          responseText: 'اختر نوع المعلومات:',
+          responseText: 'سأعرض معلومات الفعالية وبيانات التواصل مع المنظّم إن أمكن.',
+        ),
+        ChatOption(
+          id: 'attendee_notifications',
+          text: '🔔 الإشعارات (Notifications)',
+          nextQuestionId: 'attendee_notifications',
+          responseText: 'سأحولك إلى شاشة الإشعارات لعرض آخر التنبيهات.',
+        ),
+        ChatOption(
+          id: 'attendee_support',
+          text: '🛠️ مساعدة / تواصل مع الدعم',
+          nextQuestionId: 'support_channels',
+          responseText: 'أوجهك إلى قنوات الدعم الرسمية.',
+        ),
+        ChatOption(
+          id: 'back_home_attendee',
+          text: '🔙 العودة للرئيسية',
+          nextQuestionId: 'start',
+          responseText: 'تم الرجوع إلى القائمة الرئيسية.',
         ),
       ],
     ),
 
-    // === التسجيل ===
-    'attendee_registration': ChatQuestion(
-      id: 'attendee_registration',
-      text: '''
-✍️ خطوات التسجيل السهلة:
-
-📱 الخطوة الأولى:
-اضغط "الأحداث" من القائمة السفلية
-
-🔍 الخطوة الثانية:
-ابحث عن الحدث اللي بتحضره أو اضغط عليه مباشرة
-
-📋 الخطوة الثالثة:
-ملي البيانات:
-• اسمك الكامل
-• رقم الهاتف
-• البريد الإلكتروني
-• أي احتياجات خاصة (حساسيات غذائية مثلاً)
-
-💳 الخطوة الرابعة:
-اختر باقة وادفع عبر:
-• بطاقة ائتمان
-• محفظة رقمية
-• تحويل بنكي
-
-✅ تمام!
-ستحصل على تذكرة رقمية في حسابك
-      ''',
+    'attendee_invitations': ChatQuestion(
+      id: 'attendee_invitations',
+      text:
+          '📨 الدعوات (Invitations):\n\nيمكنك عرض جميع الدعوات المرسلة إليك من منظّمي الفعاليات في صفحة "Invitations" داخل الحساب.\nفي كل دعوة ستجد حالة الدعوة (مقبولة / مرفوضة / بانتظار) وخيارات للرد أو عرض تفاصيل الحدث.',
       isFinal: true,
       options: [
         ChatOption(
-          id: 'registration_start',
-          text: '🚀 ابدأ التسجيل الآن',
-          nextQuestionId: 'registration_redirect',
-          responseText: 'سأحولك للصفحة...',
+          id: 'open_invitations',
+          text: '🔎 افتح قائمة الدعوات',
+          nextQuestionId: 'invitations_redirect',
+          responseText: 'سأفتح صفحة الدعوات الآن.',
+          route: '/invitation'
         ),
         ChatOption(
-          id: 'back_attendee',
+          id: 'back_attendee_invitations',
           text: '🔙 رجوع',
           nextQuestionId: 'attendee_questions',
-          responseText: 'تمام! في حاجة تانية؟',
+          responseText: 'تمام، هل تود معلومات أخرى؟',
         ),
       ],
     ),
 
-    'registration_redirect': ChatQuestion(
-      id: 'registration_redirect',
-      text: 'جاري التحويل لقائمة الأحداث...\n\n💡 نصيحة: لما تكمل التسجيل، التذكرة هتطلع هنا "🎫 تذاكري"',
+    'invitations_redirect': ChatQuestion(
+      id: 'invitations_redirect',
+      text:
+          '⏳ جارٍ التحويل إلى صفحة Invitations...\n\n💡 تلميح: يمكنك الرد على الدعوة أو عرض تفاصيل المكان والوقت من داخل كل بطاقة دعوة.',
       isFinal: true,
       options: [
         ChatOption(
-          id: 'continue',
+          id: 'invitations_done',
           text: '✅ فهمت',
           nextQuestionId: 'attendee_questions',
-          responseText: 'تمام!',
+          responseText: 'حسناً، هل أساعدك في شيء آخر؟',
         ),
       ],
     ),
 
-    // === الدفع والباقات ===
-    'attendee_payment': ChatQuestion(
-      id: 'attendee_payment',
-      text: '''
-💰 معلومات الدفع والباقات:
-
-🔹 في الغالب الحدث فيه باقات مختلفة:
-• باقة عادية (أساسي): أرخص سعر ✅
-• باقة بلس: فيها إضافيات زيادة ⭐
-• باقة بريميوم: كل المميزات 👑
-
-💡 الفرق بينهم في المميزات والسعر
-(كل حدث فيه باقاته الخاصة)
-
-💳 طرق الدفع:
-✅ بطاقة ائتمان / ديبت
-✅ محافظ رقمية (أبل، جوجل بيه)
-✅ تحويل بنكي
-
-⚠️ ملاحظة مهمة:
-• الدفع آمن 100%
-• الفلوس ترجع إذا ألغيت التسجيل قبل الحدث
-• في خطة استرجاع مبلغ معين
-      ''',
-      isFinal: true,
-      options: [
-        ChatOption(
-          id: 'payment_problem',
-          text: '❌ في مشكلة في الدفع',
-          nextQuestionId: 'payment_issues',
-          responseText: 'لا مشكلة! شنو المشكلة؟',
-        ),
-        ChatOption(
-          id: 'back_attendee2',
-          text: '🔙 رجوع',
-          nextQuestionId: 'attendee_questions',
-          responseText: 'في شيء آخر؟',
-        ),
-      ],
-    ),
-
-    'payment_issues': ChatQuestion(
-      id: 'payment_issues',
-      text: '''
-🔧 حل مشاكل الدفع:
-
-❌ الدفع فشل؟
-
-✅ جرب:
-1. تأكد من الرصيد في البطاقة
-2. اتصل بالبنك (قد يكون في حظر أمان)
-3. جرب بطاقة ثانية
-4. تأكد من رقم البطاقة والتاريخ
-
-اذا ما اشتغلت:
-4. احذف بيانات التطبيق وحاول مجدد
-5. حدّث التطبيق لأحدث نسخة
-6. جرب من متصفح الويب
-
-⚠️ لو الحل ما اشتغل:
-📞 تواصل مع الدعم فوراً!
-      ''',
-      isFinal: true,
-      options: [
-        ChatOption(
-          id: 'contact_support_payment',
-          text: '📞 تواصل مع الدعم',
-          nextQuestionId: 'support_channels',
-          responseText: 'هنا بيانات التواصل:',
-        ),
-        ChatOption(
-          id: 'back_payment',
-          text: '🔙 رجوع',
-          nextQuestionId: 'attendee_payment',
-          responseText: 'تمام',
-        ),
-      ],
-    ),
-
-    // === التذكرة ===
-    'attendee_ticket': ChatQuestion(
-      id: 'attendee_ticket',
-      text: '''
-🎫 فين التذكرة؟
-
-هنا الطريقة:
-
-1️⃣ اضغط "🎫 تذاكري"
-(من القائمة السفلية أو الملف الشخصي)
-
-2️⃣ هتشوف كل التذاكر اللي عندك
-
-3️⃣ اضغط على التذكرة اللي تبغيها
-
-✅ خلاص! في التذكرة:
-• رقم التذكرة
-• تفاصيل الحدث
-• الحالة (مؤكدة)
-• تحميل PDF إذا احتجت
-
-💡 نصائح:
-• احفظ الصورة في صورك (الانترنت قد ما يقطع)
-• التذكرة رقمية - ما تحتاج طباعة
-• في تحويل مباشر للدعم إذا في أي مشكلة
-      ''',
-      isFinal: true,
-      options: [
-        ChatOption(
-          id: 'ticket_missing',
-          text: '❌ ما أشوف التذكرة',
-          nextQuestionId: 'ticket_problems',
-          responseText: 'الحمد لله! ما تقلق:',
-        ),
-        ChatOption(
-          id: 'back_ticket',
-          text: '🔙 رجوع',
-          nextQuestionId: 'attendee_questions',
-          responseText: 'تمام',
-        ),
-      ],
-    ),
-
-    'ticket_problems': ChatQuestion(
-      id: 'ticket_problems',
-      text: '''
-🔍 حل: التذكرة ما تظهر
-
-✅ حاول بالترتيب:
-
-1. تأكد من البريد الإلكتروني
-   (قد تكون الرسالة في Spam)
-
-2. عدّل الصفحة (pull to refresh)
-
-3. سجّل خروج ثم خروج
-
-4. حدّث التطبيق
-
-5. امسح بيانات التطبيق:
-   Settings > Apps > PlanZ > Storage > Clear Data
-
-⚠️ لو ما اشتغل:
-📧 بلغ الدعم مباشرة مع:
-• بريدك الإلكتروني
-• رقم الهاتف اللي سجلت فيه
-• اسم الحدث
-
-سيعاد لك إرسال التذكرة فوري ⚡
-      ''',
-      isFinal: true,
-      options: [
-        ChatOption(
-          id: 'contact_ticket_support',
-          text: '📞 اتصل بالدعم',
-          nextQuestionId: 'support_channels',
-          responseText: 'بيانات التواصل هنا:',
-        ),
-        ChatOption(
-          id: 'back_ticket2',
-          text: '🔙 رجوع',
-          nextQuestionId: 'attendee_ticket',
-          responseText: 'تمام',
-        ),
-      ],
-    ),
-
-    // === معلومات الحدث ===
     'attendee_event_info': ChatQuestion(
       id: 'attendee_event_info',
-      text: 'اختر نوع المعلومات:',
-      options: [
-        ChatOption(
-          id: 'event_schedule',
-          text: '🕐 الجدول الزمني',
-          nextQuestionId: 'event_schedule_info',
-          responseText: 'الجدول الزمني موجود فين:',
-        ),
-        ChatOption(
-          id: 'event_location',
-          text: '📍 الموقع والمكان',
-          nextQuestionId: 'event_location_info',
-          responseText: 'المكان:',
-        ),
-        ChatOption(
-          id: 'event_speakers',
-          text: '🎤 المتحدثين',
-          nextQuestionId: 'event_speakers_info',
-          responseText: 'المتحدثين:',
-        ),
-      ],
-    ),
-
-    'event_schedule_info': ChatQuestion(
-      id: 'event_schedule_info',
-      text: '''
-🕐 فين الجدول الزمني؟
-
-ادخل على الحدث وهتشوف:
-📋 التفاصيل الكاملة للحدث
-(أوقات البرنامج، الفعاليات، الأنشطة)
-
-💡 الجدول الزمني في شاشة الحدث مباشرة:
-• الوقت والموعد
-• الأنشطة الرئيسية
-• فترات الراحة
-
-📝 لو ما فيه جدول:
-قد يكون المنظم ما حطه بعد
-اتصل بالدعم ليطلبوا من المنظم يحط البيانات
-      ''',
+      text:
+          '📋 معلومات الفعالية (Event Details):\n\nتحتوي صفحة كل فعالية على: التاريخ والوقت، الموقع مع إمكانية فتح الخريطة، وصف الحدث، وأسماء مزوّدي الخدمة المشاركين إن وُجدوا. كما تجد اسم الشخص المنظّم ووسائل التواصل إن كانت متاحة.',
       isFinal: true,
       options: [
         ChatOption(
-          id: 'back_event_info',
+          id: 'open_event_details',
+          text: '🔎 افتح تفاصيل الفعالية',
+          nextQuestionId: 'event_details_redirect',
+          responseText: 'سأعرض تفاصيل الفعالية الآن.',
+        ),
+        ChatOption(
+          id: 'back_attendee_event_info',
           text: '🔙 رجوع',
-          nextQuestionId: 'attendee_event_info',
-          responseText: 'في شيء آخر؟',
+          nextQuestionId: 'attendee_questions',
+          responseText: 'هل تحتاج إلى شيء آخر؟',
         ),
       ],
     ),
 
-    'event_location_info': ChatQuestion(
-      id: 'event_location_info',
-      text: '''
-📍 معلومات الموقع:
-
-فتح الحدث → هتشوف:
-🗺️ الخريطة والعنوان
-📌 الموقع بالضبط
-🅿️ مواقف السيارات
-🚗 وسائل المواصلات
-
-💡 أفضل حاجة:
-اضغط على الخريطة → تحويل لـ Google Maps
-وتقدر تختار الطريقة اللي تيسر (سيارة، تاكسي، مترو)
-
-⚠️ لو المكان ما واضح:
-تواصل مع المنظم من داخل التطبيق
-(في خيار "اتصل بالمنظم")
-      ''',
+    'event_details_redirect': ChatQuestion(
+      id: 'event_details_redirect',
+      text:
+          '⏳ جاري فتح تفاصيل الفعالية...\n\n💡 تذكير: الحضور في PlanZ يتم عن طريق دعوات من منظّم الفعالية، ولا يمكن التسجيل العام إلا إذا فتح المنظّم التسجيل.',
       isFinal: true,
       options: [
         ChatOption(
-          id: 'back_event_info2',
-          text: '🔙 رجوع',
-          nextQuestionId: 'attendee_event_info',
-          responseText: 'تمام',
+          id: 'event_details_done',
+          text: '✅ فهمت',
+          nextQuestionId: 'attendee_questions',
+          responseText: 'حسناً، هل أفتح لك صفحة الدعوات الآن؟',
         ),
       ],
     ),
 
-    'event_speakers_info': ChatQuestion(
-      id: 'event_speakers_info',
-      text: '''
-🎤 معلومات المتحدثين:
-
-كيف تشوف المتحدثين:
-
-1️⃣ ادخل على الحدث
-2️⃣ اتمرر للأسفل
-3️⃣ هتشوف "المتحدثين" أو "البرنامج"
-4️⃣ اضغط على أي متحدث لتشوف سيرته
-
-📌 لكل متحدث:
-• الصورة والاسم
-• التخصص والخبرة
-• الموضوع اللي هيتكلم فيه
-• السوشيال ميديا (إن كانت)
-
-💡 لو ما في متحدثين محددين:
-قد يكون الحدث ما فيه متحدثين
-أو المنظم ما أضافهم بعد
-اتصل بالمنظم للتأكد
-      ''',
+    'attendee_notifications': ChatQuestion(
+      id: 'attendee_notifications',
+      text:
+          '🔔 الإشعارات (Notifications):\n\nستصلك إشعارات عند أي تعديل في الفعالية أو عند إرسال تذكير قبل الموعد، كما يصلك إشعار عند أي رسالة من المنظّم أو عند تغيير مكان أو توقيت الحدث.',
       isFinal: true,
       options: [
         ChatOption(
-          id: 'back_event_info3',
+          id: 'open_notifications_attendee',
+          text: 'افتح الإشعارات',
+          nextQuestionId: 'notifications_redirect',
+          responseText: 'سأفتح شاشة الإشعارات.',
+          route: '/notifications'
+        ),
+        ChatOption(
+          id: 'back_attendee_notifications',
           text: '🔙 رجوع',
-          nextQuestionId: 'attendee_event_info',
-          responseText: 'تمام',
+          nextQuestionId: 'attendee_questions',
+          responseText: 'تمام.',
         ),
       ],
     ),
 
-    // ============================================
-    // مسار العارض (Vendor)
-    // ============================================
+    'notifications_redirect': ChatQuestion(
+      id: 'notifications_redirect',
+      text:
+          '⏳ جارٍ التحويل إلى Notifications...\n\n📍 يمكنك متابعة الإشعارات الخاصة بالدعوات والتذكيرات والتحديثات من هذه الشاشة.',
+      isFinal: true,
+      options: [
+        ChatOption(
+          id: 'notifications_done',
+          text: '✅ تم',
+          nextQuestionId: 'attendee_questions',
+          responseText: 'هل أستعرض لك شيئًا آخر؟',
+        ),
+      ],
+    ),
+
     'vendor_questions': ChatQuestion(
       id: 'vendor_questions',
-      text: 'اختر من فضلك:',
+      text:
+          '🏢 بصفتك Vendor، يمكنك إضافة خدمات، استقبال طلبات من منظّمي الفعاليات، وإدارة الأرباح.\nما الذي تود فعله الآن؟',
       options: [
         ChatOption(
           id: 'vendor_how_to_add',
-          text: '➕ كيف أضيف خدماتي؟',
+          text: '➕ كيف أضيف خدمة جديدة؟',
           nextQuestionId: 'vendor_add_service',
-          responseText: 'تمام! هنا الطريقة:',
+          responseText: 'سأرشدك لخطوات إضافة الخدمة.',
         ),
         ChatOption(
           id: 'vendor_orders',
-          text: '📦 الطلبات والتفاصيل',
+          text: '📦 إدارة الطلبات والطلبات الواردة',
           nextQuestionId: 'vendor_orders_guide',
-          responseText: 'معلومات الطلبات:',
+          responseText: 'أعرض لك طريقة إدارة الطلبات خطوة بخطوة.',
         ),
         ChatOption(
           id: 'vendor_earnings',
           text: '💰 الأرباح والسحب',
           nextQuestionId: 'vendor_earnings_guide',
-          responseText: 'معلومات الأرباح:',
+          responseText: 'معلومات حول كيفية سحب أرباحك.',
         ),
         ChatOption(
           id: 'vendor_support',
-          text: '❓ أسئلة وسياسات',
+          text: '❓ أسئلة وسياسات (FAQ)',
           nextQuestionId: 'vendor_faq',
-          responseText: 'الأسئلة الشائعة:',
+          responseText: 'أسئلة وإجابات شائعة للبائعين.',
+        ),
+        ChatOption(
+          id: 'back_to_start_vendor',
+          text: '🔙 العودة للرئيسية',
+          nextQuestionId: 'start',
+          responseText: 'تم الرجوع للرئيسية.',
         ),
       ],
     ),
 
     'vendor_add_service': ChatQuestion(
       id: 'vendor_add_service',
-      text: '''
-➕ كيفية إضافة خدمة جديدة:
-
-📱 الخطوات:
-
-1️⃣ اذهب لـ "ملفي الشخصي"
-   ← "خدماتي" ← "إضافة خدمة جديدة"
-
-2️⃣ اختر نوع الخدمة:
-   (تصوير، موسيقى، طعام، إلخ)
-
-3️⃣ ملي البيانات:
-   • اسم الخدمة
-   • الوصف (كم مهم!)
-   • السعر والعمولة
-   • صور من أعمالك (Portfolio)
-   • التفاصيل التقنية
-
-4️⃣ اضغط "إرسال للموافقة"
-
-✅ النتيجة:
-• الفريق سيراجع الخدمة خلال 24 ساعة
-• هتلقى تنبيه لما تتموافق
-• تقدر تبدأ تستقبل طلبات!
-
-💡 نصائح:
-• اختر وصف واضح جداً
-• ركز على المميزات
-• حط صور جودة عالية
-• الأسعار تكون منطقية ومتنافسة
-      ''',
+      text:
+          '➕ إضافة خدمة جديدة:\n\n1️⃣ انتقل إلى “Profile” → “My Services” → “Add Service”.\n2️⃣ أضف اسم الخدمة، وصفًا واضحًا، موقع العمل (إن لزم)، والأسعار.\n3️⃣ أرفق صورًا عالية الجودة وأمثلة أعمال إن وُجدت.\n4️⃣ اضغط على “Send for approval”.\n\n✅ يتم مراجعة الخدمة من الفريق، وستتلقى إشعارًا عند الموافقة.',
       isFinal: true,
       options: [
         ChatOption(
-          id: 'vendor_service_error',
-          text: '❌ الخدمة ما اتقبلت',
-          nextQuestionId: 'vendor_service_issues',
-          responseText: 'قد تكون هناك مشكلة في:',
+          id: 'vendor_add_confirm',
+          text: 'افتح صفحة الخدمات',
+          nextQuestionId: 'vendor_services_redirect',
+          responseText: 'سأفتح صفحة الخدمات الآن.',
+          route: '/add_paackage'
         ),
         ChatOption(
-          id: 'back_vendor',
+          id: 'back_vendor_add',
           text: '🔙 رجوع',
           nextQuestionId: 'vendor_questions',
-          responseText: 'في شيء آخر؟',
+          responseText: 'هل تحتاج شرحًا إضافيًا؟',
         ),
       ],
     ),
 
-    'vendor_service_issues': ChatQuestion(
-      id: 'vendor_service_issues',
-      text: '''
-❌ لما الخدمة ما تتقبل:
-
-🔍 الأسباب الشائعة:
-
-1. الصور ما واضحة
-   ← استخدم صور عالية الجودة
-
-2. الوصف ناقص أو غير واضح
-   ← اشرح الخدمة كويس جداً
-
-3. السعر ما منطقي
-   ← تحقق من السعر منطقي
-
-4. الفئة غير مناسبة
-   ← اختر الفئة الصح
-
-5. النصوص فيها أخطاء
-   ← تفقد التدقيق الإملائي
-
-📝 الحل:
-عدّل الخدمة وأعدها إرسال
-أو اتصل بالدعم يساعدك
-      ''',
+    'vendor_services_redirect': ChatQuestion(
+      id: 'vendor_services_redirect',
+      text:
+          '⏳ جارٍ التحويل إلى My Services...\n\n📌 تذكّر: وصف الخدمة الجيد والصور الواضحة تزيد من فرص قبول وظهور الخدمة.',
       isFinal: true,
       options: [
         ChatOption(
-          id: 'contact_vendor_support',
-          text: '📞 تواصل مع الدعم',
-          nextQuestionId: 'support_channels',
-          responseText: 'بيانات التواصل:',
-        ),
-        ChatOption(
-          id: 'back_vendor2',
-          text: '🔙 رجوع',
+          id: 'vendor_services_done',
+          text: '✅ فهمت',
           nextQuestionId: 'vendor_questions',
-          responseText: 'تمام',
+          responseText: 'هل تريد مساعدة في تسعير الخدمة؟',
         ),
       ],
     ),
 
     'vendor_orders_guide': ChatQuestion(
       id: 'vendor_orders_guide',
-      text: '''
-📦 إدارة الطلبات:
-
-فين الطلبات؟
-"ملفي الشخصي" ← "الطلبات"
-
-🔔 أنواع الطلبات:
-
-📋 قيد الانتظار:
-• العميل اختار خدمتك
-• بانتظار تأكيدك
-
-✅ مؤكدة:
-• أنت وافقت والعميل وافق
-• جاهزة للتنفيذ
-
-⏸️ معلقة:
-• تحتاج إجراء أو توضيح
-
-❌ ملغاة:
-• تم إلغاء الطلب
-
-💡 تفاصيل الطلب:
-• اسم العميل ورقمه
-• تاريخ الحدث
-• المبلغ والدفع
-• الملاحظات الخاصة
-
-⚠️ مهم:
-• رد على الطلبات بسرعة (أول 24 ساعة)
-• لو ما رديت = قد تلغى تلقائياً
-• اتواصل مع العميل عبر التطبيق بس
-      ''',
+      text:
+          '📦 إدارة الطلبات:\n\n1️⃣ اذهب إلى Profile → Requests.\n2️⃣ اطلع على التفاصيل (اسم المنظّم – تاريخ الحدث – متطلبات الخدمة).\n3️⃣ اختر Accept أو Reject. عند القبول يُرسل إشعار للمنظّم، وعند الرفض يُرفق سبب.\n\n⚠️ نصيحة: حاول الرد خلال 24 ساعة لتجنب الإلغاء التلقائي.',
       isFinal: true,
       options: [
         ChatOption(
-          id: 'back_vendor3',
+          id: 'vendor_orders_open',
+          text: 'افتح صفحة الطلبات',
+          nextQuestionId: 'vendor_orders_redirect',
+          responseText: 'أفتح صفحة الطلبات الآن.',
+          route: '/vendor_requests'
+        ),
+        ChatOption(
+          id: 'back_vendor_orders',
           text: '🔙 رجوع',
           nextQuestionId: 'vendor_questions',
-          responseText: 'تمام',
+          responseText: 'تمام.',
+        ),
+      ],
+    ),
+
+    'vendor_orders_redirect': ChatQuestion(
+      id: 'vendor_orders_redirect',
+      text:
+          '⏳ جارٍ التحويل إلى Requests...\n\n📍 عند قبول الطلب ستستلم تفاصيل التواصل مع المنظّم داخل التطبيق.',
+      isFinal: true,
+      options: [
+        ChatOption(
+          id: 'vendor_orders_done',
+          text: '✅ تم',
+          nextQuestionId: 'vendor_questions',
+          responseText: 'هل تود معرفة المزيد عن إدارة الطلب؟',
         ),
       ],
     ),
 
     'vendor_earnings_guide': ChatQuestion(
       id: 'vendor_earnings_guide',
-      text: '''
-💰 معلومات الأرباح والسحب:
-
-فين الأرباح؟
-"ملفي الشخصي" ← "الأرباح"
-
-📊 الأرقام:
-
-💵 الرصيد المعلق:
-• من طلبات جديدة (قيد الانتظار)
-• سيتحول رصيد متاح بعد التأكيد
-
-💳 الرصيد المتاح:
-• الأموال اللي تقدر تسحب الآن
-
-📈 الإجمالي:
-• كل الأرباح من البداية
-
-🔄 كيفية السحب:
-
-1️⃣ اضغط "طلب سحب"
-
-2️⃣ أدخل المبلغ:
-   • الحد الأدنى: 100-500 ريال (يختلف)
-   • الحد الأقصى: رصيدك كامل
-
-3️⃣ اختر الحساب البنكي
-   (لازم تسجل حسابك الأول)
-
-4️⃣ أكمل العملية
-
-✅ النتيجة:
-• التحويل يأخذ 2-3 أيام عمل
-• ستلقى رسالة تأكيد
-• الفلوس تطلع في حسابك مباشرة
-
-⚠️ ملاحظات:
-• في عمولة 10% من التطبيق
-• ما تخصم مباشرة (من الرصيد)
-• مش في رسوم تحويل بنكي (من عندنا)
-      ''',
+      text:
+          '💰 الأرباح والسحب:\n\n• تظهر الأرباح في Profile → Finances.\n• الرصيد المعلق يتحوّل إلى رصيد متاح بعد تأكيد الحدث.\n• للسحب: اختر Withdraw، حدّد المبلغ، ثم طريقة التحويل المسجلة.\n\n⏳ مدة التحويل عادة 2–3 أيام عمل بعد تنفيذ السحب.\n⚠️ تذكّر أن هنالك عمولة منصة تُطبّق كما هو موضح في الشروط.',
       isFinal: true,
       options: [
         ChatOption(
-          id: 'withdrawal_issue',
-          text: '❌ في مشكلة في السحب',
-          nextQuestionId: 'withdrawal_problems',
-          responseText: 'شنو المشكلة؟',
+          id: 'vendor_withdraw_open',
+          text: 'افتح صفحة الأرباح',
+          nextQuestionId: 'vendor_finances_redirect',
+          responseText: 'سأفتح صفحة الأرباح الآن.',
+          route: '/vendor_financial'
         ),
         ChatOption(
-          id: 'back_vendor4',
+          id: 'back_vendor_earnings',
           text: '🔙 رجوع',
           nextQuestionId: 'vendor_questions',
-          responseText: 'تمام',
+          responseText: 'هل تحتاج مزيد توضيح؟',
         ),
       ],
     ),
 
-    'withdrawal_problems': ChatQuestion(
-      id: 'withdrawal_problems',
-      text: '''
-🔧 حل مشاكل السحب:
-
-❌ الرصيد قليل:
-✅ الحد الأدنى للسحب حوالي 500 ريال
-   حاول تجمع أكثر
-
-❌ البنك ما اشتغل:
-✅ تأكد من بيانات الحساب صحيحة
-✅ البطاقة ما تكون معطلة
-✅ حاول حساب بنك آخر
-
-❌ التحويل اتأخر:
-✅ الحد الأقصى 3-5 أيام عمل
-✅ البنك قد ياخذ وقت إضافي
-✅ شوف الإيميل (قد فيه تنبيهات)
-
-❌ حسابك البنكي مو مسجل:
-✅ ادخل "الإعدادات" → "الحسابات البنكية"
-✅ أضيف حسابك الصح
-✅ تأكد من الـ IBAN صحيح
-
-📞 لو ما اشتغل:
-اتصل بالدعم مع:
-• رقم الطلب
-• الحساب البنكي
-• المبلغ
-      ''',
+    'vendor_finances_redirect': ChatQuestion(
+      id: 'vendor_finances_redirect',
+      text:
+          '⏳ جارٍ التحويل إلى Finances...\n\n📌 تأكد من تسجيل الحساب البنكي (IBAN) بشكل صحيح لتسريع عملية السحب.',
       isFinal: true,
       options: [
         ChatOption(
-          id: 'contact_withdrawal_support',
-          text: '📞 تواصل مع الدعم',
-          nextQuestionId: 'support_channels',
-          responseText: 'بيانات التواصل:',
-        ),
-        ChatOption(
-          id: 'back_vendor5',
-          text: '🔙 رجوع',
+          id: 'vendor_finances_done',
+          text: '✅ فهمت',
           nextQuestionId: 'vendor_questions',
-          responseText: 'تمام',
+          responseText: 'هل أساعدك في شيء آخر؟',
         ),
       ],
     ),
 
     'vendor_faq': ChatQuestion(
       id: 'vendor_faq',
-      text: '''
-❓ أسئلة مهمة للبائعين:
-
-Q: كم عمولة المنصة؟
-A: 10% من كل طلب
-
-Q: متى أتقاضى المبلغ؟
-A: بعد تأكيد الحدث (يمكن قبل يوم منه)
-
-Q: التطبيق يأخذ رسوم دخول؟
-A: لا! بس العمولة على الطلبات
-
-Q: التقييمات مهمة؟
-A: جداً! تقييم تحت 3.5 قد يعطل خدمتك
-
-Q: ما أكمل الطلب في الوقت، شنو؟
-A: احتفظ بالمبلغ = غرامة 20%
-
-Q: أقدر أرفع أسعار بعد الموافقة؟
-A: لا، الأسعار ثابتة
-
-Q: الصور والفيديو ضروري؟
-A: نعم جداً! من أهم الحاجات
-
-Q: كم خدمة أضيف؟
-A: بدون حد أقصى (كم خدمة تبغي)
-
-Q: ما عندي Portfolio (أعمال سابقة)؟
-A: ابدأ بصور من أعمالك الحالية
-واجمع من كل حدث
-      ''',
+      text:
+          '❓ أسئلة شائعة للبائعين:\n\nQ: كم عمولة المنصة؟\nA: العمولة موضّحة في شروط الاستخدام (تختلف حسب السياسة الحالية).\n\nQ: كم وقت الرد على الطلب؟\nA: يُنصح بالرد خلال 24 ساعة.\n\nQ: هل يمكن تعديل سعر الخدمة بعد الموافقة؟\nA: لا يفضّل تعديل السعر بعد قبول الطلب دون تنسيق مع المنظّم.\n\nQ: ما المعايير لقبول الخدمة؟\nA: الصور الواضحة، وصف دقيق، وسعر منطقي يساهمون في القبول والظهور.',
       isFinal: true,
       options: [
         ChatOption(
-          id: 'more_vendor_faq',
-          text: '❓ أسئلة أكثر',
+          id: 'vendor_faq_more',
+          text: 'الأسئلة الأكثر',
           nextQuestionId: 'vendor_faq_more',
-          responseText: 'أسئلة إضافية:',
+          responseText: 'إليك مزيد من الأسئلة الشائعة.',
         ),
         ChatOption(
-          id: 'back_vendor6',
+          id: 'back_vendor_faq',
           text: '🔙 رجوع',
           nextQuestionId: 'vendor_questions',
-          responseText: 'تمام',
+          responseText: 'تمام.',
         ),
       ],
     ),
 
     'vendor_faq_more': ChatQuestion(
       id: 'vendor_faq_more',
-      text: '''
-❓ أسئلة إضافية:
-
-Q: مين يتواصل مع الحدث - أنا أو العميل؟
-A: أنت بتتواصل مع العميل عبر التطبيق
-   لا تعطي رقمك المباشر
-
-Q: الطلب ملغى، أسترجع الفلوس؟
-A: في شروط للاسترجاع (تحدد حسب الحالة)
-
-Q: أقدر أرفع خدمة مزدوجة؟
-A: نعم! تحت فئة مختلفة
-
-Q: الوصف قصير كفاية أم أشرح أكثر؟
-A: شرح تفصيلي أفضل! كلما وضحت، كلما بعتك طلبات
-
-Q: في وقت معين أستقبل طلبات أكثر؟
-A: نعم، يوم الجمعة والسبت والعطل
-
-Q: كم وقت التذكرة تظل بدون رد؟
-A: أول 24 ساعة أساسي
-(بعدين قد تلغى)
-
-Q: أقدر أعطل خدمة مؤقتاً؟
-A: نعم، في خيار "إيقاف مؤقت"
-      ''',
+      text:
+          '❓ أسئلة إضافية:\n\n• تواصل مع العميل يجب أن يتم عبر منصة PlanZ حفاظًا على الخصوصية.\n• يمكن تعطيل الخدمة مؤقتًا عبر خيار “Pause”.\n• تجنّب مشاركة معلومات دفع شخصية خارج النظام.',
       isFinal: true,
       options: [
         ChatOption(
-          id: 'back_vendor7',
+          id: 'back_vendor_faq_more',
           text: '🔙 رجوع',
           nextQuestionId: 'vendor_questions',
-          responseText: 'تمام',
+          responseText: 'تمام.',
         ),
       ],
     ),
 
-    // ============================================
-    // مسار المنظم (Organizer)
-    // ============================================
     'organizer_questions': ChatQuestion(
       id: 'organizer_questions',
-      text: 'اختر من فضلك:',
+      text:
+          '📅 بصفتك منظّم فعالية، يمكنك إنشاء الأحداث، إدارة الدعوات، ربط Vendors، وإرسال الإشعارات للحضور.\nكيف أستطيع مساعدتك؟',
       options: [
         ChatOption(
           id: 'organizer_how_to_create',
-          text: '🆕 كيف أنشئ حدث جديد؟',
+          text: '🆕 كيفية إنشاء فعالية جديدة؟',
           nextQuestionId: 'organizer_create_guide',
-          responseText: 'تمام! سأساعدك تنشئ حدثك:',
+          responseText: 'أرشدك لخطوات إنشاء الفعالية.',
         ),
         ChatOption(
           id: 'organizer_manage',
-          text: '📊 إدارة الحدث (بعد الإنشاء)',
+          text: '📊 إدارة الفعالية بعد الإنشاء',
           nextQuestionId: 'organizer_manage_guide',
-          responseText: 'معلومات الإدارة:',
+          responseText: 'أعرض لك أدوات الإدارة المتاحة.',
         ),
         ChatOption(
           id: 'organizer_payment',
-          text: '💳 الدفع والباقات',
+          text: '💳 إعدادات الإيرادات والسحب',
           nextQuestionId: 'organizer_payment_guide',
-          responseText: 'معلومات الدفع:',
+          responseText: 'معلومات حول الإيرادات وطلبات السحب.',
         ),
         ChatOption(
           id: 'organizer_support',
           text: '❓ أسئلة وسياسات',
           nextQuestionId: 'organizer_faq',
-          responseText: 'الأسئلة الشائعة:',
+          responseText: 'إجابات على الأسئلة الشائعة للمنظّمين.',
+        ),
+        ChatOption(
+          id: 'back_to_start_organizer',
+          text: '🔙 العودة للرئيسية',
+          nextQuestionId: 'start',
+          responseText: 'تم الرجوع للرئيسية.',
         ),
       ],
     ),
 
     'organizer_create_guide': ChatQuestion(
       id: 'organizer_create_guide',
-      text: '''
-🆕 خطوات إنشاء حدث:
-
-📱 من أين أبدأ؟
-"ملفي الشخصي" ← "أحداثي" ← "حدث جديد"
-
-📝 البيانات الأساسية:
-
-1️⃣ المعلومات الأولية:
-   • اسم الحدث
-   • نوع الحدث (زفاف، عيد ميلاد، إلخ)
-   • الوصف
-   • صورة رئيسية
-
-2️⃣ التاريخ والموقع:
-   • التاريخ والوقت
-   • المكان والعنوان
-   • اختياري: الخريطة
-
-3️⃣ الضيوف:
-   • العدد المتوقع
-   • نوع التسجيل (مفتوح أم مغلق)
-
-4️⃣ الخدمات:
-   • اختر الخدمات (تصوير، طعام، موسيقى، إلخ)
-   • لا تقلق، تقدر تغيّر بعدين
-
-5️⃣ النشر:
-   • انشر الحدث
-   • هيطلع في قائمة الأحداث
-
-✅ الحمد لله!
-حدثك جاهز للتسجيل
-      ''',
+      text:
+          '🆕 خطوات إنشاء فعالية:\n\n1️⃣ اذهب إلى Dashboard → My Events → Create Event.\n2️⃣ أدخل المعلومات الأساسية: الاسم – الوصف – التاريخ – الوقت – المكان.\n3️⃣ حدّد إعدادات الحضور: دعوات خاصة أو تسجيل عام (تحديد ما إذا كانت الدعوة مطلوبة).\n4️⃣ أضف Vendors إن رغبت وارفق صورة بانر.\n5️⃣ اضغط Publish أو Save كمسوّدة.\n\n✅ بعد إنشاء الحدث يمكنك إرسال دعوات مباشرة للمشاركين وإدارة استجاباتهم.',
       isFinal: true,
       options: [
         ChatOption(
           id: 'organizer_create_start',
           text: '🚀 ابدأ الآن',
           nextQuestionId: 'create_redirect_organizer',
-          responseText: 'سأحولك لصفحة الإنشاء...',
+          responseText: 'سأحوّلك لصفحة إنشاء الحدث.',
+          route: '/create_event'
+
         ),
         ChatOption(
-          id: 'back_organizer',
+          id: 'back_organizer_create',
           text: '🔙 رجوع',
           nextQuestionId: 'organizer_questions',
-          responseText: 'تمام',
+          responseText: 'هل تحتاج مساعدة إضافية؟',
         ),
       ],
     ),
 
     'create_redirect_organizer': ChatQuestion(
       id: 'create_redirect_organizer',
-      text: 'جاري التحويل لصفحة إنشاء الحدث...\n\n💡 نصيحة: بعد الإنشاء روح "أحداثي" لتشوف الحدث وتديره',
+      text:
+          '⏳ جاري التحويل إلى صفحة إنشاء الحدث...\n\n💡 تذكير: إن اخترت وضع الدعوات كخاصة (invitation-only) فسيتلقى الحضور دعوات مباشرة عبر التطبيق.',
       isFinal: true,
       options: [
         ChatOption(
           id: 'continue_org',
           text: '✅ فهمت',
           nextQuestionId: 'organizer_questions',
-          responseText: 'تمام!',
+          responseText: 'هل ترغب رابط لخطوات مفصّلة؟',
         ),
       ],
     ),
 
     'organizer_manage_guide': ChatQuestion(
       id: 'organizer_manage_guide',
-      text: '''
-📊 إدارة الحدث:
-
-فين إدارة الحدث؟
-"ملفي الشخصي" ← "أحداثي" ← اختر الحدث
-
-🔧 ماذا تقدر تعمل؟
-
-1️⃣ تعديل البيانات:
-   اضغط "تعديل" وغيّر:
-   • الاسم والوصف
-   • التاريخ والموقع
-   • الصور والتفاصيل
-
-2️⃣ مراقبة التسجيلات:
-   "قائمة الحضور" = عدد من سجلوا
-
-3️⃣ إدارة الخدمات:
-   إضيف خدمات جديدة
-   أو عدّل الموجودة
-
-4️⃣ التواصل مع الحضور:
-   "إرسال رسالة" لكل الحضور
-   أو لواحد معين
-
-5️⃣ الإحصائيات:
-   تشوف كم واحد سجل
-   والإيرادات من الحدث
-
-⚠️ نقاط مهمة:
-• تعديلات مهمة؟ بلّغ الحضور فوراً
-• لا تلغي الحدث بدون سبب وجيه
-• كل الأموال ترجع للحضور إذا ألغيت
-      ''',
+      text:
+          '📊 إدارة الفعالية:\n\n• من Dashboard → My Events اختر الفعالية.\n• يمكنك تعديل البيانات الأساسية أو تحديث المكان أو الوقت.\n• إدارة الدعوات: عرض المستجيبين وإرسال تذكيرات.\n• إدارة Vendors: مراجعة الطلبات والموافقات.\n\n⚠️ ملاحظة: عند تعديل بيانات مهمة (مثل التاريخ أو المكان) سيُرسل إشعار تلقائيًا إلى المدعوين.',
       isFinal: true,
       options: [
         ChatOption(
-          id: 'back_organizer2',
+          id: 'back_organizer_manage',
           text: '🔙 رجوع',
           nextQuestionId: 'organizer_questions',
-          responseText: 'تمام',
+          responseText: 'هل تود فتح صفحة إدارة الفعالية الآن؟',
         ),
       ],
     ),
 
     'organizer_payment_guide': ChatQuestion(
       id: 'organizer_payment_guide',
-      text: '''
-💳 معلومات الدفع والباقات:
-
-💰 الأموال من الحدث:
-
-أين تروح الفلوس؟
-✅ في حسابك (الرصيد) مباشرة
-
-📊 الإيرادات:
-• سعر التسجيل × عدد الحاضرين
-• ناقص عمولة منصة 10%
-
-💡 مثال:
-150 حاضر × 100 ريال = 15,000
-ناقص 10% = 13,500 (الصافي ليك)
-
-💳 السحب:
-"الأرباح" ← "طلب سحب"
-(نفس طريقة البائعين)
-
-⚠️ ملاحظات:
-• الفلوس متاحة بعد الحدث
-• لا تستطيع سحب قبل انتهاء الحدث
-• العمولة 10% من المنصة
-
-💡 نصيحة:
-لو في تخفيفات أو عروض خاصة؟
-الفلوس تنخفض بالتالي
-احسب الميزانية بحذر!
-      ''',
+      text:
+          '💳 الإيرادات والسحب:\n\n• الإيرادات تظهر في Dashboard → Finances.\n• الإيراد الصافي = إجمالي المبيعات ناقص عمولة المنصة.\n• للسحب: استخدم خيار Withdraw وحدد الحساب البنكي المسجّل.\n\n⏳ عادةً تستغرق عمليات السحب بضعة أيام عمل حسب البنك وسياسة المنصة.',
       isFinal: true,
       options: [
         ChatOption(
-          id: 'back_organizer3',
+          id: 'back_organizer_payment',
           text: '🔙 رجوع',
           nextQuestionId: 'organizer_questions',
-          responseText: 'تمام',
+          responseText: 'هل تحتاج شرحًا لخطوات السحب؟',
         ),
       ],
     ),
 
     'organizer_faq': ChatQuestion(
       id: 'organizer_faq',
-      text: '''
-❓ أسئلة مهمة للمنظمين:
-
-Q: هل في رسوم لإنشاء حدث؟
-A: لا! الحدث مجاني تماماً
-   العمولة بتكون من التسجيلات فقط
-
-Q: متى أستقبل الأموال؟
-A: بعد الحدث مباشرة
-   لما يتأكد الحضور
-
-Q: أقدر أغيّر السعر بعد النشر؟
-A: نعم! لكن حذر:
-   الحاضرين الحاليين سيكملون بالسعر القديم
-
-Q: كم وقت للموافقة على الحدث؟
-A: الحدث ينشر فوراً
-   (مافيش مراجعة)
-
-Q: أقدر أحذف الحدث؟
-A: نعم، لكن:
-   لو في حاضرين = فلوسهم ترجع لهم
-   وهيبلغوا بالإلغاء
-
-Q: في خيار نسخ الحدث؟
-A: نعم، لإعادة حدث مشابه
-   توفر وقتك
-
-Q: كيفية الدعاية والترويج؟
-A: شارك الحدث على:
-   • فيسبوك وتويتر
-   • تطبيقات التواصل
-   • الجروبات والقنوات
-      ''',
+      text:
+          '❓ أسئلة للمنظّمين:\n\nQ: هل يمكن جعل الحدث خاصًا (دعوات فقط)؟\nA: نعم، يمكنك اختيار invitation-only عند الإنشاء.\n\nQ: هل يتلقى الحضور إشعارًا عند تعديل الحدث؟\nA: نعم، يتم إرسال إشعار تلقائيًا عند تغيير معلومات هامة.\n\nQ: كيف أضيف Vendor للفعالية؟\nA: من صفحة الفعالية اختر Vendors ثم أرسل عرض التعاون أو الموافقة على الطلبات الواردة.',
       isFinal: true,
       options: [
         ChatOption(
           id: 'more_organizer_faq',
-          text: '❓ أسئلة أكثر',
+          text: 'المزيد من الأسئلة',
           nextQuestionId: 'organizer_faq_more',
-          responseText: 'أسئلة إضافية:',
+          responseText: 'إليك مزيد من الأسئلة الشائعة.',
         ),
         ChatOption(
-          id: 'back_organizer4',
+          id: 'back_organizer_faq',
           text: '🔙 رجوع',
           nextQuestionId: 'organizer_questions',
-          responseText: 'تمام',
+          responseText: 'تم الرجوع.',
         ),
       ],
     ),
 
     'organizer_faq_more': ChatQuestion(
       id: 'organizer_faq_more',
-      text: '''
-❓ أسئلة إضافية:
-
-Q: أقدر أختار الخدمات بعد الإنشاء؟
-A: نعم بالطبع! في وقت أي
-
-Q: الحدث ما بينشر ليه؟
-A: قد يكون:
-   • بيانات ناقصة
-   • صورة ما واضحة
-   • وصف بـ أخطاء
-
-   حاول مجدداً أو تواصل الدعم
-
-Q: أقدر أخفي الحدث من الناس؟
-A: نعم، في خيار "إيقاف مؤقت"
-   الحدث لن يظهر في البحث
-
-Q: في حد سجل بالخطأ، أقدر أحذفه؟
-A: نعم، في "قائمة الحضور"
-   لكن فلوسه ترجع لـ
-
-Q: تقييمات الحدث مهمة؟
-A: جداً! من 5 نجوم
-   الحضور يقيّمون بعد الحدث
-
-Q: أقدر أضيف متحدثين أو برنامج؟
-A: نعم! في قسم "تفاصيل الحدث"
-      ''',
+      text:
+          '❓ أسئلة إضافية:\n\n• عند إلغاء فعالية لديها مدعوين سيتم إعلامهم وسيتم تطبيق سياسات الاسترجاع وفقًا لشروط الحدث.\n• يمكنك نسخ حدث موجود لإعادة استخدام الإعدادات.\n• تأكد من تحديث معلومات الدفع والحساب البنكي قبل طلب السحب.',
       isFinal: true,
       options: [
         ChatOption(
-          id: 'back_organizer5',
+          id: 'back_organizer_faq_more',
           text: '🔙 رجوع',
           nextQuestionId: 'organizer_questions',
-          responseText: 'تمام',
+          responseText: 'هل أساعدك في شيء آخر؟',
         ),
       ],
     ),
 
-    // ============================================
-    // قنوات التواصل
-    // ============================================
     'support_channels': ChatQuestion(
       id: 'support_channels',
-      text: '''
-📞 طرق التواصل مع الدعم:
-
-☎️ الهاتف:
-📱 +966-XX-XXXX-XXXX
-(من 9 ص لـ 10 م يومياً)
-
-📧 البريد:
-support@planz.com
-(رد خلال 24 ساعة)
-
-💬 واتساب:
-+966-5X-XXXX-XXXX
-(رد فوري من 9 ص لـ 11 م)
-
-📱 التطبيق مباشرة:
-"الإعدادات" ← "الدعم"
-(فيه خيار للدردشة المباشرة)
-
-🕐 ساعات العمل:
-السبت - الخميس: 9 ص - 10 م
-الجمعة: 4 م - 10 م
-
-💡 قبل التواصل جهز:
-• وصف المشكلة بالتفصيل
-• رقم الطلب أو الحدث
-• رقمك أو بريدك
-
-⚠️ ملاحظة:
-بالتطبيق أسرع الحل!
-      ''',
+      text:
+          '📞 قنوات التواصل مع الدعم:\n\n📧 البريد الإلكتروني: support@planz.com (الرد خلال 24 ساعة)\n☎️ الهاتف: +966-XX-XXXX-XXXX (ساعات العمل مذكورة في التطبيق)\n💬 الدردشة داخل التطبيق: Dashboard → الدعم\n\n💡 قبل التواصل جهز: وصف المشكلة، اسم المستخدم، ورقم الحدث إن وُجد.',
       isFinal: true,
       options: [
         ChatOption(
           id: 'return_home',
           text: '🏠 العودة للرئيسية',
           nextQuestionId: 'start',
-          responseText: 'تمام! في شيء آخر؟',
+          responseText: 'تم الرجوع إلى القائمة الرئيسية.',
+          route: '/chat_bot'
+        ),
+      ],
+    ),
+
+    'app_owner_questions': ChatQuestion(
+      id: 'app_owner_questions',
+      text:
+          '🔑 بصفتك App Owner، لديك صلاحيات لإدارة المستخدمين، مراجعة الإحصائيات، وإرسال إشعارات عامة.\nما الذي تريد تنفيذه الآن؟',
+      options: [
+        ChatOption(
+          id: 'manage_users',
+          text: '👥 إدارة المستخدمين',
+          nextQuestionId: 'manage_users',
+          responseText: 'أدلك على شاشة إدارة المستخدمين.',
+        ),
+        ChatOption(
+          id: 'analytics',
+          text: '📊 الإحصائيات والتقارير',
+          nextQuestionId: 'analytics',
+          responseText: 'أعرض لك طرق الوصول للتقارير.',
+        ),
+        ChatOption(
+          id: 'send_notifications',
+          text: '🔔 إرسال إشعارات عامة',
+          nextQuestionId: 'send_notifications',
+          responseText: 'أرشدك لصفحة إرسال الإشعارات.',
+        ),
+        ChatOption(
+          id: 'back_app_owner',
+          text: '🔙 الرجوع للرئيسية',
+          nextQuestionId: 'start',
+          responseText: 'تم الرجوع.',
+          route: '/chat_bot'
+        ),
+      ],
+    ),
+
+    'manage_users': ChatQuestion(
+      id: 'manage_users',
+      text:
+          '👥 إدارة المستخدمين:\n\nمن Dashboard → Users يمكنك البحث عن حسابات المستخدمين، تعديل الأدوار، وتعطيل أو حذف حسابات وفقًا للسياسات.\nهل ترغب فتح صفحة المستخدمين الآن؟',
+      isFinal: true,
+      options: [
+        ChatOption(
+          id: 'open_users',
+          text: 'افتح صفحة Users',
+          nextQuestionId: 'users_redirect',
+          responseText: 'سأفتح صفحة المستخدمين الآن.',
+          // route: '/users_screen'
+        ),
+        ChatOption(
+          id: 'back_manage_users',
+          text: '🔙 رجوع',
+          nextQuestionId: 'app_owner_questions',
+          responseText: 'هل تحتاج أي إجراء إضافي؟',
+        ),
+      ],
+    ),
+
+    'users_redirect': ChatQuestion(
+      id: 'users_redirect',
+      text:
+          '⏳ جارٍ التحويل إلى Users...\n\n📍 تأكد من صلاحياتك قبل إجراء تغييرات على الحسابات الحساسة.',
+      isFinal: true,
+      options: [
+        ChatOption(
+          id: 'users_done',
+          text: '✅ تم',
+          nextQuestionId: 'app_owner_questions',
+          responseText: 'هل تود خطوات لإجراء تعديل محدد؟',
+        ),
+      ],
+    ),
+
+    'analytics': ChatQuestion(
+      id: 'analytics',
+      text:
+          '📊 الوصول للتقارير:\n\nمن Dashboard → Analytics يمكنك مشاهدة إحصائيات عن الفعاليات، أعداد الدعوات، أداء Vendors، وإيرادات المنصة. كما يمكنك تصدير تقارير حسب الفترة الزمنية.',
+      isFinal: true,
+      options: [
+        ChatOption(
+          id: 'open_analytics',
+          text: 'افتح Analytics',
+          nextQuestionId: 'analytics_redirect',
+          responseText: 'جارٍ فتح لوحة الإحصائيات.',
+          route: '/owner_overview'
+        ),
+        ChatOption(
+          id: 'back_analytics',
+          text: '🔙 رجوع',
+          nextQuestionId: 'app_owner_questions',
+          responseText: 'هل ترغب تقريرًا محددًا؟',
+        ),
+      ],
+    ),
+
+    'analytics_redirect': ChatQuestion(
+      id: 'analytics_redirect',
+      text:
+          '⏳ جارٍ التحويل إلى Analytics...\n\n📍 استخدم الفلاتر لعرض البيانات حسب التاريخ أو الفعالية أو الدور.',
+      isFinal: true,
+      options: [
+        ChatOption(
+          id: 'analytics_done',
+          text: '✅ فهمت',
+          nextQuestionId: 'app_owner_questions',
+          responseText: 'هل أساعدك بتقرير جاهز؟',
+        ),
+      ],
+    ),
+
+    'send_notifications': ChatQuestion(
+      id: 'send_notifications',
+      text:
+          '🔔 إرسال إشعارات:\n\nمن Dashboard → Notifications يمكنك إرسال إشعار عام أو مخصص لفئة محددة من المستخدمين (Organizers, Vendors, Attendees).\nاختر الفئة، اكتب النص، ثم اضغط Send.',
+      isFinal: true,
+      options: [
+        ChatOption(
+          id: 'open_notifications_app_owner',
+          text: 'افتح Notifications',
+          nextQuestionId: 'notifications_redirect_app_owner',
+          responseText: 'سأفتح لوحة الإشعارات الآن.',
+          // route: '/notifications'
+        ),
+        ChatOption(
+          id: 'back_send_notifications',
+          text: '🔙 رجوع',
+          nextQuestionId: 'app_owner_questions',
+          responseText: 'هل تريد مساعدة في صيغة الإشعار؟',
+        ),
+      ],
+    ),
+
+    'notifications_redirect_app_owner': ChatQuestion(
+      id: 'notifications_redirect_app_owner',
+      text:
+          '⏳ جارٍ التحويل إلى Notifications...\n\n📌 تذكير: عند إرسال إشعار إلى Attendees سيصل كتنبيه داخل التطبيق وفقًا لإعدادات الإشعارات لديهم.',
+      isFinal: true,
+      options: [
+        ChatOption(
+          id: 'notifications_app_owner_done',
+          text: '✅ تم',
+          nextQuestionId: 'app_owner_questions',
+          responseText: 'هل ترغب إرسال إشعار تجريبي الآن؟',
         ),
       ],
     ),
   };
 
-  /// الحصول على السؤال
   static ChatQuestion? getQuestion(String questionId) {
     return questions[questionId];
   }
 
-  /// بدء الدردشة
   static ChatQuestion getStartQuestion() {
     return questions['start']!;
   }

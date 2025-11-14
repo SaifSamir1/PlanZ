@@ -1,6 +1,3 @@
-
-
-
 // lib/widgets/options_buttons.dart
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
@@ -27,13 +24,15 @@ class OptionsButtons extends StatelessWidget {
           ...options.asMap().entries.map((entry) {
             final index = entry.key;
             final option = entry.value;
-            
+
             return FadeInUp(
               duration: Duration(milliseconds: 300 + (index * 100)),
               delay: Duration(milliseconds: index * 50),
               child: Container(
-                margin: EdgeInsets.only(bottom: index < options.length - 1 ? 8 : 0),
-                child: _buildOptionButton(option),
+                margin: EdgeInsets.only(
+                  bottom: index < options.length - 1 ? 8 : 0,
+                ),
+                child: _buildOptionButton(option,context),
               ),
             );
           }).toList(),
@@ -42,35 +41,39 @@ class OptionsButtons extends StatelessWidget {
     );
   }
 
-  Widget _buildOptionButton(ChatOption option) {
-    final isBackButton = option.text.contains('🔙') || option.text.contains('العودة');
-    final isMainAction = option.text.contains('✅') || option.text.contains('📞');
-    
+  Widget _buildOptionButton(ChatOption option,BuildContext context) {
+    final isBackButton =
+        option.text.contains('🔙') || option.text.contains('العودة');
+    final isMainAction =
+        option.text.contains('✅') || option.text.contains('📞');
+
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        onTap: () => onOptionSelected(option),
+        onTap: () {
+          onOptionSelected(option);
+          if (option.route != null && option.route!.isNotEmpty) {
+    Navigator.pushNamed(context, option.route!);
+  }
+        },
         borderRadius: BorderRadius.circular(12),
-        splashColor: isBackButton 
-            ? AppColors.blue100 
-            : isMainAction 
-                ? AppColors.gold200 
-                : AppColors.blue100,
-        highlightColor: isBackButton 
-            ? AppColors.blue50 
-            : isMainAction 
-                ? AppColors.gold100 
-                : AppColors.blue50,
+        splashColor: isBackButton
+            ? AppColors.blue100
+            : isMainAction
+            ? AppColors.gold200
+            : AppColors.blue100,
+        highlightColor: isBackButton
+            ? AppColors.blue50
+            : isMainAction
+            ? AppColors.gold100
+            : AppColors.blue50,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
           decoration: BoxDecoration(
             color: _getButtonColor(option),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: _getBorderColor(option),
-              width: 1.5,
-            ),
+            border: Border.all(color: _getBorderColor(option), width: 1.5),
             boxShadow: [
               BoxShadow(
                 color: _getShadowColor(option),

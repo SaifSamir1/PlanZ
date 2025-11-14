@@ -56,10 +56,22 @@ dependencies:
   url_launcher: ^6.3.2
   shimmer: ^3.0.0
   firebase_messaging: ^16.0.3
+  flutter_local_notifications: ^19.5.0
+  timezone: ^0.10.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+
+  flutter_launcher_icons: ^0.13.1
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/icons/planz_logo.png"
+  adaptive_icon_foreground: "assets/icons/app_logo.jpg"
+  adaptive_icon_background: "#091540" 
+
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
