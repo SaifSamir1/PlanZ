@@ -2,8 +2,10 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
+import 'package:flutter/foundation.dart';
 import 'package:plan_z/core/constants/constants.dart';
 import 'package:plan_z/core/error/failures.dart';
+import 'package:plan_z/core/services/notification_service.dart';
 import 'package:plan_z/features/app_owner/data/model/financial_overview_model.dart';
 import 'package:plan_z/features/app_owner/data/repo/app_owner_repository.dart';
 import 'package:plan_z/features/vendor_features/packages_mangment/data/models/package_model.dart';
@@ -18,7 +20,7 @@ class AppOwnerRepositoryImpl implements AppOwnerRepository {
   static const APP_PROFIT_RATE = 0.20; // 20% للتطبيق
 
   AppOwnerRepositoryImpl({FirebaseFirestore? firestore})
-      : _firestore = firestore ?? FirebaseFirestore.instance;
+    : _firestore = firestore ?? FirebaseFirestore.instance;
 
   // ===== Package Approval =====
 
@@ -31,11 +33,16 @@ class AppOwnerRepositoryImpl implements AppOwnerRepository {
           .get();
 
       // ✅ تصفية يدويا في البرنامج (بدون index)
-      final packages = querySnapshot.docs
-          .map((doc) => PackageModel.fromJson(doc.data()))
-          .where((pkg) => pkg.status == PackageStatus.pending && pkg.isApprovedByOwner != true)
-          .toList()
-        ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      final packages =
+          querySnapshot.docs
+              .map((doc) => PackageModel.fromJson(doc.data()))
+              .where(
+                (pkg) =>
+                    pkg.status == PackageStatus.pending &&
+                    pkg.isApprovedByOwner != true,
+              )
+              .toList()
+            ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
       return Right(packages);
     } on FirebaseException catch (e) {
@@ -51,8 +58,9 @@ class AppOwnerRepositoryImpl implements AppOwnerRepository {
     String? approvalNotes,
   }) async {
     try {
-      final docRef =
-          _firestore.collection(FirebaseCollections.packages).doc(packageId);
+      final docRef = _firestore
+          .collection(FirebaseCollections.packages)
+          .doc(packageId);
 
       final docSnapshot = await docRef.get();
       if (!docSnapshot.exists) {
@@ -73,8 +81,31 @@ class AppOwnerRepositoryImpl implements AppOwnerRepository {
 
       // ✅ Fetch updated package
       final updatedDoc = await docRef.get();
-      final approvedPackage =
-          PackageModel.fromJson(updatedDoc.data() as Map<String, dynamic>);
+      final approvedPackage = PackageModel.fromJson(
+        updatedDoc.data() as Map<String, dynamic>,
+      );
+
+      // ✅ Notify vendor of package approval
+      try {
+        await NotificationService.sendNotification(
+          receiverId: approvedPackage.vendorId,
+          receiverRole: 'vendor',
+          title: '✅ Package Approved!',
+          body:
+              'Your package "${approvedPackage.packageName}" has been approved and is now active',
+          type: 'package_approved',
+          data: {
+            'packageId': approvedPackage.packageId ?? '',
+            'packageName': approvedPackage.packageName,
+            'status': 'active',
+            'approvedAt': now.toIso8601String(),
+            'price': approvedPackage.price.toString(),
+          },
+        );
+        debugPrint('✅ Vendor notified of package approval');
+      } catch (e) {
+        debugPrint('⚠️ Failed to notify vendor: $e');
+      }
 
       return Right(approvedPackage);
     } on FirebaseException catch (e) {
@@ -90,8 +121,9 @@ class AppOwnerRepositoryImpl implements AppOwnerRepository {
     required String rejectionReason,
   }) async {
     try {
-      final docRef =
-          _firestore.collection(FirebaseCollections.packages).doc(packageId);
+      final docRef = _firestore
+          .collection(FirebaseCollections.packages)
+          .doc(packageId);
 
       await docRef.update({
         'isApprovedByOwner': false,
@@ -114,22 +146,25 @@ class AppOwnerRepositoryImpl implements AppOwnerRepository {
 
   @override
   Future<Either<Failure, List<WithdrawalRequestModel>>>
-      getPendingWithdrawals() async {
+  getPendingWithdrawals() async {
     try {
       // ✅ جلب بدون index - تصفية يدويا
-      final querySnapshot =
-          await _firestore.collection(FirebaseCollections.withdrawals).get();
+      final querySnapshot = await _firestore
+          .collection(FirebaseCollections.withdrawals)
+          .get();
 
-      final withdrawals = querySnapshot.docs
-          .map((doc) => WithdrawalRequestModel.fromJson(doc.data()))
-          .where((w) => w.status == WithdrawalStatus.pending)
-          .toList()
-        ..sort((a, b) => b.requestedAt.compareTo(a.requestedAt));
+      final withdrawals =
+          querySnapshot.docs
+              .map((doc) => WithdrawalRequestModel.fromJson(doc.data()))
+              .where((w) => w.status == WithdrawalStatus.pending)
+              .toList()
+            ..sort((a, b) => b.requestedAt.compareTo(a.requestedAt));
 
       return Right(withdrawals);
     } on FirebaseException catch (e) {
       return Left(
-          ServerFailure(e.message ?? 'Failed to get pending withdrawals'));
+        ServerFailure(e.message ?? 'Failed to get pending withdrawals'),
+      );
     } catch (e) {
       return Left(ServerFailure(e.toString()));
     }
@@ -151,8 +186,7 @@ class AppOwnerRepositoryImpl implements AppOwnerRepository {
         return Left(ServerFailure('Withdrawal request not found'));
       }
 
-      final withdrawal =
-          WithdrawalRequestModel.fromJson(docSnapshot.data()!);
+      final withdrawal = WithdrawalRequestModel.fromJson(docSnapshot.data()!);
 
       final now = DateTime.now();
 
@@ -171,11 +205,11 @@ class AppOwnerRepositoryImpl implements AppOwnerRepository {
           .collection(FirebaseCollections.vendors)
           .doc(withdrawal.vendorId)
           .update({
-        'availableBalance': FieldValue.increment(-withdrawal.amount),
-        'pendingWithdrawal': FieldValue.increment(-withdrawal.amount),
-        'totalWithdrawn': FieldValue.increment(withdrawal.amount),
-        'lastWithdrawalCompleted': Timestamp.fromDate(now),
-      });
+            'availableBalance': FieldValue.increment(-withdrawal.amount),
+            'pendingWithdrawal': FieldValue.increment(-withdrawal.amount),
+            'totalWithdrawn': FieldValue.increment(withdrawal.amount),
+            'lastWithdrawalCompleted': Timestamp.fromDate(now),
+          });
 
       // ✅ Create transaction log
       await _firestore.collection(FirebaseCollections.transactions).add({
@@ -189,8 +223,9 @@ class AppOwnerRepositoryImpl implements AppOwnerRepository {
       });
 
       final updatedDoc = await docRef.get();
-      final updatedWithdrawal =
-          WithdrawalRequestModel.fromJson(updatedDoc.data()!);
+      final updatedWithdrawal = WithdrawalRequestModel.fromJson(
+        updatedDoc.data()!,
+      );
 
       return Right(updatedWithdrawal);
     } on FirebaseException catch (e) {
@@ -215,8 +250,7 @@ class AppOwnerRepositoryImpl implements AppOwnerRepository {
         return Left(ServerFailure('Withdrawal request not found'));
       }
 
-      final withdrawal =
-          WithdrawalRequestModel.fromJson(docSnapshot.data()!);
+      final withdrawal = WithdrawalRequestModel.fromJson(docSnapshot.data()!);
 
       final now = DateTime.now();
 
@@ -233,8 +267,8 @@ class AppOwnerRepositoryImpl implements AppOwnerRepository {
           .collection(FirebaseCollections.vendors)
           .doc(withdrawal.vendorId)
           .update({
-        'pendingWithdrawal': FieldValue.increment(-withdrawal.amount),
-      });
+            'pendingWithdrawal': FieldValue.increment(-withdrawal.amount),
+          });
 
       return const Right(null);
     } on FirebaseException catch (e) {
@@ -314,8 +348,9 @@ class AppOwnerRepositoryImpl implements AppOwnerRepository {
       final appProfit = totalRevenue * APP_PROFIT_RATE;
 
       // ✅ جلب الحجب المعلق
-      final pendingSnapshot =
-          await _firestore.collection(FirebaseCollections.withdrawals).get();
+      final pendingSnapshot = await _firestore
+          .collection(FirebaseCollections.withdrawals)
+          .get();
 
       double pendingPayments = 0;
       for (var doc in pendingSnapshot.docs) {
@@ -339,8 +374,9 @@ class AppOwnerRepositoryImpl implements AppOwnerRepository {
 
       return Right(overview);
     } on FirebaseException catch (e) {
-      return Left(ServerFailure(
-          e.message ?? 'Failed to get financial overview'));
+      return Left(
+        ServerFailure(e.message ?? 'Failed to get financial overview'),
+      );
     } catch (e) {
       return Left(ServerFailure(e.toString()));
     }
@@ -363,17 +399,21 @@ class AppOwnerRepositoryImpl implements AppOwnerRepository {
   Future<Map<String, dynamic>> _getDashboardStats() async {
     try {
       // ✅ جلب البيانات بدون composite queries
-      final packagesSnapshot =
-          await _firestore.collection(FirebaseCollections.packages).get();
+      final packagesSnapshot = await _firestore
+          .collection(FirebaseCollections.packages)
+          .get();
 
-      final withdrawalsSnapshot =
-          await _firestore.collection(FirebaseCollections.withdrawals).get();
+      final withdrawalsSnapshot = await _firestore
+          .collection(FirebaseCollections.withdrawals)
+          .get();
 
-      final vendorsSnapshot =
-          await _firestore.collection(FirebaseCollections.vendors).get();
+      final vendorsSnapshot = await _firestore
+          .collection(FirebaseCollections.vendors)
+          .get();
 
-      final requestsSnapshot =
-          await _firestore.collection(FirebaseCollections.packageRequests).get();
+      final requestsSnapshot = await _firestore
+          .collection(FirebaseCollections.packageRequests)
+          .get();
 
       // ✅ تصفية يدويا
       final pendingPackages = packagesSnapshot.docs

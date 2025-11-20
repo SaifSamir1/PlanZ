@@ -3,8 +3,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:plan_z/core/constants/constants.dart';
 import 'package:plan_z/core/error/failures.dart';
+import 'package:plan_z/core/services/notification_service.dart';
 import 'package:plan_z/features/attandee/data/attandee_repo.dart';
 import 'package:plan_z/features/event_owners/create_event_screen/data/models/event_invitation_model.dart';
 import 'package:plan_z/features/event_owners/create_event_screen/data/models/event_model.dart';
@@ -197,6 +199,38 @@ class AttendeeRepositoryImpl implements AttendeeRepository {
         ...updatedDoc.data()!,
         'invitationId': updatedDoc.id,
       });
+
+      // ✅ Send notification to event owner about attendee response
+      try {
+        final invitationData = invitationDoc.data()!;
+        final eventOwnerId = invitationData['eventOwnerId'] as String?;
+        final eventOwnerName = invitationData['eventOwnerName'] as String?;
+        final inviteeName = invitationData['inviteeName'] as String?;
+        final eventName = invitationData['eventName'] as String?;
+
+        if (eventOwnerId != null) {
+          await NotificationService.sendNotification(
+            receiverId: eventOwnerId,
+            receiverRole: 'event_owner',
+            title: status == InvitationStatus.accepted
+                ? '✅ Invitation Accepted'
+                : '❌ Invitation Declined',
+            body:
+                '${inviteeName ?? "Attendee"} ${status == InvitationStatus.accepted ? "accepted" : "declined"} your invitation to ${eventName ?? "event"}',
+            type: 'invitation_response',
+            data: {
+              'invitationId': invitationId,
+              'eventId': invitationData['eventId'] ?? '',
+              'response': status.name,
+              'attendeeName': inviteeName ?? '',
+              'confirmedGuestCount': confirmedGuestCount?.toString() ?? '',
+            },
+          );
+          debugPrint('   ✅ Notification sent to event owner: $eventOwnerName');
+        }
+      } catch (e) {
+        debugPrint('   ⚠️ Failed to send notification to event owner: $e');
+      }
 
       return Right(updatedInvitation);
     } catch (e) {
