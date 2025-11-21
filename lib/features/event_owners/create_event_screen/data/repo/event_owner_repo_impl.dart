@@ -52,25 +52,39 @@ class EventOwnerRepositoryImpl implements EventOwnerRepository {
       double allocatedBudget = 0.0;
       int totalVendorsCount = 0;
 
-      debugPrint('🔍 [createEvent] customRequirements keys: ${customRequirements?.keys.toList()}');
-      debugPrint('🔍 [createEvent] customRequirements is null: ${customRequirements == null}');
-      debugPrint('🔍 [createEvent] selectedPackagesData exists: ${customRequirements?['selectedPackagesData'] != null}');
-      debugPrint('🔍 [createEvent] selectedPackagesData type: ${customRequirements?['selectedPackagesData'].runtimeType}');
-      debugPrint('🔍 [createEvent] selectedPackagesData: ${customRequirements?['selectedPackagesData']}');
+      debugPrint(
+        '🔍 [createEvent] customRequirements keys: ${customRequirements?.keys.toList()}',
+      );
+      debugPrint(
+        '🔍 [createEvent] customRequirements is null: ${customRequirements == null}',
+      );
+      debugPrint(
+        '🔍 [createEvent] selectedPackagesData exists: ${customRequirements?['selectedPackagesData'] != null}',
+      );
+      debugPrint(
+        '🔍 [createEvent] selectedPackagesData type: ${customRequirements?['selectedPackagesData'].runtimeType}',
+      );
+      debugPrint(
+        '🔍 [createEvent] selectedPackagesData: ${customRequirements?['selectedPackagesData']}',
+      );
 
-      if (customRequirements != null && 
+      if (customRequirements != null &&
           customRequirements['selectedPackagesData'] != null) {
         final packagesData = customRequirements['selectedPackagesData'] as List;
-        debugPrint('✅ [createEvent] Found ${packagesData.length} packages to convert');
-        
+        debugPrint(
+          '✅ [createEvent] Found ${packagesData.length} packages to convert',
+        );
+
         for (var packageData in packagesData) {
           final service = EventService(
             serviceId: packageData['serviceId'] ?? '',
-            serviceName: packageData['serviceName'] ?? 
+            serviceName:
+                packageData['serviceName'] ??
                 _getServiceNameFromSelectedServices(
                   customRequirements['selectedServices'],
                   packageData['serviceId'],
-                ) ?? '',
+                ) ??
+                '',
             serviceNameAr: packageData['serviceNameAr'],
             isRequired: packageData['isRequired'] ?? true,
             packageId: packageData['packageId'] ?? '',
@@ -81,17 +95,23 @@ class EventOwnerRepositoryImpl implements EventOwnerRepository {
             vendorApproved: false,
             requestId: _uuid.v4(), // Generate requestId for package request
           );
-          
-          debugPrint('  ✅ Created EventService: ${service.serviceName} -> ${service.packageName} (${service.packagePrice})');
+
+          debugPrint(
+            '  ✅ Created EventService: ${service.serviceName} -> ${service.packageName} (${service.packagePrice})',
+          );
           services.add(service);
           allocatedBudget += service.packagePrice;
           totalVendorsCount++;
         }
       } else {
-        debugPrint('❌ [createEvent] No selectedPackagesData found in customRequirements');
+        debugPrint(
+          '❌ [createEvent] No selectedPackagesData found in customRequirements',
+        );
       }
 
-      debugPrint('📊 [createEvent] Final services count: ${services.length}, allocatedBudget: $allocatedBudget');
+      debugPrint(
+        '📊 [createEvent] Final services count: ${services.length}, allocatedBudget: $allocatedBudget',
+      );
       final remainingBudget = totalBudget - allocatedBudget;
 
       final event = EventModel(
@@ -123,20 +143,25 @@ class EventOwnerRepositoryImpl implements EventOwnerRepository {
       );
 
       await _firestore
-          
           .collection(FirebaseCollections.events)
           .doc(eventId)
           .set(event.toJson());
 
       // ✅ Create PackageRequestModel for each service
-      debugPrint('📦 [createEvent] Creating PackageRequests for ${services.length} services...');
+      debugPrint(
+        '📦 [createEvent] Creating PackageRequests for ${services.length} services...',
+      );
       debugPrint('   Location: $location, City: $city, Address: $address');
-      debugPrint('   EventDate: $eventDate, Phone: $eventOwnerPhone, Price: ${services.isNotEmpty ? services.first.packagePrice : 'N/A'}');
-      
+      debugPrint(
+        '   EventDate: $eventDate, Phone: $eventOwnerPhone, Price: ${services.isNotEmpty ? services.first.packagePrice : 'N/A'}',
+      );
+
       for (var service in services) {
         final requestId = service.requestId;
-        debugPrint('   📤 Creating request: $requestId for ${service.packageName}');
-        
+        debugPrint(
+          '   📤 Creating request: $requestId for ${service.packageName}',
+        );
+
         final packageRequest = PackageRequestModel(
           packagePrice: service.packagePrice,
           requestId: requestId,
@@ -161,7 +186,9 @@ class EventOwnerRepositoryImpl implements EventOwnerRepository {
           customRequirements: {
             'city': (city?.isNotEmpty ?? false) ? city : 'N/A',
             'address': (address?.isNotEmpty ?? false) ? address : 'N/A',
-            'description': (description?.isNotEmpty ?? false) ? description : 'No description',
+            'description': (description?.isNotEmpty ?? false)
+                ? description
+                : 'No description',
             'eventTypeId': eventTypeId,
             'totalBudget': totalBudget,
             'expectedGuestCount': expectedGuestCount,
@@ -173,13 +200,45 @@ class EventOwnerRepositoryImpl implements EventOwnerRepository {
             .collection(FirebaseCollections.packageRequests)
             .doc(requestId)
             .set(packageRequest.toJson());
-        
+
         debugPrint('   ✅ Request saved: $requestId');
-        debugPrint('      - Location: $location, City: $city, Address: $address');
-        debugPrint('      - Phone: $eventOwnerPhone, Price: ${service.packagePrice}');
+        debugPrint(
+          '      - Location: $location, City: $city, Address: $address',
+        );
+        debugPrint(
+          '      - Phone: $eventOwnerPhone, Price: ${service.packagePrice}',
+        );
         debugPrint('      - EventDate: $eventDate');
       }
       debugPrint('✅ [createEvent] All PackageRequests created successfully!');
+
+      // ✅ Send notifications to vendors about new event requests
+      debugPrint('📤 [createEvent] Sending notifications to vendors...');
+      for (var service in services) {
+        try {
+          await NotificationService.sendNotification(
+            receiverId: service.vendorId,
+            receiverRole: 'vendor',
+            title: '🎉 New Event Request',
+            body: 'You have a new package request for ${service.packageName}',
+            type: 'package_request',
+            data: {
+              'eventId': eventId,
+              'requestId': service.requestId,
+              'eventName': eventName,
+              'eventDate': eventDate.toIso8601String(),
+              'packageName': service.packageName,
+              'eventLocation': location,
+            },
+          );
+          debugPrint('   ✅ Notification sent to vendor: ${service.vendorName}');
+        } catch (e) {
+          debugPrint(
+            '   ⚠️ Failed to send notification to ${service.vendorName}: $e',
+          );
+        }
+      }
+      debugPrint('✅ [createEvent] All vendor notifications sent!');
 
       return Right(event);
     } on FirebaseException catch (e) {
@@ -195,7 +254,7 @@ class EventOwnerRepositoryImpl implements EventOwnerRepository {
     String serviceId,
   ) {
     if (selectedServices is! List) return null;
-    
+
     try {
       final service = selectedServices.firstWhere(
         (s) => s['serviceId'] == serviceId,
@@ -333,7 +392,7 @@ class EventOwnerRepositoryImpl implements EventOwnerRepository {
       debugPrint('');
       debugPrint('🔄 [EventOwnerRepoImpl.getEventOwnerEvents] Starting...');
       debugPrint('   Owner ID: $eventOwnerId');
-      
+
       final querySnapshot = await _firestore
           .collection(FirebaseCollections.events)
           .where('eventOwnerId', isEqualTo: eventOwnerId)
@@ -343,25 +402,24 @@ class EventOwnerRepositoryImpl implements EventOwnerRepository {
 
       // ✅ Sort manually in memory after fetching
       final events =
-          querySnapshot.docs
-              .map((doc) {
-                final data = doc.data();
-                debugPrint('   📄 Doc ID: ${doc.id}');
-                debugPrint('      Event: ${data['eventName']}');
-                debugPrint('      Paid Amount: ${data['paidAmount']}');
-                debugPrint('      Payment Status: ${data['paymentStatus']}');
-                return EventModel.fromJson(data);
-              })
-              .toList()
-            ..sort(
-              (a, b) => b.createdAt.compareTo(a.createdAt),
-            ); // ✅ Manual sorting
+          querySnapshot.docs.map((doc) {
+            final data = doc.data();
+            debugPrint('   📄 Doc ID: ${doc.id}');
+            debugPrint('      Event: ${data['eventName']}');
+            debugPrint('      Paid Amount: ${data['paidAmount']}');
+            debugPrint('      Payment Status: ${data['paymentStatus']}');
+            return EventModel.fromJson(data);
+          }).toList()..sort(
+            (a, b) => b.createdAt.compareTo(a.createdAt),
+          ); // ✅ Manual sorting
 
       debugPrint('✅ [EventOwnerRepoImpl.getEventOwnerEvents] Success!');
       debugPrint('   Total events after mapping: ${events.length}');
       return Right(events);
     } on FirebaseException catch (e) {
-      debugPrint('❌ [EventOwnerRepoImpl.getEventOwnerEvents] Firebase Error: ${e.message}');
+      debugPrint(
+        '❌ [EventOwnerRepoImpl.getEventOwnerEvents] Firebase Error: ${e.message}',
+      );
       return Left(ServerFailure(e.message ?? 'Failed to get events'));
     } catch (e) {
       debugPrint('❌ [EventOwnerRepoImpl.getEventOwnerEvents] Error: $e');
@@ -434,7 +492,7 @@ class EventOwnerRepositoryImpl implements EventOwnerRepository {
       debugPrint('   packageName: $packageName');
       debugPrint('   eventId: $eventId');
       debugPrint('   eventOwnerId: ${event.eventOwnerId}');
-      
+
       final packageRequest = PackageRequestModel(
         packagePrice: packagePrice,
         requestId: requestId,
@@ -790,6 +848,33 @@ class EventOwnerRepositoryImpl implements EventOwnerRepository {
           .doc(invitationId)
           .set(invitation.toJson());
 
+      // ✅ Send notification to attendee about event invitation
+      if (attendeeId != null) {
+        debugPrint('📤 [sendInvitation] Sending notification to attendee...');
+        try {
+          await NotificationService.sendNotification(
+            receiverId: attendeeId,
+            receiverRole: 'attendee',
+            title: '🎊 You\'re Invited!',
+            body: '$eventOwnerName invited you to $eventName',
+            type: 'event_invitation',
+            data: {
+              'invitationId': invitationId,
+              'eventId': eventId,
+              'eventName': eventName,
+              'eventDate': eventDate.toIso8601String(),
+              'eventLocation': eventLocation ?? '',
+              'personalMessage': personalMessage ?? '',
+            },
+          );
+          debugPrint('   ✅ Notification sent to attendee: $inviteeName');
+        } catch (e) {
+          debugPrint('   ⚠️ Failed to send notification to attendee: $e');
+        }
+      } else {
+        debugPrint('   ℹ️ No attendeeId provided, skipping notification');
+      }
+
       // Update event invitation counts
       await updateInvitationCounts(eventId);
 
@@ -867,9 +952,13 @@ class EventOwnerRepositoryImpl implements EventOwnerRepository {
         final attendeeFcmToken = invitee['attendeeFcmToken'] as String?;
         final inviteeName = invitee['inviteeName'] as String?;
 
-        if (attendeeId != null && attendeeFcmToken != null && attendeeFcmToken.isNotEmpty) {
+        if (attendeeId != null &&
+            attendeeFcmToken != null &&
+            attendeeFcmToken.isNotEmpty) {
           try {
-            debugPrint('📤 [EventOwnerRepository] Sending notification to: $inviteeName');
+            debugPrint(
+              '📤 [EventOwnerRepository] Sending notification to: $inviteeName',
+            );
             debugPrint('   Attendee ID: $attendeeId');
             debugPrint('   FCM Token: $attendeeFcmToken');
 
@@ -895,13 +984,19 @@ class EventOwnerRepositoryImpl implements EventOwnerRepository {
               body: 'You\'re invited to: $eventName',
             );
 
-            debugPrint('✅ [EventOwnerRepository] Notification sent to: $inviteeName');
+            debugPrint(
+              '✅ [EventOwnerRepository] Notification sent to: $inviteeName',
+            );
           } catch (e) {
-            debugPrint('⚠️ [EventOwnerRepository] Error sending notification to $inviteeName: $e');
+            debugPrint(
+              '⚠️ [EventOwnerRepository] Error sending notification to $inviteeName: $e',
+            );
             // لا نوقف العملية إذا فشل الـ notification
           }
         } else {
-          debugPrint('⚠️ [EventOwnerRepository] No FCM token for attendee: $inviteeName');
+          debugPrint(
+            '⚠️ [EventOwnerRepository] No FCM token for attendee: $inviteeName',
+          );
         }
       }
 
@@ -910,7 +1005,9 @@ class EventOwnerRepositoryImpl implements EventOwnerRepository {
       // Update event invitation counts
       await updateInvitationCounts(eventId);
 
-      debugPrint('✅ [EventOwnerRepository.sendBulkInvitations] Completed! ${invitations.length} invitations sent');
+      debugPrint(
+        '✅ [EventOwnerRepository.sendBulkInvitations] Completed! ${invitations.length} invitations sent',
+      );
       return Right(invitations);
     } on FirebaseException catch (e) {
       return Left(ServerFailure(e.message ?? 'Failed to send invitations'));
@@ -1123,52 +1220,53 @@ class EventOwnerRepositoryImpl implements EventOwnerRepository {
   // ===== Package Browsing (NEW) =====
 
   @override
-Future<Either<Failure, List<PackageModel>>> getPackagesByService({
-  required String serviceId,
-  bool onlyActive = true,
-}) async {
-  try {
-    Query query = _firestore
-        .collection(FirebaseCollections.packages)
-        .where('serviceId', isEqualTo: serviceId);
+  Future<Either<Failure, List<PackageModel>>> getPackagesByService({
+    required String serviceId,
+    bool onlyActive = true,
+  }) async {
+    try {
+      Query query = _firestore
+          .collection(FirebaseCollections.packages)
+          .where('serviceId', isEqualTo: serviceId);
 
-    // Only get approved and active packages for Event Owner
-    if (onlyActive) {
-      query = query
-          .where('isActive', isEqualTo: true)
-          .where('isApprovedByOwner', isEqualTo: true)
-          .where('status', isEqualTo: 'active');
+      // Only get approved and active packages for Event Owner
+      if (onlyActive) {
+        query = query
+            .where('isActive', isEqualTo: true)
+            .where('isApprovedByOwner', isEqualTo: true)
+            .where('status', isEqualTo: 'active');
+      }
+
+      // ❌ Removed multiple orderBy - causes Index error
+      // .orderBy('rating', descending: true)
+      // .orderBy('createdAt', descending: true)
+
+      final querySnapshot = await query.get();
+
+      // ✅ Sort manually in memory
+      final packages =
+          querySnapshot.docs
+              .map(
+                (doc) =>
+                    PackageModel.fromJson(doc.data() as Map<String, dynamic>),
+              )
+              .toList()
+            ..sort((a, b) {
+              // First by rating (descending)
+              final ratingCompare = (b.rating ?? 0).compareTo(a.rating ?? 0);
+              if (ratingCompare != 0) return ratingCompare;
+
+              // Then by created date (descending)
+              return b.createdAt.compareTo(a.createdAt);
+            });
+
+      return Right(packages);
+    } on FirebaseException catch (e) {
+      return Left(ServerFailure(e.message ?? 'Failed to get packages'));
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
     }
-
-    // ❌ Removed multiple orderBy - causes Index error
-    // .orderBy('rating', descending: true)
-    // .orderBy('createdAt', descending: true)
-
-    final querySnapshot = await query.get();
-
-    // ✅ Sort manually in memory
-    final packages = querySnapshot.docs
-        .map((doc) => PackageModel.fromJson(doc.data() as Map<String, dynamic>))
-        .toList()
-      ..sort((a, b) {
-        // First by rating (descending)
-        final ratingCompare = (b.rating ?? 0).compareTo(a.rating ?? 0);
-        if (ratingCompare != 0) return ratingCompare;
-        
-        // Then by created date (descending)
-        return b.createdAt.compareTo(a.createdAt);
-      });
-
-    return Right(packages);
-  } on FirebaseException catch (e) {
-    return Left(
-      ServerFailure(e.message ?? 'Failed to get packages'),
-    );
-  } catch (e) {
-    return Left(ServerFailure(e.toString()));
   }
-}
-
 
   @override
   Future<Either<Failure, PackageModel>> getPackageDetails(
@@ -1289,7 +1387,7 @@ Future<Either<Failure, List<PackageModel>>> getPackagesByService({
 
       // ✅ Determine event status based on payment status
       EventStatus newEventStatus = event.status;
-      if (paymentStatus == PaymentStatus.paid || 
+      if (paymentStatus == PaymentStatus.paid ||
           paymentStatus == PaymentStatus.partiallyPaid) {
         newEventStatus = EventStatus.confirmed;
       }
@@ -1309,20 +1407,19 @@ Future<Either<Failure, List<PackageModel>>> getPackagesByService({
           });
 
       // ✅ Create owner profit record
-      await _firestore
-          .collection('owner_profit')
-          .add({
-            'eventOwnerId': event.eventOwnerId,
-            'eventOwnerName': event.eventOwnerName,
-            'eventOwnerEmail': event.eventOwnerEmail,
-            'eventId': eventId,
-            'eventName': event.eventName,
-            'paidAmount': paidAmount,
-            'paymentStatus': paymentStatus.name,
-            'paymentMethod': 'card', // Default, can be updated based on actual method
-            'createdAt': Timestamp.fromDate(now),
-            'updatedAt': Timestamp.fromDate(now),
-          });
+      await _firestore.collection('owner_profit').add({
+        'eventOwnerId': event.eventOwnerId,
+        'eventOwnerName': event.eventOwnerName,
+        'eventOwnerEmail': event.eventOwnerEmail,
+        'eventId': eventId,
+        'eventName': event.eventName,
+        'paidAmount': paidAmount,
+        'paymentStatus': paymentStatus.name,
+        'paymentMethod':
+            'card', // Default, can be updated based on actual method
+        'createdAt': Timestamp.fromDate(now),
+        'updatedAt': Timestamp.fromDate(now),
+      });
 
       debugPrint('💰 [updatePaymentStatus] Owner profit recorded:');
       debugPrint('   eventOwnerId: ${event.eventOwnerId}');
@@ -1340,17 +1437,18 @@ Future<Either<Failure, List<PackageModel>>> getPackagesByService({
 
   // ✅ Get owner total profits (جلب كل الأرباح بدون filter)
   @override
-  Future<Either<Failure, Map<String, dynamic>>> getOwnerProfits(
-  ) async {
+  Future<Either<Failure, Map<String, dynamic>>> getOwnerProfits() async {
     try {
-      debugPrint('💰 [getOwnerProfits] Fetching all profits from owner_profit collection');
+      debugPrint(
+        '💰 [getOwnerProfits] Fetching all profits from owner_profit collection',
+      );
 
       // ✅ جلب كل الـ documents من غير filter (الـ owner واحد فقط)
-      final querySnapshot = await _firestore
-          .collection('owner_profit')
-          .get();
+      final querySnapshot = await _firestore.collection('owner_profit').get();
 
-      debugPrint('💰 [getOwnerProfits] Found ${querySnapshot.docs.length} profit records');
+      debugPrint(
+        '💰 [getOwnerProfits] Found ${querySnapshot.docs.length} profit records',
+      );
 
       double totalProfit = 0.0;
       int totalTransactions = 0;
@@ -1359,10 +1457,10 @@ Future<Either<Failure, List<PackageModel>>> getPackagesByService({
       for (var doc in querySnapshot.docs) {
         final data = doc.data();
         final paidAmount = (data['paidAmount'] as num?)?.toDouble() ?? 0.0;
-        
+
         totalProfit += paidAmount;
         totalTransactions++;
-        
+
         profitRecords.add({
           'profitId': doc.id,
           'eventOwnerId': data['eventOwnerId'],
@@ -1376,7 +1474,9 @@ Future<Either<Failure, List<PackageModel>>> getPackagesByService({
         });
       }
 
-      debugPrint('💰 [getOwnerProfits] Total profit: $totalProfit from $totalTransactions transactions');
+      debugPrint(
+        '💰 [getOwnerProfits] Total profit: $totalProfit from $totalTransactions transactions',
+      );
 
       return Right({
         'totalProfit': totalProfit,

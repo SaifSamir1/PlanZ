@@ -7,6 +7,7 @@ import 'package:plan_z/core/theming/text_styles.dart';
 import 'package:plan_z/core/widgets/custom_app_bar.dart';
 import 'package:plan_z/features/app_owner/cubit/app_owner_cubit.dart';
 import 'package:plan_z/features/app_owner/cubit/app_owner_state.dart';
+import 'package:plan_z/features/app_owner/ui/screens/app_owner_notification_screen.dart';
 import 'package:plan_z/features/app_owner/ui/screens/financial_overview_screen.dart';
 import 'package:plan_z/features/app_owner/ui/screens/package_approval_screen.dart';
 import 'package:plan_z/features/app_owner/ui/screens/withdrawal_requests_screen.dart';
@@ -27,7 +28,7 @@ class _OwnerDashboardScreenState extends State<OwnerDashboardScreen> {
     super.initState();
     // ✅ Load dashboard stats on init
     context.read<AppOwnerCubit>().loadDashboardStats();
-    
+
     // ✅ Load owner profits (جلب كل الأرباح من collection)
     context.read<AppOwnerCubit>().getOwnerProfits();
   }
@@ -42,7 +43,12 @@ class _OwnerDashboardScreenState extends State<OwnerDashboardScreen> {
           IconButton(
             icon: const Icon(Icons.notifications_outlined, color: Colors.white),
             onPressed: () {
-              // TODO: Handle notifications
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const AppOwnerNotificationScreen(),
+                ),
+              );
             },
           ),
           IconButton(
@@ -182,12 +188,13 @@ class _OwnerDashboardScreenState extends State<OwnerDashboardScreen> {
                         width: 100,
                         height: 36,
                         child: Shimmer(
-                          gradient:  LinearGradient(
+                          gradient: LinearGradient(
                             colors: [Colors.grey, Colors.white30],
                           ),
                           child: CircularProgressIndicator(
-                            valueColor:
-                                AlwaysStoppedAnimation<Color>(Colors.grey),
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.grey,
+                            ),
                           ),
                         ),
                       )
@@ -360,7 +367,9 @@ class _OwnerDashboardScreenState extends State<OwnerDashboardScreen> {
                           colors: [Colors.grey, Colors.white30],
                         ),
                         child: CircularProgressIndicator(
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.grey,
+                          ),
                         ),
                       ),
                     )
@@ -455,7 +464,6 @@ class _OwnerDashboardScreenState extends State<OwnerDashboardScreen> {
     );
   }
 
-
   Widget _buildQuickActions(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -497,8 +505,7 @@ class _OwnerDashboardScreenState extends State<OwnerDashboardScreen> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) =>
-                          const WithdrawalRequestsScreen(),
+                      builder: (context) => const WithdrawalRequestsScreen(),
                     ),
                   );
                 },
@@ -527,10 +534,7 @@ class _OwnerDashboardScreenState extends State<OwnerDashboardScreen> {
           decoration: BoxDecoration(
             color: color.withOpacity(0.1),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: color.withOpacity(0.3),
-              width: 1.5,
-            ),
+            border: Border.all(color: color.withOpacity(0.3), width: 1.5),
           ),
           child: Column(
             children: [
@@ -557,9 +561,7 @@ class _OwnerDashboardScreenState extends State<OwnerDashboardScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Row(
           children: [
             Container(
@@ -568,16 +570,10 @@ class _OwnerDashboardScreenState extends State<OwnerDashboardScreen> {
                 color: AppColors.error.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: const Icon(
-                Icons.logout,
-                color: AppColors.error,
-                size: 24,
-              ),
+              child: const Icon(Icons.logout, color: AppColors.error, size: 24),
             ),
             const SizedBox(width: 12),
-            const Expanded(
-              child: Text('Logout'),
-            ),
+            const Expanded(child: Text('Logout')),
           ],
         ),
         content: Text(
@@ -593,12 +589,14 @@ class _OwnerDashboardScreenState extends State<OwnerDashboardScreen> {
             onPressed: () {
               Navigator.pop(ctx);
               // ✅ Call signOut from AuthCubit
-               context.read<AuthCubit>().signOut();
+              context.read<AuthCubit>().signOut();
               // ✅ Navigate to OnBoardingScreen
               Navigator.of(context).pushAndRemoveUntil(
-              MaterialPageRoute(builder: (context) => const OnBoardingScreen()),
-              (route) => false,
-            );
+                MaterialPageRoute(
+                  builder: (context) => const OnBoardingScreen(),
+                ),
+                (route) => false,
+              );
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.error,

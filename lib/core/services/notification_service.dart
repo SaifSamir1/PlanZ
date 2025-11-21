@@ -12,7 +12,7 @@ class NotificationService {
       FlutterLocalNotificationsPlugin();
 
   /// ✅ Send notification to a specific user
-  /// 
+  ///
   /// Parameters:
   /// - [receiverId]: User ID to send notification to
   /// - [receiverRole]: User role ('attendee', 'vendor', 'event_owner', 'app_owner')
@@ -42,13 +42,15 @@ class NotificationService {
       debugPrint('   fcmToken: $token');
 
       if (token == null) {
-        debugPrint('❌ [NotificationService] No FCM token available');
+        debugPrint(
+          '❌ [NotificationService] No FCM token available - STOPPING HERE',
+        );
         return false;
       }
 
       // Create notification ID
       final notificationId = DateTime.now().millisecondsSinceEpoch.toString();
-      
+
       // Create notification document
       final notificationData = {
         'notificationId': notificationId,
@@ -65,27 +67,36 @@ class NotificationService {
       };
 
       // 1. Save to Firestore
-      await _firestore.collection('notifications').add(notificationData);
-      debugPrint('✅ [NotificationService] Notification saved to Firestore');
-
-      // 2. Send FCM message directly from app (without Cloud Functions)
-      // Note: This sends the notification to the device's FCM token
-      // The onMessage listener in main.dart will handle displaying it
+      debugPrint('🔥 [NotificationService] Attempting to save to Firestore...');
       try {
-        debugPrint('📨 [NotificationService] Triggering FCM delivery...');
-        debugPrint('   Token: $token');
-        debugPrint('   Title: $title');
-        
-        // The notification is now in Firestore and FCM will deliver it
-        // The onMessage listener in _PlanZState will display it as local notification
-        
-      } catch (e) {
-        debugPrint('⚠️ [NotificationService] FCM error (non-critical): $e');
+        await _firestore.collection('notifications').add(notificationData);
+        debugPrint(
+          '✅ [NotificationService] Notification saved to Firestore successfully!',
+        );
+      } catch (firestoreError) {
+        debugPrint(
+          '❌ [NotificationService] FIRESTORE SAVE FAILED: $firestoreError',
+        );
+        // Continue to show local notification even if Firestore fails
       }
-      
+
+      // 2. Immediately trigger local notification display
+      try {
+        debugPrint(
+          '📱 [NotificationService] Triggering immediate local notification...',
+        );
+        // Use hashCode to ensure ID fits in 32-bit integer
+        final notifId = notificationId.hashCode.abs() % 2147483647;
+        await showLocalNotification(title: title, body: body, id: notifId);
+        debugPrint('✅ [NotificationService] Local notification displayed');
+      } catch (e) {
+        debugPrint('⚠️ [NotificationService] Local notification error: $e');
+      }
+
       return true;
     } catch (e) {
-      debugPrint('❌ [NotificationService] Error: $e');
+      debugPrint('❌ [NotificationService] OVERALL Error: $e');
+      debugPrint('❌ Stack trace: ${StackTrace.current}');
       return false;
     }
   }
@@ -114,7 +125,9 @@ class NotificationService {
       if (success) successCount++;
     }
 
-    debugPrint('📊 [NotificationService] Sent $successCount/$receiverIds.length notifications');
+    debugPrint(
+      '📊 [NotificationService] Sent $successCount/$receiverIds.length notifications',
+    );
     return successCount;
   }
 
@@ -197,7 +210,10 @@ class NotificationService {
   }
 
   /// ✅ Clear all notifications for a user
-  static Future<int> clearAllNotifications(String userId, String userRole) async {
+  static Future<int> clearAllNotifications(
+    String userId,
+    String userRole,
+  ) async {
     try {
       final docs = await _firestore
           .collection('notifications')
@@ -238,32 +254,32 @@ class NotificationService {
     int id = 999,
   }) async {
     try {
-      debugPrint('🔔 [NotificationService.showLocalNotification] Showing notification');
+      debugPrint(
+        '🔔 [NotificationService.showLocalNotification] Showing notification',
+      );
       debugPrint('   Title: $title');
       debugPrint('   Body: $body');
 
       const AndroidNotificationDetails androidDetails =
           AndroidNotificationDetails(
-        'plan_z_channel',
-        'PlanZ Notifications',
-        channelDescription: 'This channel is used for important PlanZ notifications.',
-        importance: Importance.max,
-        priority: Priority.high,
-        icon: '@drawable/ic_notification',
-      );
+            'plan_z_channel',
+            'PlanZ Notifications',
+            channelDescription:
+                'This channel is used for important PlanZ notifications.',
+            importance: Importance.max,
+            priority: Priority.high,
+            icon: '@drawable/ic_notification',
+          );
 
       const NotificationDetails notificationDetails = NotificationDetails(
         android: androidDetails,
       );
 
-      await _localNotifications.show(
-        id,
-        title,
-        body,
-        notificationDetails,
-      );
+      await _localNotifications.show(id, title, body, notificationDetails);
 
-      debugPrint('✅ [NotificationService.showLocalNotification] Notification displayed');
+      debugPrint(
+        '✅ [NotificationService.showLocalNotification] Notification displayed',
+      );
     } catch (e) {
       debugPrint('❌ [NotificationService.showLocalNotification] Error: $e');
     }
