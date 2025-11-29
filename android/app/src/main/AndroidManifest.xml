@@ -4,6 +4,10 @@
 
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.VIBRATE"/>
 
     <application
         android:label="plan_z"
@@ -28,7 +32,7 @@
             </intent-filter>
         </activity>
 
-        <!-- Fixed: Service with tools:replace -->
+        <!-- Firebase Messaging Service -->
         <service
             android:name="io.flutter.plugins.firebase.messaging.FlutterFirebaseMessagingService"
             android:exported="false"
@@ -38,20 +42,33 @@
             </intent-filter>
         </service>
 
-        <!-- Required: Add Receiver for background messages -->
         <receiver
             android:name="io.flutter.plugins.firebase.messaging.FlutterFirebaseMessagingReceiver"
             android:exported="false"
             tools:replace="android:exported" />
 
+        <!-- WorkManager Boot Receiver -->
+        <receiver
+            android:name="androidx.work.impl.background.systemalarm.RescheduleReceiver"
+            android:enabled="true"
+            android:exported="false"
+            tools:replace="android:enabled">
+
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED"/>
+            </intent-filter>
+        </receiver>
+
+        
+
         <meta-data
-    android:name="com.google.firebase.messaging.default_notification_icon"
-    android:resource="@drawable/ic_notification" />
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/ic_notification" />
 
-<meta-data
-    android:name="com.google.firebase.messaging.default_notification_color"
-    android:resource="@color/notification_color" />
-
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_color"
+            android:resource="@color/notification_color" />
 
         <meta-data
             android:name="flutterEmbedding"

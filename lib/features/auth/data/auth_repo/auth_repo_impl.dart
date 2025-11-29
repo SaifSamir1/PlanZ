@@ -134,6 +134,21 @@ class AuthRepositoryImpl implements AuthRepository {
         userType: userModel.userType.name,
       );
 
+      // ✅ Update FCM token on sign-in
+      try {
+        final fcmToken = await FirebaseMessaging.instance.getToken();
+        if (fcmToken != null) {
+          final collectionName = _getCollectionName(userModel.userType);
+          await _firestore.collection(collectionName).doc(userModel.id).update({
+            'fcmToken': fcmToken,
+            'fcmTokenUpdatedAt': Timestamp.now(),
+          });
+        }
+      } catch (e) {
+        // Don't fail login if FCM token update fails
+        print('⚠️ Failed to update FCM token on login: $e');
+      }
+
       return Right(userModel);
     } on FirebaseAuthException catch (e) {
       return Left(AuthFailure(_getAuthErrorMessage(e.code)));
