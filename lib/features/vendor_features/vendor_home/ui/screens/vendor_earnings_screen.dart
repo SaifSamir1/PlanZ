@@ -8,6 +8,7 @@ import 'package:plan_z/core/widgets/custom_app_bar.dart';
 import 'package:plan_z/features/auth/data/models/user_manager.dart';
 import 'package:plan_z/features/vendor_features/packages_mangment/cubit/vendor_cubit.dart';
 import 'package:plan_z/features/vendor_features/packages_mangment/cubit/vendor_state.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class VendorEarningsScreen extends StatefulWidget {
   const VendorEarningsScreen({super.key});
@@ -20,10 +21,10 @@ class _VendorEarningsScreenState extends State<VendorEarningsScreen> {
   final TextEditingController _amountController = TextEditingController();
   final TextEditingController _walletController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-  
+
   String _selectedWalletType = 'vodafone_cash';
   double _availableBalance = 0.0;
-  
+
   // ✅ Track field validation WITHOUT calling validate()
   bool _amountValid = false;
   bool _walletValid = false;
@@ -32,7 +33,7 @@ class _VendorEarningsScreenState extends State<VendorEarningsScreen> {
   void initState() {
     super.initState();
     _loadData();
-    
+
     // ✅ استمع للتغييرات وتحقق من الـ validation بدون ما تنادي validate()
     _amountController.addListener(_updateAmountValidity);
     _walletController.addListener(_updateWalletValidity);
@@ -53,7 +54,7 @@ class _VendorEarningsScreenState extends State<VendorEarningsScreen> {
   void _loadData() {
     final userManager = UserManager();
     final vendorId = userManager.userId!;
-    
+
     context.read<VendorCubit>().getVendorBalance(vendorId);
     context.read<VendorCubit>().getTransactionHistory(vendorId);
   }
@@ -160,9 +161,9 @@ class _VendorEarningsScreenState extends State<VendorEarningsScreen> {
                     ),
                   ),
                   const SizedBox(height: 24),
-                  
+
                   Text(
-                    'Request Withdrawal',
+                    'vendor.earnings.request_withdrawal'.tr(),
                     style: AppTextStyles.title.copyWith(
                       fontSize: 20,
                       color: AppColors.textPrimary,
@@ -184,7 +185,7 @@ class _VendorEarningsScreenState extends State<VendorEarningsScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Available Balance:',
+                          'vendor.earnings.available_balance'.tr(),
                           style: TextStyle(
                             fontSize: 14,
                             color: AppColors.textSecondary,
@@ -213,8 +214,8 @@ class _VendorEarningsScreenState extends State<VendorEarningsScreen> {
                       _updateAmountValidity();
                     }),
                     decoration: InputDecoration(
-                      labelText: 'Amount (EGP)*',
-                      hintText: 'Enter amount',
+                      labelText: 'vendor.earnings.amount'.tr(),
+                      hintText: 'vendor.earnings.enter_amount'.tr(),
                       prefixIcon: const Icon(Icons.attach_money),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -240,7 +241,7 @@ class _VendorEarningsScreenState extends State<VendorEarningsScreen> {
                   DropdownButtonFormField<String>(
                     value: _selectedWalletType,
                     decoration: InputDecoration(
-                      labelText: 'Wallet Type*',
+                      labelText: 'vendor.earnings.wallet_type'.tr(),
                       prefixIcon: const Icon(Icons.account_balance_wallet),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -259,30 +260,32 @@ class _VendorEarningsScreenState extends State<VendorEarningsScreen> {
                       filled: true,
                       fillColor: Colors.grey[50],
                     ),
-                    items: const [
+                    items: [
                       DropdownMenuItem(
                         value: 'vodafone_cash',
-                        child: Text('Vodafone Cash'),
+                        child: Text('vendor.earnings.vodafone_cash'.tr()),
                       ),
                       DropdownMenuItem(
                         value: 'etisalat',
-                        child: Text('Etisalat'),
+                        child: Text('vendor.earnings.etisalat'.tr()),
                       ),
                       DropdownMenuItem(
                         value: 'orange',
-                        child: Text('Orange'),
+                        child: Text('vendor.earnings.orange'.tr()),
                       ),
                       DropdownMenuItem(
                         value: 'we',
-                        child: Text('WE'),
+                        child: Text('vendor.earnings.we'.tr()),
                       ),
                       DropdownMenuItem(
                         value: 'bank_account',
-                        child: Text('Bank Account'),
+                        child: Text('vendor.earnings.bank_account'.tr()),
                       ),
                     ],
                     onChanged: (value) {
-                      setState(() => _selectedWalletType = value ?? 'vodafone_cash');
+                      setState(
+                        () => _selectedWalletType = value ?? 'vodafone_cash',
+                      );
                     },
                   ),
                   const SizedBox(height: 16),
@@ -298,9 +301,9 @@ class _VendorEarningsScreenState extends State<VendorEarningsScreen> {
                     }),
                     decoration: InputDecoration(
                       labelText: _selectedWalletType == 'bank_account'
-                          ? 'Account Number*'
-                          : 'Wallet Number*',
-                      hintText: 'Enter number',
+                          ? 'vendor.earnings.account_number'.tr()
+                          : 'vendor.earnings.wallet_number'.tr(),
+                      hintText: 'vendor.earnings.enter_number'.tr(),
                       prefixIcon: const Icon(Icons.phone),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -350,15 +353,17 @@ class _VendorEarningsScreenState extends State<VendorEarningsScreen> {
                                   height: 20,
                                   width: 20,
                                   child: CircularProgressIndicator(
-                                    valueColor:
-                                        AlwaysStoppedAnimation<Color>(Colors.white),
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.white,
+                                    ),
                                     strokeWidth: 2,
                                   ),
                                 )
                               : Text(
                                   isValid
-                                      ? 'Request Withdrawal'
-                                      : 'Fill all fields correctly',
+                                      ? 'vendor.earnings.request_withdrawal'
+                                            .tr()
+                                      : 'vendor.earnings.fill_all_fields'.tr(),
                                   style: const TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
@@ -404,7 +409,7 @@ class _VendorEarningsScreenState extends State<VendorEarningsScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: CustomAppBar(
-        title: 'Earnings & Wallet',
+        title: 'vendor.earnings.title'.tr(),
         showBackButton: true,
       ),
       body: BlocListener<VendorCubit, VendorState>(
@@ -423,8 +428,8 @@ class _VendorEarningsScreenState extends State<VendorEarningsScreen> {
           } else if (state is RequestWithdrawalSuccess) {
             Navigator.pop(context);
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('✅ Withdrawal request sent successfully!'),
+              SnackBar(
+                content: Text('vendor.earnings.withdrawal_success'.tr()),
                 backgroundColor: Colors.green,
                 behavior: SnackBarBehavior.floating,
               ),
@@ -485,8 +490,8 @@ class _VendorEarningsScreenState extends State<VendorEarningsScreen> {
                   child: ElevatedButton.icon(
                     onPressed: _showWithdrawalBottomSheet,
                     icon: const Icon(Icons.send_rounded, size: 22),
-                    label: const Text(
-                      'Request Withdrawal',
+                    label: Text(
+                      'vendor.earnings.request_withdrawal'.tr(),
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
@@ -509,7 +514,7 @@ class _VendorEarningsScreenState extends State<VendorEarningsScreen> {
               const SizedBox(height: 24),
 
               Text(
-                'Transaction History',
+                'vendor.earnings.transaction_history'.tr(),
                 style: AppTextStyles.headline3,
               ),
               const SizedBox(height: 12),
@@ -581,7 +586,7 @@ class _VendorEarningsScreenState extends State<VendorEarningsScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Available Balance',
+                'vendor.earnings.available_balance'.tr(),
                 style: AppTextStyles.body.copyWith(
                   color: Colors.white.withOpacity(0.95),
                   fontSize: 15,
@@ -590,13 +595,16 @@ class _VendorEarningsScreenState extends State<VendorEarningsScreen> {
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.white.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
-                  'Ready to Withdraw',
+                  'vendor.earnings.ready_to_withdraw'.tr(),
                   style: TextStyle(
                     color: Colors.white.withOpacity(0.9),
                     fontSize: 11,
@@ -639,9 +647,7 @@ class _VendorEarningsScreenState extends State<VendorEarningsScreen> {
         borderRadius: BorderRadius.circular(20),
       ),
       child: const Center(
-        child: CircularProgressIndicator(
-          color: AppColors.primaryGold,
-        ),
+        child: CircularProgressIndicator(color: AppColors.primaryGold),
       ),
     );
   }
@@ -677,7 +683,7 @@ class _VendorEarningsScreenState extends State<VendorEarningsScreen> {
             Icon(Icons.history, size: 48, color: Colors.grey[400]),
             const SizedBox(height: 12),
             Text(
-              'No transactions yet',
+              'vendor.earnings.no_transactions'.tr(),
               style: TextStyle(
                 color: AppColors.textSecondary,
                 fontSize: 16,
@@ -708,10 +714,7 @@ class _VendorEarningsScreenState extends State<VendorEarningsScreen> {
             const SizedBox(height: 4),
             Text(
               message,
-              style: TextStyle(
-                color: AppColors.textSecondary,
-                fontSize: 12,
-              ),
+              style: TextStyle(color: AppColors.textSecondary, fontSize: 12),
               textAlign: TextAlign.center,
             ),
           ],
@@ -764,8 +767,7 @@ class _VendorEarningsScreenState extends State<VendorEarningsScreen> {
                 transaction['status'] as String,
                 style: const TextStyle(fontSize: 12),
               ),
-              backgroundColor:
-                  _getStatusColor(transaction['status'] as String),
+              backgroundColor: _getStatusColor(transaction['status'] as String),
               labelStyle: const TextStyle(color: Colors.white),
             ),
           ),

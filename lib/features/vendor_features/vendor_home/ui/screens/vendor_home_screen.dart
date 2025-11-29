@@ -16,6 +16,8 @@ import 'package:plan_z/features/vendor_features/packages_mangment/data/models/pa
 import 'package:plan_z/features/vendor_features/packages_mangment/ui/screens/all_packages_screen.dart';
 import 'package:plan_z/features/vendor_features/vendor_home/ui/screens/vendor_earnings_screen.dart';
 import 'package:plan_z/features/vendor_features/vendor_home/ui/screens/request_details_screen.dart';
+import 'package:plan_z/features/vendor_features/vendor_settings/ui/screens/vendor_settings_screen.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:plan_z/features/event_owners/chat_bot/cubits/chat_cubit.dart';
 import 'package:plan_z/features/event_owners/chat_bot/ui/chat_bot_screen.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -83,54 +85,6 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
     _loadData();
   }
 
-  /// 🔴 Show logout confirmation dialog
-  void _showLogoutConfirmation() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text(
-            "Logout Confirmation",
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          content: const Text(
-            'Are you sure you want to logout?',
-            style: TextStyle(fontSize: 16),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text(
-                'Cancel',
-                style: TextStyle(color: Colors.grey, fontSize: 16),
-              ),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-                _performLogout();
-              },
-              child: const Text(
-                'Logout',
-                style: TextStyle(
-                  color: Colors.red,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  /// 🔴 Perform logout
-  void _performLogout() {
-    debugPrint('🔴 [VendorHomeScreen._performLogout] Starting logout...');
-    context.read<AuthCubit>().signOut();
-  }
-
   /// ============================================
   /// Chat Floating Action Button
   /// ============================================
@@ -161,12 +115,19 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: CustomAppBar(
-        title: 'Vendor Dashboard',
+        title: 'vendor.home.title'.tr(),
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 16),
             child: GestureDetector(
-              onTap: _showLogoutConfirmation,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const VendorSettingsScreen(),
+                  ),
+                );
+              },
               child: CircleAvatar(
                 radius: 18,
                 backgroundColor: Colors.white,
@@ -286,7 +247,7 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Welcome back,',
+          'vendor.home.welcome'.tr(),
           style: AppTextStyles.body.copyWith(
             color: AppColors.textSecondary,
             fontSize: 14,
@@ -393,7 +354,7 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Total Earnings',
+                          'vendor.home.total_earnings'.tr(),
                           style: AppTextStyles.body.copyWith(
                             color: Colors.white70,
                             fontSize: 14,
@@ -438,7 +399,7 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Available Balance',
+                            'vendor.home.available_balance'.tr(),
                             style: AppTextStyles.body.copyWith(
                               color: Colors.white70,
                               fontSize: 12,
@@ -458,7 +419,7 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
                       Row(
                         children: [
                           Text(
-                            'View Details',
+                            'vendor.home.view_all'.tr(),
                             style: AppTextStyles.body.copyWith(
                               color: AppColors.primaryGold,
                               fontSize: 13,
@@ -527,7 +488,7 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
             Expanded(
               child: _buildStatCard(
                 icon: Icons.event_available,
-                title: 'Active Jobs',
+                title: 'vendor.home.active_jobs'.tr(),
                 value: _cachedActiveJobs.toString(),
                 color: AppColors.success,
               ),
@@ -536,7 +497,7 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
             Expanded(
               child: _buildStatCard(
                 icon: Icons.pending_actions,
-                title: 'Pending',
+                title: 'vendor.requests.pending'.tr(),
                 value: _cachedPendingRequests.toString(),
                 color: AppColors.warning,
               ),
@@ -545,7 +506,7 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
             Expanded(
               child: _buildStatCard(
                 icon: Icons.inventory_2,
-                title: 'Packages',
+                title: 'vendor.home.my_packages'.tr(),
                 value: _cachedTotalPackages.toString(),
                 color: AppColors.primaryGold,
               ),
@@ -607,7 +568,7 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
         Expanded(
           child: _buildActionButton(
             icon: Icons.inventory_2_outlined,
-            label: 'Manage Packages',
+            label: 'vendor.home.my_packages'.tr(),
             onTap: () {
               Navigator.push(
                 context,
@@ -685,7 +646,7 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
               ),
               child: Center(
                 child: Text(
-                  'Requests',
+                  'vendor.home.requests'.tr(),
                   style: TextStyle(
                     color: selectedTab == 0
                         ? Colors.white
@@ -715,7 +676,7 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
               ),
               child: Center(
                 child: Text(
-                  'Notifications',
+                  'vendor.home.notifications'.tr(),
                   style: TextStyle(
                     color: selectedTab == 1
                         ? Colors.white
@@ -776,7 +737,7 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'Error loading requests',
+                    'vendor.packages.error_loading'.tr(),
                     style: AppTextStyles.title.copyWith(
                       color: AppColors.textSecondary,
                     ),
@@ -796,7 +757,7 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primaryGold,
                     ),
-                    child: const Text('Retry'),
+                    child: Text('vendor.packages.retry'.tr()),
                   ),
                 ],
               ),
@@ -850,14 +811,14 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
             ),
             const SizedBox(height: 16),
             Text(
-              'No Requests Yet',
+              'vendor.home.no_requests'.tr(),
               style: AppTextStyles.title.copyWith(
                 color: AppColors.textSecondary,
               ),
             ),
             const SizedBox(height: 8),
             Text(
-              'Package requests will appear here',
+              'vendor.packages.no_packages'.tr(),
               style: AppTextStyles.body.copyWith(
                 color: AppColors.textSecondary,
                 fontSize: 13,
@@ -941,7 +902,7 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'Event: ${request.eventId}', // ✅ Can be replaced with event name
+                        '${'event_review.event_name'.tr()}: ${request.eventId}', // ✅ Can be replaced with event name
                         style: AppTextStyles.body.copyWith(
                           color: AppColors.textSecondary,
                           fontSize: 13,
@@ -1039,7 +1000,7 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
       child: ElevatedButton.icon(
         onPressed: () => _showRequestDetails(request),
         icon: const Icon(Icons.info_outline, size: 18),
-        label: const Text('View Details'),
+        label: Text('browse_packages.details'.tr()),
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primaryGold,
           foregroundColor: Colors.white,
@@ -1081,13 +1042,13 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
     if (difference.inDays > 7) {
       return '${date.day}/${date.month}/${date.year}';
     } else if (difference.inDays >= 1) {
-      return '${difference.inDays}d ago';
+      return 'attendee.days_ago'.tr(args: [difference.inDays.toString()]);
     } else if (difference.inHours >= 1) {
-      return '${difference.inHours}h ago';
+      return 'attendee.hours_ago'.tr(args: [difference.inHours.toString()]);
     } else if (difference.inMinutes >= 1) {
-      return '${difference.inMinutes}m ago';
+      return 'attendee.minutes_ago'.tr(args: [difference.inMinutes.toString()]);
     } else {
-      return 'Just now';
+      return 'attendee.just_now'.tr();
     }
   }
 
@@ -1095,7 +1056,7 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
   Widget _buildNotificationsList() {
     final vendorId = _userManager.userId;
     if (vendorId == null) {
-      return const Center(child: Text('Please login to view notifications'));
+      return Center(child: Text('attendee.please_login_notifications'.tr()));
     }
 
     return StreamBuilder<QuerySnapshot>(
@@ -1127,7 +1088,7 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'No Notifications',
+                    'attendee.no_notifications'.tr(),
                     style: AppTextStyles.title.copyWith(
                       color: AppColors.textSecondary,
                     ),

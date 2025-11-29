@@ -11,16 +11,6 @@ class NotificationService {
   static final FlutterLocalNotificationsPlugin _localNotifications =
       FlutterLocalNotificationsPlugin();
 
-  /// ✅ Send notification to a specific user
-  ///
-  /// Parameters:
-  /// - [receiverId]: User ID to send notification to
-  /// - [receiverRole]: User role ('attendee', 'vendor', 'event_owner', 'app_owner')
-  /// - [title]: Notification title
-  /// - [body]: Notification body
-  /// - [type]: Notification type ('package_request', 'payment', 'invitation', 'withdrawal', etc.)
-  /// - [data]: Additional data to send with notification
-  /// - [fcmToken]: Optional FCM token (if not provided, will be fetched from current device)
   static Future<bool> sendNotification({
     required String receiverId,
     required String receiverRole,
@@ -38,14 +28,48 @@ class NotificationService {
       debugPrint('   type: $type');
 
       // Get FCM token if not provided
-      final token = fcmToken ?? await _fcm.getToken();
-      debugPrint('   fcmToken: $token');
+      String? token = fcmToken;
+      if (token == null) {
+        debugPrint(
+          '🔍 [NotificationService] FCM token not provided, fetching from Firestore...',
+        );
+        // Determine collection based on role
+        String collectionName;
+        switch (receiverRole) {
+          case 'vendor':
+            collectionName = 'vendors';
+            break;
+          case 'eventOwner':
+            collectionName = 'event_owners';
+            break;
+          case 'attendee':
+            collectionName = 'attendees';
+            break;
+          case 'admin':
+            collectionName = 'admins';
+            break;
+          default:
+            collectionName = 'attendees'; // Default fallback
+        }
+
+        final userDoc = await _firestore
+            .collection(collectionName)
+            .doc(receiverId)
+            .get();
+
+        if (userDoc.exists) {
+          token = userDoc.data()?['fcmToken'];
+          debugPrint('   ✅ Found FCM token in Firestore: $token');
+        } else {
+          debugPrint('   ⚠️ User document not found in $collectionName');
+        }
+      }
 
       if (token == null) {
         debugPrint(
-          '❌ [NotificationService] No FCM token available - STOPPING HERE',
+          '❌ [NotificationService] No FCM token available for receiver - Notification will be saved but not sent via FCM',
         );
-        return false;
+        // We still continue to save to Firestore so the user sees it in their in-app list
       }
 
       // Create notification ID
@@ -60,7 +84,7 @@ class NotificationService {
         'body': body,
         'type': type,
         'data': data ?? {},
-        'fcmTokens': [token],
+        'fcmTokens': token != null ? [token] : [],
         'isRead': false,
         'createdAt': Timestamp.now(),
         'updatedAt': Timestamp.now(),

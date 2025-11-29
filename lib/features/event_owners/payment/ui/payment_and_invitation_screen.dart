@@ -1,10 +1,12 @@
 import 'package:animate_do/animate_do.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:plan_z/core/utils/app_colors.dart';
 import 'package:plan_z/core/theming/text_styles.dart';
 import 'package:plan_z/core/widgets/custom_app_bar.dart';
 
 enum PaymentOption { creditCard, paypal, applePay }
+
 enum InvitationTemplate { elegant, geometric, rustic, vibrant }
 
 class PaymentAndInvitationsScreen extends StatefulWidget {
@@ -31,7 +33,10 @@ class _PaymentAndInvitationsScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: CustomAppBar(title: "Payment & Invitations",showBackButton: true,),
+      appBar: CustomAppBar(
+        title: 'event_owner.payment_and_invitation_screen.title'.tr(),
+        showBackButton: true,
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -50,21 +55,22 @@ class _PaymentAndInvitationsScreenState
     );
   }
 
- 
-
   Widget _buildPaymentSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         FadeInUp(
           duration: const Duration(milliseconds: 600),
-          child: Text('Payment Options', style: AppTextStyles.title),
+          child: Text(
+            'event_owner.payment_and_invitation_screen.payment_options'.tr(),
+            style: AppTextStyles.title,
+          ),
         ),
         const SizedBox(height: 16),
         SlideInLeft(
           duration: const Duration(milliseconds: 700),
           child: _buildPaymentOption(
-            title: 'Credit Card',
+            title: 'event_owner.payment_and_invitation_screen.credit_card'.tr(),
             icon: Icons.credit_card_rounded,
             value: PaymentOption.creditCard,
           ),
@@ -73,7 +79,7 @@ class _PaymentAndInvitationsScreenState
           duration: const Duration(milliseconds: 800),
           delay: const Duration(milliseconds: 100),
           child: _buildPaymentOption(
-            title: 'PayPal',
+            title: 'event_owner.payment_and_invitation_screen.paypal'.tr(),
             icon: Icons.account_balance_wallet_rounded,
             value: PaymentOption.paypal,
           ),
@@ -82,7 +88,7 @@ class _PaymentAndInvitationsScreenState
           duration: const Duration(milliseconds: 900),
           delay: const Duration(milliseconds: 200),
           child: _buildPaymentOption(
-            title: 'Apple Pay',
+            title: 'event_owner.payment_and_invitation_screen.apple_pay'.tr(),
             icon: Icons.apple_rounded,
             value: PaymentOption.applePay,
           ),
@@ -97,7 +103,10 @@ class _PaymentAndInvitationsScreenState
       children: [
         FadeInUp(
           duration: const Duration(milliseconds: 600),
-          child: Text('Event Details', style: AppTextStyles.title),
+          child: Text(
+            'event_owner.payment_and_invitation_screen.event_details'.tr(),
+            style: AppTextStyles.title,
+          ),
         ),
         const SizedBox(height: 16),
         SlideInRight(
@@ -106,10 +115,7 @@ class _PaymentAndInvitationsScreenState
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: Colors.grey.shade200,
-                width: 1,
-              ),
+              border: Border.all(color: Colors.grey.shade200, width: 1),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withOpacity(0.02),
@@ -123,7 +129,9 @@ class _PaymentAndInvitationsScreenState
               keyboardType: TextInputType.number,
               style: AppTextStyles.body,
               decoration: InputDecoration(
-                labelText: 'Number of Attendees',
+                labelText:
+                    'event_owner.payment_and_invitation_screen.number_of_attendees'
+                        .tr(),
                 labelStyle: TextStyle(
                   color: AppColors.primaryDark.withOpacity(0.6),
                   fontSize: 14,
@@ -155,15 +163,22 @@ class _PaymentAndInvitationsScreenState
       children: [
         FadeInUp(
           duration: const Duration(milliseconds: 600),
-          child: Text('Invitation Templates', style: AppTextStyles.title),
+          child: Text(
+            'event_owner.payment_and_invitation_screen.invitation_templates'
+                .tr(),
+            style: AppTextStyles.title,
+          ),
         ),
         const SizedBox(height: 16),
         SlideInUp(
           duration: const Duration(milliseconds: 700),
           child: _buildTemplateOption(
-            title: 'Elegant Floral',
-            description: 'A sophisticated design featuring subtle floral motifs, perfect for classic events.',
-            image: 'assets/images/romantic-wedding-invitation-card-with-greenery-floral-free-png.webp',
+            title: 'event_owner.payment_and_invitation_screen.elegant_floral'
+                .tr(),
+            description:
+                'event_owner.payment_and_invitation_screen.elegant_desc'.tr(),
+            image:
+                'assets/images/romantic-wedding-invitation-card-with-greenery-floral-free-png.webp',
             value: InvitationTemplate.elegant,
           ),
         ),
@@ -171,8 +186,10 @@ class _PaymentAndInvitationsScreenState
           duration: const Duration(milliseconds: 800),
           delay: const Duration(milliseconds: 100),
           child: _buildTemplateOption(
-            title: 'Modern Geometric',
-            description: 'Clean lines and abstract shapes create a contemporary and stylish invitation.',
+            title: 'event_owner.payment_and_invitation_screen.modern_geometric'
+                .tr(),
+            description: 'event_owner.payment_and_invitation_screen.modern_desc'
+                .tr(),
             image: 'assets/images/download.png',
             value: InvitationTemplate.geometric,
           ),
@@ -181,8 +198,10 @@ class _PaymentAndInvitationsScreenState
           duration: const Duration(milliseconds: 900),
           delay: const Duration(milliseconds: 200),
           child: _buildTemplateOption(
-            title: 'Rustic Charm',
-            description: 'Inspired by nature, this template features earthy tones and organic elements.',
+            title: 'event_owner.payment_and_invitation_screen.rustic_charm'
+                .tr(),
+            description: 'event_owner.payment_and_invitation_screen.rustic_desc'
+                .tr(),
             image: 'assets/images/rustic_charm.png',
             value: InvitationTemplate.rustic,
           ),
@@ -191,8 +210,11 @@ class _PaymentAndInvitationsScreenState
           duration: const Duration(milliseconds: 1000),
           delay: const Duration(milliseconds: 300),
           child: _buildTemplateOption(
-            title: 'Vibrant Celebration',
-            description: 'Bold colors and playful elements make this template ideal for lively and joyous occasions.',
+            title:
+                'event_owner.payment_and_invitation_screen.vibrant_celebration'
+                    .tr(),
+            description:
+                'event_owner.payment_and_invitation_screen.vibrant_desc'.tr(),
             image: 'assets/images/vibrant_celebration.png',
             value: InvitationTemplate.vibrant,
           ),
@@ -214,9 +236,7 @@ class _PaymentAndInvitationsScreenState
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: isSelected 
-              ? AppColors.primaryGold 
-              : Colors.grey.shade200,
+          color: isSelected ? AppColors.primaryGold : Colors.grey.shade200,
           width: isSelected ? 2 : 1,
         ),
         boxShadow: [
@@ -243,15 +263,15 @@ class _PaymentAndInvitationsScreenState
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: isSelected 
-                        ? AppColors.primaryGold.withOpacity(0.1) 
+                    color: isSelected
+                        ? AppColors.primaryGold.withOpacity(0.1)
                         : Colors.grey.shade100,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(
                     icon,
-                    color: isSelected 
-                        ? AppColors.primaryGold 
+                    color: isSelected
+                        ? AppColors.primaryGold
                         : AppColors.primaryDark.withOpacity(0.7),
                     size: 24,
                   ),
@@ -262,7 +282,9 @@ class _PaymentAndInvitationsScreenState
                     title,
                     style: TextStyle(
                       fontSize: 16,
-                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                      fontWeight: isSelected
+                          ? FontWeight.w600
+                          : FontWeight.w500,
                       color: AppColors.primaryDark,
                     ),
                   ),
@@ -299,9 +321,7 @@ class _PaymentAndInvitationsScreenState
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: isSelected 
-              ? AppColors.primaryGold 
-              : Colors.grey.shade200,
+          color: isSelected ? AppColors.primaryGold : Colors.grey.shade200,
           width: isSelected ? 2 : 1,
         ),
         boxShadow: [
@@ -446,9 +466,10 @@ class _PaymentAndInvitationsScreenState
                           size: 22,
                         ),
                         const SizedBox(width: 8),
-                        const Text(
-                          'Preview Event in AR',
-                          style: TextStyle(
+                        Text(
+                          'event_owner.payment_and_invitation_screen.preview_ar'
+                              .tr(),
+                          style: const TextStyle(
                             fontWeight: FontWeight.w600,
                             fontSize: 16,
                             color: Colors.white,
@@ -491,15 +512,12 @@ class _PaymentAndInvitationsScreenState
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(
-                          Icons.send_rounded,
-                          color: Colors.white,
-                          size: 22,
-                        ),
+                        Icon(Icons.send_rounded, color: Colors.white, size: 22),
                         const SizedBox(width: 8),
-                        const Text(
-                          'Confirm & Send Invitations',
-                          style: TextStyle(
+                        Text(
+                          'event_owner.payment_and_invitation_screen.confirm_send'
+                              .tr(),
+                          style: const TextStyle(
                             fontWeight: FontWeight.w600,
                             fontSize: 16,
                             color: Colors.white,

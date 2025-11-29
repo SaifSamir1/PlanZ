@@ -1,5 +1,6 @@
 // lib/features/attendee/presentation/screens/invitation_details_screen.dart
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -18,10 +19,7 @@ import 'package:plan_z/features/event_owners/create_event_screen/data/models/eve
 class InvitationDetailsScreen extends StatefulWidget {
   final String invitationId;
 
-  const InvitationDetailsScreen({
-    super.key,
-    required this.invitationId,
-  });
+  const InvitationDetailsScreen({super.key, required this.invitationId});
 
   @override
   State<InvitationDetailsScreen> createState() =>
@@ -154,14 +152,10 @@ class _InvitationDetailsScreenState extends State<InvitationDetailsScreen> {
                   delay: const Duration(milliseconds: 600),
                   child: InvitationActionButtons(
                     invitation: invitation,
-                    onAccept: () => _handleResponse(
-                      invitation,
-                      InvitationStatus.accepted,
-                    ),
-                    onReject: () => _handleResponse(
-                      invitation,
-                      InvitationStatus.rejected,
-                    ),
+                    onAccept: () =>
+                        _handleResponse(invitation, InvitationStatus.accepted),
+                    onReject: () =>
+                        _handleResponse(invitation, InvitationStatus.rejected),
                     onMaybe: () => _handleResponse(
                       invitation,
                       InvitationStatus.maybeAttending,
@@ -184,13 +178,13 @@ class _InvitationDetailsScreenState extends State<InvitationDetailsScreen> {
   ) {
     // ✅ Call Cubit directly without guest count validation
     context.read<AttendeeCubit>().respondToInvitation(
-          invitationId: invitation.invitationId,
-          status: status,
-          confirmedGuestCount: null,  // ✅ No guest count required
-          responseMessage: _responseMessageController.text.trim().isEmpty
-              ? null
-              : _responseMessageController.text.trim(),
-        );
+      invitationId: invitation.invitationId,
+      status: status,
+      confirmedGuestCount: null, // ✅ No guest count required
+      responseMessage: _responseMessageController.text.trim().isEmpty
+          ? null
+          : _responseMessageController.text.trim(),
+    );
   }
 
   Widget _buildErrorWidget(String message) {
@@ -200,30 +194,26 @@ class _InvitationDetailsScreenState extends State<InvitationDetailsScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.error_outline_rounded,
-              size: 64,
-              color: Colors.red[300],
-            ),
+            Icon(Icons.error_outline_rounded, size: 64, color: Colors.red[300]),
             const SizedBox(height: 16),
             Text(
-              "Failed to load invitation",
+              "attendee.failed_load_invitation".tr(),
               style: Theme.of(context).textTheme.titleLarge,
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
             Text(
               message,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Colors.grey[600],
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
             ElevatedButton.icon(
               onPressed: _loadInvitation,
               icon: const Icon(Icons.refresh),
-              label: const Text("Retry"),
+              label: Text("attendee.retry".tr()),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.buttonPrimary,
               ),
@@ -239,13 +229,9 @@ class _InvitationDetailsScreenState extends State<InvitationDetailsScreen> {
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
-        icon: Icon(
-          Icons.check_circle_rounded,
-          size: 64,
-          color: Colors.green,
-        ),
-        title: const Text("Success!"),
-        content: const Text("Your response has been sent successfully."),
+        icon: Icon(Icons.check_circle_rounded, size: 64, color: Colors.green),
+        title: Text("attendee.success".tr()),
+        content: Text("attendee.response_sent".tr()),
         actions: [
           ElevatedButton(
             onPressed: () {
@@ -255,7 +241,7 @@ class _InvitationDetailsScreenState extends State<InvitationDetailsScreen> {
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.buttonPrimary,
             ),
-            child: const Text("Done"),
+            child: Text("attendee.done".tr()),
           ),
         ],
       ),

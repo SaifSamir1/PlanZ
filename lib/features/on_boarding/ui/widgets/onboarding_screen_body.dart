@@ -3,9 +3,7 @@ import 'package:plan_z/features/on_boarding/ui/widgets/text_with_button_and_indi
 import 'container_with_image.dart';
 
 class OnBoardingScreenBody extends StatefulWidget {
-  const OnBoardingScreenBody({
-    super.key,
-  });
+  const OnBoardingScreenBody({super.key});
 
   @override
   State<OnBoardingScreenBody> createState() => _OnBoardingScreenBodyState();
@@ -35,15 +33,8 @@ class _OnBoardingScreenBodyState extends State<OnBoardingScreenBody> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Expanded(
-          flex: 4,
-          child: PageViewBuilder(
-            controller: _controller,
-          ),
-        ),
-        const SizedBox(
-          height: 42,
-        ),
+        Expanded(flex: 4, child: PageViewBuilder(controller: _controller)),
+        const SizedBox(height: 20),
         Expanded(
           flex: 2,
           child: TextWithButtonAndIndicator(

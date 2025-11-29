@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:plan_z/core/utils/app_colors.dart';
 import 'package:plan_z/core/widgets/custom_app_bar.dart';
@@ -10,9 +11,7 @@ class ProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: CustomAppBar(
-        title: 'My Profile',
-      ),
+      appBar: CustomAppBar(title: 'navigation.profile'.tr()),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
         child: Padding(

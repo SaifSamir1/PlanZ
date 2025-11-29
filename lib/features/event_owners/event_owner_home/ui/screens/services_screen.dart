@@ -1,8 +1,9 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:plan_z/core/theming/text_styles.dart';
+
 import 'package:plan_z/core/utils/app_colors.dart';
 import 'package:plan_z/core/widgets/custom_app_bar.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class ServicesScreen extends StatefulWidget {
   const ServicesScreen({super.key});
@@ -26,11 +27,12 @@ class _ServicesScreenState extends State<ServicesScreen> {
   Future<void> _loadServices() async {
     try {
       debugPrint('📥 Loading services from JSON...');
-      
+
       // Load JSON file
-      final jsonString = await DefaultAssetBundle.of(context)
-          .loadString('assets/json/service_collection.json');
-      
+      final jsonString = await DefaultAssetBundle.of(
+        context,
+      ).loadString('assets/json/service_collection.json');
+
       final jsonData = jsonDecode(jsonString) as Map<String, dynamic>;
       final servicesList = jsonData['services'] as List<dynamic>;
 
@@ -45,7 +47,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
     } catch (e) {
       debugPrint('❌ Error loading services: $e');
       setState(() {
-        _error = 'Failed to load services';
+        _error = 'event_owner.services_screen.failed_load'.tr();
         _isLoading = false;
       });
     }
@@ -70,7 +72,8 @@ class _ServicesScreenState extends State<ServicesScreen> {
                   children: [
                     Expanded(
                       child: Text(
-                        service['serviceName'] ?? 'Service',
+                        service['serviceName'] ??
+                            'event_owner.services_screen.service_fallback'.tr(),
                         style: const TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
@@ -137,8 +140,8 @@ class _ServicesScreenState extends State<ServicesScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Description',
+                        Text(
+                          'event_owner.services_screen.description'.tr(),
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
@@ -165,9 +168,9 @@ class _ServicesScreenState extends State<ServicesScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'الوصف',
-                          style: TextStyle(
+                        Text(
+                          'event_owner.services_screen.description_ar'.tr(),
+                          style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
                             color: AppColors.primaryDark,
@@ -185,118 +188,6 @@ class _ServicesScreenState extends State<ServicesScreen> {
                       ],
                     ),
                   ),
-
-                // ✅ Price Range
-                if (service['priceRange'] != null)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Price Range',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.primaryDark,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: Colors.grey[50],
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: Colors.grey[200]!),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                'Min: ${service['priceRange']['currency']} ${service['priceRange']['min']}',
-                                style: const TextStyle(fontSize: 12),
-                              ),
-                              Text(
-                                'Max: ${service['priceRange']['currency']} ${service['priceRange']['max']}',
-                                style: const TextStyle(fontSize: 12),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                // ✅ Common Attributes
-                if (service['commonAttributes'] != null &&
-                    (service['commonAttributes'] as List).isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Common Attributes',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.primaryDark,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          children: (service['commonAttributes'] as List)
-                              .map<Widget>((attr) => Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 10,
-                                      vertical: 6,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: Colors.blue.withOpacity(0.1),
-                                      borderRadius: BorderRadius.circular(6),
-                                      border: Border.all(
-                                        color: Colors.blue.withOpacity(0.3),
-                                      ),
-                                    ),
-                                    child: Text(
-                                      attr.toString().replaceAll('_', ' '),
-                                      style: const TextStyle(
-                                        fontSize: 11,
-                                        color: Colors.blue,
-                                      ),
-                                    ),
-                                  ))
-                              .toList(),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                const SizedBox(height: 24),
-
-                // ✅ Close Button
-                SizedBox(
-                  width: double.infinity,
-                  height: 48,
-                  child: ElevatedButton(
-                    onPressed: () => Navigator.pop(context),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primaryGold,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: const Text(
-                      'Close',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
               ],
             ),
           ),
@@ -309,7 +200,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar(
-        title: "Available Services",
+        title: "event_owner.services_screen.title".tr(),
         showBackButton: true,
       ),
       body: _isLoading
@@ -321,128 +212,135 @@ class _ServicesScreenState extends State<ServicesScreen> {
               ),
             )
           : _error != null
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.error_outline, size: 64, color: Colors.red[300]),
-                      const SizedBox(height: 16),
-                      Text(_error!),
-                      const SizedBox(height: 24),
-                      ElevatedButton(
-                        onPressed: _loadServices,
-                        child: const Text('Retry'),
-                      ),
-                    ],
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.error_outline, size: 64, color: Colors.red[300]),
+                  const SizedBox(height: 16),
+                  Text(_error!),
+                  const SizedBox(height: 24),
+                  ElevatedButton(
+                    onPressed: _loadServices,
+                    child: Text('event_owner.services_screen.retry'.tr()),
                   ),
-                )
-              : services.isEmpty
-                  ? Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.shopping_bag_outlined,
-                              size: 64, color: Colors.grey[300]),
-                          const SizedBox(height: 16),
-                          const Text('No services available'),
-                        ],
-                      ),
-                    )
-                  : Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        children: [
-                          Expanded(
-                            child: ListView.builder(
-                              itemCount: services.length,
-                              itemBuilder: (context, index) {
-                                final service = services[index];
-                                return GestureDetector(
-                                  onTap: () => _showServiceDetails(service),
-                                  child: Card(
-                                    margin: const EdgeInsets.only(bottom: 12),
-                                    shape: RoundedRectangleBorder(
+                ],
+              ),
+            )
+          : services.isEmpty
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.shopping_bag_outlined,
+                    size: 64,
+                    color: Colors.grey[300],
+                  ),
+                  const SizedBox(height: 16),
+                  Text('event_owner.services_screen.no_services'.tr()),
+                ],
+              ),
+            )
+          : Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                children: [
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: services.length,
+                      itemBuilder: (context, index) {
+                        final service = services[index];
+                        return GestureDetector(
+                          onTap: () => _showServiceDetails(service),
+                          child: Card(
+                            margin: const EdgeInsets.only(bottom: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Row(
+                                children: [
+                                  // ✅ Icon (no image in JSON)
+                                  Container(
+                                    width: 60,
+                                    height: 60,
+                                    decoration: BoxDecoration(
+                                      color: AppColors.primaryGold.withOpacity(
+                                        0.15,
+                                      ),
                                       borderRadius: BorderRadius.circular(12),
                                     ),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(16),
-                                      child: Row(
-                                        children: [
-                                          // ✅ Icon (no image in JSON)
-                                          Container(
-                                            width: 60,
-                                            height: 60,
-                                            decoration: BoxDecoration(
-                                              color: AppColors.primaryGold
-                                                  .withOpacity(0.15),
-                                              borderRadius:
-                                                  BorderRadius.circular(12),
-                                            ),
-                                            child: Icon(
-                                              Icons.business_center,
-                                              color: AppColors.primaryGold,
-                                              size: 32,
-                                            ),
-                                          ),
-                                          const SizedBox(width: 16),
-                                          // ✅ Service Info
-                                          Expanded(
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  service['serviceName'] ??
-                                                      'Service',
-                                                  style: const TextStyle(
-                                                    fontSize: 16,
-                                                    fontWeight: FontWeight.bold,
-                                                    color:
-                                                        AppColors.primaryDark,
-                                                  ),
-                                                ),
-                                                const SizedBox(height: 4),
-                                                Text(
-                                                  service['category'] ?? '',
-                                                  style: TextStyle(
-                                                    fontSize: 12,
-                                                    color: Colors.grey[600],
-                                                  ),
-                                                ),
-                                                const SizedBox(height: 8),
-                                                if (service['priceRange'] !=
-                                                    null)
-                                                  Text(
-                                                    'EGP ${service['priceRange']['min']} - ${service['priceRange']['max']}',
-                                                    style: const TextStyle(
-                                                      fontSize: 13,
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                      color: AppColors
-                                                          .primaryGold,
-                                                    ),
-                                                  ),
-                                              ],
-                                            ),
-                                          ),
-                                          // ✅ Arrow Icon
-                                          Icon(
-                                            Icons.arrow_forward_ios,
-                                            size: 16,
-                                            color: Colors.grey[400],
-                                          ),
-                                        ],
-                                      ),
+                                    child: Icon(
+                                      Icons.business_center,
+                                      color: AppColors.primaryGold,
+                                      size: 32,
                                     ),
                                   ),
-                                );
-                              },
+                                  const SizedBox(width: 16),
+                                  // ✅ Service Info
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          service['serviceName'] ??
+                                              'event_owner.services_screen.service_fallback'
+                                                  .tr(),
+                                          style: const TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                            color: AppColors.primaryDark,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          service['category'] ?? '',
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.grey[600],
+                                          ),
+                                        ),
+                                        const SizedBox(height: 8),
+                                        if (service['priceRange'] != null)
+                                          Text(
+                                            'event_owner.services_screen.price_range_format'
+                                                .tr(
+                                                  args: [
+                                                    service['priceRange']['min']
+                                                        .toString(),
+                                                    service['priceRange']['max']
+                                                        .toString(),
+                                                  ],
+                                                ),
+                                            style: const TextStyle(
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.w600,
+                                              color: AppColors.primaryGold,
+                                            ),
+                                          ),
+                                      ],
+                                    ),
+                                  ),
+                                  // ✅ Arrow Icon
+                                  Icon(
+                                    Icons.arrow_forward_ios,
+                                    size: 16,
+                                    color: Colors.grey[400],
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
-                         
-                        ],
-                      ),
+                        );
+                      },
                     ),
+                  ),
+                ],
+              ),
+            ),
     );
   }
 }

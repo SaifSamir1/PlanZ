@@ -1,6 +1,7 @@
-// lib/features/new_owner_features/event_owner_home/ui/screens/payment_history.dart
+// lib/features/event_owners/event_owner_home/ui/screens/payment_history.dart
 
 import 'package:flutter/foundation.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -10,7 +11,7 @@ import 'package:plan_z/core/widgets/custom_app_bar.dart';
 import 'package:plan_z/features/auth/data/models/user_manager.dart';
 import 'package:plan_z/features/event_owners/create_event_screen/cubits/create_event_cubit/create_event_cubit.dart';
 import 'package:plan_z/features/event_owners/create_event_screen/cubits/create_event_cubit/create_event_state.dart';
-import 'package:plan_z/features/event_owners/create_event_screen/data/models/event_model.dart';
+
 import 'package:plan_z/features/event_owners/create_event_screen/data/models/event_model_enum.dart';
 
 class PaymentHistory extends StatefulWidget {
@@ -29,7 +30,6 @@ class _PaymentHistoryState extends State<PaymentHistory> {
 
   void _loadPaymentData() {
     final ownerId = UserManager().userId;
-    debugPrint('');
     debugPrint('🔄 [PaymentHistory._loadPaymentData] Starting...');
     debugPrint('   Owner ID: $ownerId');
     if (ownerId != null) {
@@ -45,7 +45,7 @@ class _PaymentHistoryState extends State<PaymentHistory> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: CustomAppBar(
-        title: 'Payment History',
+        title: 'event_owner.payment_history.title'.tr(),
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 16),
@@ -63,7 +63,7 @@ class _PaymentHistoryState extends State<PaymentHistory> {
       ),
       body: BlocBuilder<EventOwnerCubit, EventOwnerState>(
         builder: (context, state) {
-          // ✅ Loading State
+          // Loading
           if (state is GetEventOwnerEventsLoading) {
             return const Center(
               child: CircularProgressIndicator(
@@ -74,71 +74,43 @@ class _PaymentHistoryState extends State<PaymentHistory> {
             );
           }
 
-          // ✅ Error State
+          // Error
           if (state is GetEventOwnerEventsError) {
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.error_outline, size: 64, color: Colors.red[300]),
+                  const Icon(Icons.error_outline, size: 64, color: Colors.red),
                   const SizedBox(height: 16),
-                  const Text('Failed to load payment history'),
+                  Text('event_owner.payment_history.failed_load'.tr()),
                   const SizedBox(height: 24),
                   ElevatedButton(
                     onPressed: _loadPaymentData,
-                    child: const Text('Retry'),
+                    child: Text('event_owner.payment_history.retry'.tr()),
                   ),
                 ],
               ),
             );
           }
 
-          // ✅ Success State
+          // Success
           if (state is GetEventOwnerEventsSuccess) {
-            // ✅ Debug logs - Comprehensive
-            debugPrint('═══════════════════════════════════════════════');
-            debugPrint('📊 [PaymentHistory] FETCHED EVENTS');
-            debugPrint('   Total events: ${state.events.length}');
-            debugPrint('═══════════════════════════════════════════════');
-            
-            for (var i = 0; i < state.events.length; i++) {
-              final event = state.events[i];
-              debugPrint('');
-              debugPrint('Event #${i + 1}:');
-              debugPrint('   Event ID: ${event.eventId}');
-              debugPrint('   Event Name: ${event.eventName}');
-              debugPrint('   Payment Status: ${event.paymentStatus}');
-              debugPrint('   Paid Amount: ${event.paidAmount}');
-              debugPrint('   Total Amount: ${event.totalAmount}');
-              debugPrint('   Remaining Amount: ${event.remainingAmount}');
-              debugPrint('   Updated At: ${event.updatedAt}');
-            }
-            debugPrint('═══════════════════════════════════════════════');
+            // Filter paid events
+            final paidEvents =
+                state.events.where((e) => e.paidAmount > 0).toList()
+                  ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
 
-            // ✅ فلتر الأحداث المدفوعة فقط (paid أو partiallyPaid)
-            final paidEvents = state.events
-                .where((event) {
-                  final isPaid = event.paidAmount > 0;
-                  debugPrint('   🔍 Filtering: ${event.eventName}');
-                  debugPrint('      paidAmount: ${event.paidAmount} > 0? $isPaid');
-                  return isPaid;
-                })
-                .toList()
-              ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
-
-            debugPrint('');
-            debugPrint('✅ [PaymentHistory] FILTERED PAID EVENTS: ${paidEvents.length}');
-            for (var i = 0; i < paidEvents.length; i++) {
-              debugPrint('   ${i + 1}. ${paidEvents[i].eventName} - EGP ${paidEvents[i].paidAmount}');
-            }
-
-            // ✅ حساب إجمالي المبالغ المدفوعة
             final totalPaid = paidEvents.fold<double>(
               0,
-              (sum, event) => sum + event.paidAmount,
+              (sum, e) => sum + e.paidAmount,
             );
-            debugPrint('💰 [PaymentHistory] TOTAL PAID: $totalPaid');
-            debugPrint('═══════════════════════════════════════════════');
+            final fullyPaidCount = paidEvents
+                .where((e) => e.paymentStatus == PaymentStatus.paid)
+                .length;
+            final partiallyPaidCount = paidEvents
+                .where((e) => e.paymentStatus == PaymentStatus.partiallyPaid)
+                .length;
+            final formattedAmount = totalPaid.toStringAsFixed(2);
 
             return SingleChildScrollView(
               physics: const BouncingScrollPhysics(),
@@ -147,24 +119,30 @@ class _PaymentHistoryState extends State<PaymentHistory> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // ✅ Total Balance Card
-                    _buildBalanceCard(totalPaid, paidEvents),
-
+                    // Balance Card
+                    _buildBalanceCard(
+                      formattedAmount,
+                      fullyPaidCount,
+                      partiallyPaidCount,
+                    ),
                     const SizedBox(height: 24),
-
-                    // ✅ Section Header
+                    // Section Header
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          'Payment Transactions',
-                          style: AppTextStyles.title.copyWith(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
+                        Expanded(
+                          child: Text(
+                            'event_owner.payment_history.transactions'.tr(),
+                            style: AppTextStyles.title.copyWith(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
+                        const SizedBox(width: 8),
                         Text(
-                          '${paidEvents.length} events',
+                          '${paidEvents.length} ${'event_owner.payment_history.events_suffix'.tr()}',
                           style: TextStyle(
                             fontSize: 12,
                             color: Colors.grey[600],
@@ -172,10 +150,8 @@ class _PaymentHistoryState extends State<PaymentHistory> {
                         ),
                       ],
                     ),
-
                     const SizedBox(height: 12),
-
-                    // ✅ Transactions List
+                    // Transactions List
                     if (paidEvents.isEmpty)
                       Center(
                         child: Padding(
@@ -189,7 +165,8 @@ class _PaymentHistoryState extends State<PaymentHistory> {
                               ),
                               const SizedBox(height: 16),
                               Text(
-                                'No payment transactions yet',
+                                'event_owner.payment_history.no_transactions'
+                                    .tr(),
                                 style: TextStyle(
                                   fontSize: 14,
                                   color: Colors.grey[600],
@@ -201,37 +178,41 @@ class _PaymentHistoryState extends State<PaymentHistory> {
                       )
                     else
                       ...paidEvents.map((event) {
-                        final formattedDate =
-                            DateFormat('MMM d, yyyy').format(event.updatedAt);
-                        final formattedTime =
-                            DateFormat('hh:mm a').format(event.updatedAt);
-
+                        final formattedDate = DateFormat(
+                          'MMM d, yyyy',
+                        ).format(event.updatedAt);
+                        final formattedTime = DateFormat(
+                          'hh:mm a',
+                        ).format(event.updatedAt);
+                        final statusKey =
+                            event.paymentStatus == PaymentStatus.paid
+                            ? 'event_owner.payment_history.completed'
+                            : 'event_owner.payment_history.partial';
+                        final statusLabel = statusKey.tr();
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 12),
                           child: _buildTransactionCard(
                             date: formattedDate,
                             time: formattedTime,
-                            title: 'Event Payment',
+                            title: 'event_owner.payment_history.event_payment'
+                                .tr(),
                             subtitle: event.eventName,
                             amount:
                                 'EGP ${event.paidAmount.toStringAsFixed(2)}',
-                            status: event.paymentStatus == PaymentStatus.paid
-                                ? 'Completed'
-                                : 'Partial',
+                            status: statusLabel,
                             statusColor:
                                 event.paymentStatus == PaymentStatus.paid
-                                    ? AppColors.success
-                                    : AppColors.warning,
+                                ? AppColors.success
+                                : AppColors.warning,
                             icon: Icons.event_available,
-                            iconBgColor: event.paymentStatus ==
-                                    PaymentStatus.paid
-                                ? AppColors.success.withOpacity(0.1)
-                                : AppColors.warning.withOpacity(0.1),
+                            iconBgColor:
+                                (event.paymentStatus == PaymentStatus.paid
+                                        ? AppColors.success
+                                        : AppColors.warning)
+                                    .withOpacity(0.1),
                           ),
                         );
                       }).toList(),
-
-                    const SizedBox(height: 20),
                   ],
                 ),
               ),
@@ -244,18 +225,11 @@ class _PaymentHistoryState extends State<PaymentHistory> {
     );
   }
 
-  Widget _buildBalanceCard(double totalPaid, List<EventModel> paidEvents) {
-    // ✅ حساب عدد الأحداث المدفوعة بالكامل والجزئية
-    final fullyPaidCount = paidEvents
-        .where((e) => e.paymentStatus == PaymentStatus.paid)
-        .length;
-    final partiallyPaidCount = paidEvents
-        .where((e) => e.paymentStatus == PaymentStatus.partiallyPaid)
-        .length;
-
-    // ✅ تنسيق المبلغ
-    final formattedAmount = totalPaid.toStringAsFixed(2);
-
+  Widget _buildBalanceCard(
+    String formattedAmount,
+    int fullyPaidCount,
+    int partiallyPaidCount,
+  ) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(24),
@@ -281,7 +255,6 @@ class _PaymentHistoryState extends State<PaymentHistory> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ✅ Icon and Title
           Row(
             children: [
               Container(
@@ -297,19 +270,19 @@ class _PaymentHistoryState extends State<PaymentHistory> {
                 ),
               ),
               const SizedBox(width: 12),
-              Text(
-                'Total Payments Received',
-                style: AppTextStyles.body.copyWith(
-                  color: Colors.white.withOpacity(0.8),
-                  fontSize: 14,
+              Expanded(
+                child: Text(
+                  'event_owner.payment_history.total_received'.tr(),
+                  style: AppTextStyles.body.copyWith(
+                    color: Colors.white.withOpacity(0.8),
+                    fontSize: 14,
+                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],
           ),
-
           const SizedBox(height: 16),
-
-          // ✅ Balance Amount
           Text(
             'EGP $formattedAmount',
             style: AppTextStyles.title.copyWith(
@@ -319,24 +292,25 @@ class _PaymentHistoryState extends State<PaymentHistory> {
               letterSpacing: 1,
             ),
           ),
-
           const SizedBox(height: 12),
-
-          // ✅ Stats Row
           Row(
             children: [
-              _buildStatItem(
-                icon: Icons.check_circle,
-                label: 'Fully Paid',
-                value: '$fullyPaidCount events',
-                iconColor: AppColors.success,
+              Expanded(
+                child: _buildStatItem(
+                  icon: Icons.check_circle,
+                  label: 'event_owner.payment_history.fully_paid'.tr(),
+                  value: '$fullyPaidCount events',
+                  iconColor: AppColors.success,
+                ),
               ),
-              const SizedBox(width: 24),
-              _buildStatItem(
-                icon: Icons.schedule,
-                label: 'Partial',
-                value: '$partiallyPaidCount events',
-                iconColor: AppColors.warning,
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildStatItem(
+                  icon: Icons.schedule,
+                  label: 'Partial',
+                  value: '$partiallyPaidCount events',
+                  iconColor: AppColors.warning,
+                ),
               ),
             ],
           ),
@@ -359,11 +333,7 @@ class _PaymentHistoryState extends State<PaymentHistory> {
             color: iconColor.withOpacity(0.2),
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Icon(
-            icon,
-            size: 16,
-            color: iconColor,
-          ),
+          child: Icon(icon, size: 16, color: iconColor),
         ),
         const SizedBox(width: 8),
         Column(
@@ -402,7 +372,6 @@ class _PaymentHistoryState extends State<PaymentHistory> {
     required Color iconBgColor,
   }) {
     final bool isPositive = amount.startsWith('+');
-    
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -422,9 +391,7 @@ class _PaymentHistoryState extends State<PaymentHistory> {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: () {
-            // Navigate to transaction details
-          },
+          onTap: () {},
           borderRadius: BorderRadius.circular(16),
           child: Padding(
             padding: const EdgeInsets.all(16),
@@ -432,23 +399,15 @@ class _PaymentHistoryState extends State<PaymentHistory> {
               children: [
                 Row(
                   children: [
-                    // Icon
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
                         color: iconBgColor,
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: Icon(
-                        icon,
-                        color: statusColor,
-                        size: 24,
-                      ),
+                      child: Icon(icon, color: statusColor, size: 24),
                     ),
-                    
                     const SizedBox(width: 16),
-                    
-                    // Title & Subtitle
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -471,17 +430,16 @@ class _PaymentHistoryState extends State<PaymentHistory> {
                         ],
                       ),
                     ),
-                    
                     const SizedBox(width: 12),
-                    
-                    // Amount
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Text(
                           amount,
                           style: AppTextStyles.price.copyWith(
-                            color: isPositive ? AppColors.success : AppColors.textPrimary,
+                            color: isPositive
+                                ? AppColors.success
+                                : AppColors.textPrimary,
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
                           ),
@@ -509,10 +467,7 @@ class _PaymentHistoryState extends State<PaymentHistory> {
                     ),
                   ],
                 ),
-                
                 const SizedBox(height: 12),
-                
-                // Date & Time
                 Row(
                   children: [
                     Icon(

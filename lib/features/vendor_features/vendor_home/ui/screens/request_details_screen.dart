@@ -6,14 +6,12 @@ import 'package:plan_z/core/widgets/custom_app_bar.dart';
 import 'package:plan_z/features/vendor_features/packages_mangment/data/models/package_request_model.dart';
 import 'package:plan_z/features/vendor_features/packages_mangment/cubit/vendor_cubit.dart';
 import 'package:plan_z/features/vendor_features/packages_mangment/cubit/vendor_state.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class RequestDetailsScreen extends StatefulWidget {
   final PackageRequestModel request;
 
-  const RequestDetailsScreen({
-    super.key,
-    required this.request,
-  });
+  const RequestDetailsScreen({super.key, required this.request});
 
   @override
   State<RequestDetailsScreen> createState() => _RequestDetailsScreenState();
@@ -30,7 +28,7 @@ class _RequestDetailsScreenState extends State<RequestDetailsScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: CustomAppBar(
-        title: 'Request Details',
+        title: 'vendor.requests.title'.tr(),
         actions: [
           IconButton(
             icon: const Icon(Icons.info_outline, color: Colors.white),
@@ -46,15 +44,18 @@ class _RequestDetailsScreenState extends State<RequestDetailsScreen> {
               barrierDismissible: false,
               builder: (context) => const Center(
                 child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(AppColors.primaryGold),
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    AppColors.primaryGold,
+                  ),
                 ),
               ),
             );
-          } else if (state is AcceptRequestSuccess || state is RejectRequestSuccess) {
+          } else if (state is AcceptRequestSuccess ||
+              state is RejectRequestSuccess) {
             Navigator.pop(context); // Close loading dialog
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('✅ Request updated successfully!'),
+              SnackBar(
+                content: Text('vendor.requests.request_updated'.tr()),
                 backgroundColor: Colors.green,
                 duration: Duration(seconds: 2),
               ),
@@ -62,12 +63,17 @@ class _RequestDetailsScreenState extends State<RequestDetailsScreen> {
             Future.delayed(const Duration(seconds: 1), () {
               if (mounted) Navigator.pop(context); // Go back to dashboard
             });
-          } else if (state is AcceptRequestError || state is RejectRequestError) {
+          } else if (state is AcceptRequestError ||
+              state is RejectRequestError) {
             Navigator.pop(context); // Close loading dialog
-            final message = state is AcceptRequestError ? state.message : (state as RejectRequestError).message;
+            final message = state is AcceptRequestError
+                ? state.message
+                : (state as RejectRequestError).message;
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text('❌ Error: $message'),
+                content: Text(
+                  '${'vendor.requests.update_error'.tr()} $message',
+                ),
                 backgroundColor: Colors.red,
               ),
             );
@@ -83,52 +89,55 @@ class _RequestDetailsScreenState extends State<RequestDetailsScreen> {
               const SizedBox(height: 20),
 
               // ✅ Event Information
-              _buildSectionTitle('Event Information'),
+              _buildSectionTitle('vendor.requests.event_information'.tr()),
               _buildInfoCard(
                 icon: Icons.event,
                 title: widget.request.eventName,
                 subtitle: widget.request.eventType,
                 details: [
-                  'Date: ${_formatDate(widget.request.eventDate)}',
-                  'Guests: ${widget.request.guestCount}',
+                  '${'event_review.date'.tr()}: ${_formatDate(widget.request.eventDate)}',
+                  '${'event_review.guest_count'.tr()}: ${widget.request.guestCount}',
                 ],
               ),
               const SizedBox(height: 16),
 
               // ✅ Event Owner Information
-              _buildSectionTitle('Event Owner'),
+              _buildSectionTitle('vendor.requests.event_owner'.tr()),
               _buildInfoCard(
                 icon: Icons.person,
                 title: widget.request.eventOwnerName,
                 subtitle: widget.request.eventOwnerEmail,
                 details: [
-                  'Phone: ${widget.request.eventOwnerPhone?.toString() ?? 'N/A'}',
+                  '${'auth.phone_number'.tr()}: ${widget.request.eventOwnerPhone?.toString() ?? 'N/A'}',
                 ],
               ),
               const SizedBox(height: 16),
 
               // ✅ Location Information
-              _buildSectionTitle('Location Details'),
+              _buildSectionTitle('vendor.requests.location_details'.tr()),
               _buildLocationCard(),
               const SizedBox(height: 16),
 
               // ✅ Package Information
-              _buildSectionTitle('Package Details'),
+              _buildSectionTitle('vendor.requests.package_details'.tr()),
               _buildPackageCard(),
               const SizedBox(height: 16),
 
               // ✅ Budget Information
-              _buildSectionTitle('Budget Information'),
+              _buildSectionTitle('vendor.requests.budget_information'.tr()),
               _buildBudgetCard(),
               const SizedBox(height: 16),
 
               // ✅ Additional Details
               if (widget.request.customRequirements != null &&
-                  (widget.request.customRequirements!['description'] ?? '').isNotEmpty)
+                  (widget.request.customRequirements!['description'] ?? '')
+                      .isNotEmpty)
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildSectionTitle('Event Description'),
+                    _buildSectionTitle(
+                      'vendor.requests.event_description'.tr(),
+                    ),
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
@@ -137,7 +146,8 @@ class _RequestDetailsScreenState extends State<RequestDetailsScreen> {
                         border: Border.all(color: Colors.grey[300]!),
                       ),
                       child: Text(
-                        widget.request.customRequirements!['description'] ?? 'No description',
+                        widget.request.customRequirements!['description'] ??
+                            'No description',
                         style: const TextStyle(
                           fontSize: 13,
                           color: AppColors.textSecondary,
@@ -195,11 +205,8 @@ class _RequestDetailsScreenState extends State<RequestDetailsScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Request Status',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey[600],
-                  ),
+                  'vendor.requests.request_status'.tr(),
+                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -268,16 +275,18 @@ class _RequestDetailsScreenState extends State<RequestDetailsScreen> {
             ],
           ),
           const SizedBox(height: 8),
-          ...details.map((detail) => Padding(
-            padding: const EdgeInsets.only(bottom: 4),
-            child: Text(
-              detail,
-              style: const TextStyle(
-                fontSize: 12,
-                color: AppColors.textSecondary,
+          ...details.map(
+            (detail) => Padding(
+              padding: const EdgeInsets.only(bottom: 4),
+              child: Text(
+                detail,
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: AppColors.textSecondary,
+                ),
               ),
             ),
-          )),
+          ),
         ],
       ),
     );
@@ -310,8 +319,8 @@ class _RequestDetailsScreenState extends State<RequestDetailsScreen> {
             children: [
               Icon(Icons.location_on, color: Colors.blue, size: 20),
               const SizedBox(width: 8),
-              const Text(
-                'Event Location',
+              Text(
+                'vendor.requests.event_location'.tr(),
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
@@ -321,8 +330,8 @@ class _RequestDetailsScreenState extends State<RequestDetailsScreen> {
             ],
           ),
           const SizedBox(height: 8),
-          _buildDetailRow('Location', location),
-          _buildDetailRow('City', city),
+          _buildDetailRow('event_review.location'.tr(), location),
+          _buildDetailRow('event_review.city'.tr(), city),
           _buildDetailRow('Address', address),
         ],
       ),
@@ -383,7 +392,10 @@ class _RequestDetailsScreenState extends State<RequestDetailsScreen> {
   Widget _buildBudgetCard() {
     final customReq = widget.request.customRequirements ?? {};
     final totalBudget = (customReq['totalBudget'] as num?)?.toDouble() ?? 0.0;
-    final price = widget.request.packagePrice ?? (customReq['packagePrice'] as num?)?.toDouble() ?? 0.0;
+    final price =
+        widget.request.packagePrice ??
+        (customReq['packagePrice'] as num?)?.toDouble() ??
+        0.0;
 
     debugPrint('🔍 Budget Card Debug:');
     debugPrint('   customReq: $customReq');
@@ -417,8 +429,14 @@ class _RequestDetailsScreenState extends State<RequestDetailsScreen> {
             ],
           ),
           const SizedBox(height: 8),
-          _buildDetailRow('Package Price', 'EGP ${_formatNumber(price.toInt())}'),
-          _buildDetailRow('Total Event Budget', 'EGP ${_formatNumber(totalBudget.toInt())}'),
+          _buildDetailRow(
+            'vendor.requests.package_price'.tr(),
+            'EGP ${_formatNumber(price.toInt())}',
+          ),
+          _buildDetailRow(
+            'vendor.requests.total_event_budget'.tr(),
+            'EGP ${_formatNumber(totalBudget.toInt())}',
+          ),
         ],
       ),
     );
@@ -479,7 +497,7 @@ class _RequestDetailsScreenState extends State<RequestDetailsScreen> {
           child: ElevatedButton.icon(
             onPressed: _rejectRequest,
             icon: const Icon(Icons.close, size: 18),
-            label: const Text('Reject'),
+            label: Text('vendor.requests.reject'.tr()),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.red,
               foregroundColor: Colors.white,
@@ -492,7 +510,7 @@ class _RequestDetailsScreenState extends State<RequestDetailsScreen> {
           child: ElevatedButton.icon(
             onPressed: _acceptRequest,
             icon: const Icon(Icons.check, size: 18),
-            label: const Text('Accept'),
+            label: Text('vendor.requests.accept'.tr()),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.green,
               foregroundColor: Colors.white,
@@ -535,12 +553,12 @@ class _RequestDetailsScreenState extends State<RequestDetailsScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Accept Request?'),
-        content: const Text('Are you sure you want to accept this package request?'),
+        title: Text('vendor.requests.accept_request'.tr()),
+        content: Text('vendor.requests.accept_message'.tr()),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text('vendor.requests.cancel'.tr()),
           ),
           ElevatedButton(
             onPressed: () {
@@ -551,7 +569,7 @@ class _RequestDetailsScreenState extends State<RequestDetailsScreen> {
               );
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-            child: const Text('Accept'),
+            child: Text('vendor.requests.accept'.tr()),
           ),
         ],
       ),
@@ -563,12 +581,12 @@ class _RequestDetailsScreenState extends State<RequestDetailsScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Reject Request?'),
-        content: const Text('Are you sure you want to reject this package request?'),
+        title: Text('vendor.requests.reject_request'.tr()),
+        content: Text('vendor.requests.reject_message'.tr()),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text('vendor.requests.cancel'.tr()),
           ),
           ElevatedButton(
             onPressed: () {
@@ -579,7 +597,7 @@ class _RequestDetailsScreenState extends State<RequestDetailsScreen> {
               );
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text('Reject'),
+            child: Text('vendor.requests.reject'.tr()),
           ),
         ],
       ),
@@ -650,15 +668,15 @@ class _RequestDetailsScreenState extends State<RequestDetailsScreen> {
   String _getStatusText(RequestStatus status) {
     switch (status) {
       case RequestStatus.pending:
-        return 'Pending';
+        return 'vendor.requests.pending'.tr();
       case RequestStatus.accepted:
-        return 'Accepted';
+        return 'vendor.requests.accepted'.tr();
       case RequestStatus.rejected:
-        return 'Rejected';
+        return 'vendor.requests.rejected'.tr();
       case RequestStatus.expired:
-        return 'Expired';
+        return 'vendor.requests.expired'.tr();
       case RequestStatus.cancelled:
-        return 'Cancelled';
+        return 'vendor.requests.cancelled'.tr();
     }
   }
 

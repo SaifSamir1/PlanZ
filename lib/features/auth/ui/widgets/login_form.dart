@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:plan_z/core/theming/text_styles.dart';
 import 'package:plan_z/core/utils/app_colors.dart';
@@ -8,9 +9,15 @@ import 'package:plan_z/features/auth/ui/widgets/password_text_form_filed.dart';
 class LoginForm extends StatefulWidget {
   final UserType userType;
   final GlobalKey<FormState> formKey;
-  final TextEditingController emailController ;
+  final TextEditingController emailController;
   final TextEditingController passwordController;
-  const LoginForm({super.key, required this.userType, required this.formKey, required this.emailController, required this.passwordController});
+  const LoginForm({
+    super.key,
+    required this.userType,
+    required this.formKey,
+    required this.emailController,
+    required this.passwordController,
+  });
 
   @override
   // ignore: library_private_types_in_public_api
@@ -18,8 +25,6 @@ class LoginForm extends StatefulWidget {
 }
 
 class _LoginFormState extends State<LoginForm> {
-  
-
   @override
   Widget build(BuildContext context) {
     return Form(
@@ -28,18 +33,18 @@ class _LoginFormState extends State<LoginForm> {
         children: [
           // Email field
           AppTextField(
-            hintText: 'Email Address',
+            hintText: 'auth.email_address'.tr(),
             controller: widget.emailController,
             keyboardType: TextInputType.emailAddress,
             prefixIcon: const Icon(Icons.email, color: AppColors.textHint),
             validator: (value) {
               if (value == null || value.isEmpty) {
-                return 'Please enter your email';
+                return 'auth.enter_email'.tr();
               }
               if (!RegExp(
                 r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
               ).hasMatch(value)) {
-                return 'Please enter a valid email';
+                return 'auth.enter_valid_email'.tr();
               }
               return null;
             },
@@ -50,7 +55,7 @@ class _LoginFormState extends State<LoginForm> {
             controller: widget.passwordController,
             validator: (value) {
               if (value == null || value.isEmpty) {
-                return 'Please enter your password';
+                return 'auth.enter_password'.tr();
               }
               return null;
             },
@@ -60,7 +65,7 @@ class _LoginFormState extends State<LoginForm> {
           Align(
             alignment: Alignment.centerRight,
             child: Text(
-              'Forgot Password?',
+              'auth.forgot_password'.tr(),
               style:
                   AppTextStyles.withColor(
                     AppTextStyles.caption,

@@ -128,6 +128,15 @@ class AuthRepositoryImpl implements AuthRepository {
         return const Left(AuthFailure('Account is deactivated'));
       }
 
+      // ✅ Update FCM Token on Login
+      final fcmToken = await FirebaseMessaging.instance.getToken();
+      if (fcmToken != null) {
+        final collectionName = _getCollectionName(userModel.userType);
+        await _firestore.collection(collectionName).doc(userModel.id).update({
+          'fcmToken': fcmToken,
+        });
+      }
+
       // حفظ جلسة المستخدم محلياً
       await AuthHiveService.saveUserSession(
         userId: userModel.id,

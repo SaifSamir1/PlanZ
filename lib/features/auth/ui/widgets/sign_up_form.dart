@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:plan_z/core/utils/app_colors.dart';
 import 'package:plan_z/core/widgets/custom_text_form.dart';
@@ -7,14 +8,22 @@ import 'package:plan_z/features/auth/ui/widgets/password_text_form_filed.dart';
 class SignUpForm extends StatefulWidget {
   final UserType userType;
   final GlobalKey<FormState> formKey;
-  final TextEditingController nameController ;
-  final TextEditingController emailController ;
-  final TextEditingController phoneController ;
-  final TextEditingController passwordController ;
-  final TextEditingController confirmPasswordController ;
+  final TextEditingController nameController;
+  final TextEditingController emailController;
+  final TextEditingController phoneController;
+  final TextEditingController passwordController;
+  final TextEditingController confirmPasswordController;
 
-
-  const SignUpForm({super.key, required this.userType, required this.formKey, required this.nameController, required this.emailController, required this.phoneController, required this.passwordController, required this.confirmPasswordController});
+  const SignUpForm({
+    super.key,
+    required this.userType,
+    required this.formKey,
+    required this.nameController,
+    required this.emailController,
+    required this.phoneController,
+    required this.passwordController,
+    required this.confirmPasswordController,
+  });
 
   @override
   // ignore: library_private_types_in_public_api
@@ -22,8 +31,6 @@ class SignUpForm extends StatefulWidget {
 }
 
 class _SignUpFormState extends State<SignUpForm> {
-
-
   @override
   Widget build(BuildContext context) {
     return Form(
@@ -32,12 +39,12 @@ class _SignUpFormState extends State<SignUpForm> {
         children: [
           // Name field
           AppTextField(
-            hintText: 'Full Name',
+            hintText: 'auth.full_name'.tr(),
             controller: widget.nameController,
             prefixIcon: const Icon(Icons.person, color: AppColors.textHint),
             validator: (value) {
               if (value == null || value.isEmpty) {
-                return 'Please enter your full name';
+                return 'auth.enter_full_name'.tr();
               }
               return null;
             },
@@ -45,18 +52,18 @@ class _SignUpFormState extends State<SignUpForm> {
           const SizedBox(height: 16.0),
           // Email field
           AppTextField(
-            hintText: 'Email',
+            hintText: 'auth.email'.tr(),
             controller: widget.emailController,
             keyboardType: TextInputType.emailAddress,
             prefixIcon: const Icon(Icons.email, color: AppColors.textHint),
             validator: (value) {
               if (value == null || value.isEmpty) {
-                return 'Please enter your email';
+                return 'auth.enter_email'.tr();
               }
               if (!RegExp(
                 r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
               ).hasMatch(value)) {
-                return 'Please enter a valid email';
+                return 'auth.enter_valid_email'.tr();
               }
               return null;
             },
@@ -64,13 +71,13 @@ class _SignUpFormState extends State<SignUpForm> {
           const SizedBox(height: 16.0),
           // Phone field
           AppTextField(
-            hintText: 'Phone Number',
+            hintText: 'auth.phone_number'.tr(),
             controller: widget.phoneController,
             keyboardType: TextInputType.phone,
             prefixIcon: const Icon(Icons.phone, color: AppColors.textHint),
             validator: (value) {
               if (value == null || value.isEmpty) {
-                return 'Please enter your phone number';
+                return 'auth.enter_phone'.tr();
               }
               return null;
             },
@@ -81,10 +88,10 @@ class _SignUpFormState extends State<SignUpForm> {
             controller: widget.passwordController,
             validator: (value) {
               if (value == null || value.isEmpty) {
-                return 'Please enter your password';
+                return 'auth.enter_password'.tr();
               }
               if (value.length < 6) {
-                return 'Password must be at least 6 characters';
+                return 'auth.password_min_length'.tr();
               }
               return null;
             },
@@ -92,14 +99,14 @@ class _SignUpFormState extends State<SignUpForm> {
           const SizedBox(height: 16.0),
           // Confirm password field
           AppPasswordTextField(
-            hintText: 'Confirm Password',
+            hintText: 'auth.confirm_password'.tr(),
             controller: widget.confirmPasswordController,
             validator: (value) {
               if (value == null || value.isEmpty) {
-                return 'Please confirm your password';
+                return 'auth.confirm_password_req'.tr();
               }
               if (value != widget.passwordController.text) {
-                return 'Passwords do not match';
+                return 'auth.passwords_do_not_match'.tr();
               }
               return null;
             },

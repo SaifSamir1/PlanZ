@@ -7,14 +7,12 @@ class FCMService {
   static final FirebaseMessaging _fcm = FirebaseMessaging.instance;
 
   static Future<void> initFCM(BuildContext context) async {
-    // طلب إذن المستخدم لتلقي الإشعارات
     await _fcm.requestPermission(
       alert: true,
       badge: true,
       sound: true,
     );
 
-    // لما التطبيق مفتوح ويجيله إشعار
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       final notification = message.notification;
       if (notification != null) {
@@ -28,7 +26,6 @@ class FCMService {
       }
     });
 
-    // لما المستخدم يضغط على الإشعار
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
       Navigator.push(
         context,
@@ -36,7 +33,6 @@ class FCMService {
       );
     });
 
-    // لو التطبيق اتفتح أساسًا من إشعار
     RemoteMessage? initialMessage = await _fcm.getInitialMessage();
     if (initialMessage != null) {
       Navigator.push(

@@ -1,5 +1,6 @@
 // lib/features/attendee/presentation/screens/event_details_screen.dart
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -12,10 +13,7 @@ import 'package:plan_z/features/event_owners/create_event_screen/data/models/eve
 class EventDetailsScreen extends StatefulWidget {
   final EventModel event;
 
-  const EventDetailsScreen({
-    super.key,
-    required this.event,
-  });
+  const EventDetailsScreen({super.key, required this.event});
 
   @override
   State<EventDetailsScreen> createState() => _EventDetailsScreenState();
@@ -36,7 +34,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: CustomAppBar(
-        title: 'Event Details',
+        title: 'attendee.event_details_title'.tr(),
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 16),
@@ -85,7 +83,10 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                     duration: const Duration(milliseconds: 500),
                     delay: const Duration(milliseconds: 50),
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
                       decoration: BoxDecoration(
                         color: AppColors.buttonPrimary.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(8),
@@ -122,7 +123,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'About Event',
+                            'attendee.about_event'.tr(),
                             style: AppTextStyles.headline3,
                           ),
                           const SizedBox(height: 8),
@@ -202,10 +203,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
-                colors: [
-                  Colors.transparent,
-                  Colors.black.withOpacity(0.3),
-                ],
+                colors: [Colors.transparent, Colors.black.withOpacity(0.3)],
               ),
             ),
           ),
@@ -220,19 +218,19 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
       children: [
         _buildInfoItem(
           icon: Icons.calendar_today_rounded,
-          title: 'Date & Time',
+          title: 'attendee.date_time'.tr(),
           value: _formatDateTime(widget.event.eventDate),
         ),
         const SizedBox(height: 16),
         _buildInfoItem(
           icon: Icons.location_on_rounded,
-          title: 'Location',
+          title: 'attendee.location'.tr(),
           value: widget.event.location,
         ),
         const SizedBox(height: 16),
         _buildInfoItem(
           icon: Icons.person_rounded,
-          title: 'Organizer',
+          title: 'attendee.organizer'.tr(),
           value: widget.event.eventOwnerName,
         ),
       ],
@@ -250,10 +248,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: Colors.grey[200]!,
-          width: 1,
-        ),
+        border: Border.all(color: Colors.grey[200]!, width: 1),
       ),
       child: Row(
         children: [
@@ -263,11 +258,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
               color: AppColors.buttonPrimary.withOpacity(0.1),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Icon(
-              icon,
-              color: AppColors.buttonPrimary,
-              size: 20,
-            ),
+            child: Icon(icon, color: AppColors.buttonPrimary, size: 20),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -322,17 +313,15 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Guest Information',
-            style: AppTextStyles.subtitle.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
+            'attendee.guest_info'.tr(),
+            style: AppTextStyles.subtitle.copyWith(fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 12),
           Row(
             children: [
               Expanded(
                 child: _buildStatItem(
-                  label: 'Expected Guests',
+                  label: 'attendee.expected_guests'.tr(),
                   value: widget.event.expectedGuestCount.toString(),
                   icon: Icons.people_outline,
                 ),
@@ -340,7 +329,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
               const SizedBox(width: 12),
               Expanded(
                 child: _buildStatItem(
-                  label: 'Confirmed',
+                  label: 'attendee.confirmed'.tr(),
                   value: (widget.event.confirmedGuestCount ?? 0).toString(),
                   icon: Icons.check_circle_outline,
                 ),
@@ -363,18 +352,11 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(
-          color: Colors.grey[200]!,
-          width: 1,
-        ),
+        border: Border.all(color: Colors.grey[200]!, width: 1),
       ),
       child: Column(
         children: [
-          Icon(
-            icon,
-            color: AppColors.buttonPrimary,
-            size: 24,
-          ),
+          Icon(icon, color: AppColors.buttonPrimary, size: 24),
           const SizedBox(height: 6),
           Text(
             value,
@@ -406,35 +388,30 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: Colors.grey[200]!,
-          width: 1,
-        ),
+        border: Border.all(color: Colors.grey[200]!, width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Budget Information',
-            style: AppTextStyles.subtitle.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
+            'attendee.budget_info'.tr(),
+            style: AppTextStyles.subtitle.copyWith(fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 12),
           _buildBudgetItem(
-            label: 'Total Budget',
+            label: 'attendee.total_budget'.tr(),
             amount: widget.event.totalBudget,
             color: AppColors.buttonPrimary,
           ),
           const SizedBox(height: 8),
           _buildBudgetItem(
-            label: 'Allocated Budget',
+            label: 'attendee.allocated_budget'.tr(),
             amount: widget.event.allocatedBudget,
             color: Colors.orange,
           ),
           const SizedBox(height: 8),
           _buildBudgetItem(
-            label: 'Remaining Budget',
+            label: 'attendee.remaining_budget'.tr(),
             amount: widget.event.remainingBudget,
             color: Colors.green,
           ),
@@ -454,9 +431,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
       children: [
         Text(
           label,
-          style: AppTextStyles.body.copyWith(
-            color: Colors.grey[600],
-          ),
+          style: AppTextStyles.body.copyWith(color: Colors.grey[600]),
         ),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -465,7 +440,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
             borderRadius: BorderRadius.circular(8),
           ),
           child: Text(
-            'EGP ${amount.toStringAsFixed(2)}',
+            'attendee.egp'.tr(args: [amount.toStringAsFixed(2)]),
             style: AppTextStyles.body.copyWith(
               color: color,
               fontWeight: FontWeight.w600,
@@ -488,14 +463,14 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
           child: ElevatedButton.icon(
             onPressed: () {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('✅ You are interested in this event!'),
-                  duration: Duration(seconds: 2),
+                SnackBar(
+                  content: Text('attendee.interested_snackbar'.tr()),
+                  duration: const Duration(seconds: 2),
                 ),
               );
             },
             icon: const Icon(Icons.check_circle),
-            label: const Text('Mark as Interested'),
+            label: Text('attendee.mark_interested'.tr()),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.buttonPrimary,
               foregroundColor: Colors.white,
@@ -513,20 +488,17 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
           child: OutlinedButton.icon(
             onPressed: () {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('📤 Event shared!'),
-                  duration: Duration(seconds: 2),
+                SnackBar(
+                  content: Text('attendee.shared_snackbar'.tr()),
+                  duration: const Duration(seconds: 2),
                 ),
               );
             },
             icon: const Icon(Icons.share),
-            label: const Text('Share Event'),
+            label: Text('attendee.share_event'.tr()),
             style: OutlinedButton.styleFrom(
               foregroundColor: AppColors.buttonPrimary,
-              side: BorderSide(
-                color: AppColors.buttonPrimary,
-                width: 1.5,
-              ),
+              side: BorderSide(color: AppColors.buttonPrimary, width: 1.5),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),

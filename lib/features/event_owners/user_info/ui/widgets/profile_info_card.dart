@@ -1,8 +1,11 @@
 import 'package:animate_do/animate_do.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:plan_z/core/theming/text_styles.dart';
 import 'package:plan_z/core/utils/app_colors.dart';
+import 'package:plan_z/features/auth/data/models/user_manager.dart';
 
 class ProfileInfoCard extends StatefulWidget {
   const ProfileInfoCard({super.key});
@@ -31,11 +34,11 @@ class _ProfileInfoCardState extends State<ProfileInfoCard> {
   }
 
   Future<void> _loadUserData() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
+    final currentUser = UserManager().currentUser;
+    if (currentUser != null) {
       setState(() {
-        _nameController.text = user.displayName ?? 'User';
-        _phoneController.text = user.phoneNumber ?? '';
+        _nameController.text = currentUser.name;
+        _phoneController.text = currentUser.phoneNumber ?? '';
       });
     }
   }
@@ -81,10 +84,7 @@ class _ProfileInfoCardState extends State<ProfileInfoCard> {
                 const SizedBox(height: 6),
                 Text(
                   'Update your profile information',
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: Colors.grey[600],
-                  ),
+                  style: TextStyle(fontSize: 13, color: Colors.grey[600]),
                 ),
                 const SizedBox(height: 20),
 
@@ -155,9 +155,7 @@ class _ProfileInfoCardState extends State<ProfileInfoCard> {
                         onPressed: () => Navigator.pop(context),
                         style: OutlinedButton.styleFrom(
                           foregroundColor: AppColors.primaryDark,
-                          side: const BorderSide(
-                            color: AppColors.primaryDark,
-                          ),
+                          side: const BorderSide(color: AppColors.primaryDark),
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -165,7 +163,10 @@ class _ProfileInfoCardState extends State<ProfileInfoCard> {
                         ),
                         child: const Text(
                           'Cancel',
-                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
                     ),
@@ -173,24 +174,69 @@ class _ProfileInfoCardState extends State<ProfileInfoCard> {
                     Expanded(
                       child: ElevatedButton(
                         onPressed: () async {
-                          final user = FirebaseAuth.instance.currentUser;
-                          if (user != null) {
-                            try {
-                              await user.updateDisplayName(_nameController.text);
+                          final newName = _nameController.text.trim();
+                          final newPhone = _phoneController.text.trim();
+
+                          // Validation
+                          if (newName.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('auth.enter_full_name'.tr()),
+                                backgroundColor: AppColors.error,
+                              ),
+                            );
+                            return;
+                          }
+
+                          try {
+                            final user = FirebaseAuth.instance.currentUser;
+                            final userId = UserManager().userId;
+
+                            if (user != null && userId != null) {
+                              // 1. Update Firebase Auth
+                              await user.updateDisplayName(newName);
+
+                              // 2. Update Firestore
+                              await FirebaseFirestore.instance
+                                  .collection('users')
+                                  .doc(userId)
+                                  .set({
+                                    'name': newName,
+                                    'phoneNumber': newPhone.isNotEmpty
+                                        ? newPhone
+                                        : null,
+                                  }, SetOptions(merge: true));
+
+                              // 3. Update UserManager
+                              await UserManager().updateUserFields(
+                                name: newName,
+                                phoneNumber: newPhone.isNotEmpty
+                                    ? newPhone
+                                    : null,
+                              );
+
                               if (!mounted) return;
                               Navigator.pop(context);
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('✅ Profile updated successfully'),
-                                  duration: Duration(seconds: 2),
+                                SnackBar(
+                                  content: Text(
+                                    'settings.username_updated'.tr(),
+                                  ),
+                                  backgroundColor: AppColors.accentGreen,
+                                  duration: const Duration(seconds: 2),
                                 ),
                               );
                               setState(() {});
-                            } catch (e) {
+                            }
+                          } catch (e) {
+                            if (mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
-                                  content: Text('❌ Error: $e'),
-                                  duration: const Duration(seconds: 2),
+                                  content: Text(
+                                    'settings.error'.tr(args: [e.toString()]),
+                                  ),
+                                  backgroundColor: AppColors.error,
+                                  duration: const Duration(seconds: 3),
                                 ),
                               );
                             }
@@ -225,7 +271,7 @@ class _ProfileInfoCardState extends State<ProfileInfoCard> {
 
   @override
   Widget build(BuildContext context) {
-    final user = FirebaseAuth.instance.currentUser;
+    final currentUser = UserManager().currentUser;
 
     return Card(
       elevation: 3,
@@ -284,7 +330,7 @@ class _ProfileInfoCardState extends State<ProfileInfoCard> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        user?.displayName ?? 'User',
+                        currentUser?.name ?? 'User',
                         style: AppTextStyles.title.copyWith(
                           fontWeight: FontWeight.w700,
                           fontSize: 18,
@@ -292,18 +338,19 @@ class _ProfileInfoCardState extends State<ProfileInfoCard> {
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        user?.email ?? 'No email',
+                        currentUser?.email ?? 'No email',
                         style: TextStyle(
                           color: AppColors.primaryDark.withOpacity(0.6),
                           fontSize: 13,
                           height: 1.4,
                         ),
                       ),
-                      if (user?.phoneNumber != null && (user?.phoneNumber ?? '').isNotEmpty)
+                      if (currentUser?.phoneNumber != null &&
+                          (currentUser?.phoneNumber ?? '').isNotEmpty)
                         Padding(
                           padding: const EdgeInsets.only(top: 4),
                           child: Text(
-                            user?.phoneNumber ?? '',
+                            currentUser?.phoneNumber ?? '',
                             style: TextStyle(
                               color: AppColors.primaryDark.withOpacity(0.6),
                               fontSize: 12,

@@ -1,5 +1,6 @@
 // lib/features/new_owner_features/invitations/ui/screens/select_guests_screen.dart
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -162,7 +163,7 @@ class _SelectGuestsScreenState extends State<SelectGuestsScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: CustomAppBar(
-        title: 'Select Guests',
+        title: "event_owner.select_guests_screen.title".tr(),
         actions: [
           if (_selectedCount > 0)
             Center(
@@ -177,7 +178,9 @@ class _SelectGuestsScreenState extends State<SelectGuestsScreen> {
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
-                  '$_selectedCount Selected',
+                  "event_owner.select_guests_screen.selected_count".tr(
+                    args: [_selectedCount.toString()],
+                  ),
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 14,
@@ -224,7 +227,7 @@ class _SelectGuestsScreenState extends State<SelectGuestsScreen> {
                         );
                       },
                     ),
-                  
+
                   // ✅ Bottom spacing
                   const SizedBox(height: 16),
                 ],
@@ -238,7 +241,10 @@ class _SelectGuestsScreenState extends State<SelectGuestsScreen> {
   /// Event Info Header
   /// ============================================
   Widget _buildEventInfoHeader() {
-    final formattedDate = DateFormat('MMM d, yyyy').format(widget.eventDate);
+    final formattedDate = DateFormat(
+      'MMM d, yyyy',
+      context.locale.toString(),
+    ).format(widget.eventDate);
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
@@ -315,10 +321,14 @@ class _SelectGuestsScreenState extends State<SelectGuestsScreen> {
         onChanged: _filterAttendees,
         style: const TextStyle(fontSize: 13),
         decoration: InputDecoration(
-          hintText: 'Search by name, email or phone...',
+          hintText: "event_owner.select_guests_screen.search_hint".tr(),
           hintStyle: TextStyle(color: Colors.grey[600], fontSize: 12),
           border: InputBorder.none,
-          icon: const Icon(Icons.search, color: AppColors.primaryGold, size: 18),
+          icon: const Icon(
+            Icons.search,
+            color: AppColors.primaryGold,
+            size: 18,
+          ),
           isDense: true,
           contentPadding: const EdgeInsets.symmetric(vertical: 10),
           suffixIcon: _searchQuery.isNotEmpty
@@ -354,21 +364,21 @@ class _SelectGuestsScreenState extends State<SelectGuestsScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           _buildStatItem(
-            'Total',
+            "event_owner.select_guests_screen.total".tr(),
             _attendeesList.length.toString(),
             Icons.people,
             Colors.blue,
           ),
           _buildStatDivider(),
           _buildStatItem(
-            'Invited',
+            "event_owner.select_guests_screen.invited".tr(),
             _alreadyInvitedCount.toString(),
             Icons.check_circle,
             Colors.green,
           ),
           _buildStatDivider(),
           _buildStatItem(
-            'Available',
+            "event_owner.select_guests_screen.available".tr(),
             _availableCount.toString(),
             Icons.person_add,
             AppColors.primaryGold,
@@ -569,9 +579,9 @@ class _SelectGuestsScreenState extends State<SelectGuestsScreen> {
                       color: Colors.green.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(5),
                     ),
-                    child: const Text(
-                      'Invited',
-                      style: TextStyle(
+                    child: Text(
+                      "event_owner.select_guests_screen.invited".tr(),
+                      style: const TextStyle(
                         fontSize: 9,
                         fontWeight: FontWeight.bold,
                         color: Colors.green,
@@ -618,9 +628,9 @@ class _SelectGuestsScreenState extends State<SelectGuestsScreen> {
         children: [
           Icon(Icons.person_off_rounded, size: 48, color: Colors.grey[300]),
           const SizedBox(height: 12),
-          const Text(
-            'No Users Found',
-            style: TextStyle(
+          Text(
+            "event_owner.select_guests_screen.no_users".tr(),
+            style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.bold,
               color: AppColors.primaryDark,
@@ -629,8 +639,8 @@ class _SelectGuestsScreenState extends State<SelectGuestsScreen> {
           const SizedBox(height: 6),
           Text(
             _searchQuery.isEmpty
-                ? 'No attendees available'
-                : 'Try a different search',
+                ? "event_owner.select_guests_screen.no_attendees".tr()
+                : "event_owner.select_guests_screen.try_search".tr(),
             style: TextStyle(fontSize: 11, color: Colors.grey[600]),
           ),
         ],
@@ -662,7 +672,7 @@ class _SelectGuestsScreenState extends State<SelectGuestsScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 8),
               child: Text(
-                'Select guests to send invitations',
+                "event_owner.select_guests_screen.select_msg".tr(),
                 style: TextStyle(
                   fontSize: 14,
                   color: Colors.grey[600],
@@ -694,8 +704,10 @@ class _SelectGuestsScreenState extends State<SelectGuestsScreen> {
                     : const Icon(Icons.send, size: 16),
                 label: Text(
                   _isSendingInvitations
-                      ? 'Sending...'
-                      : 'Send In-App to $_selectedCount',
+                      ? "event_owner.select_guests_screen.sending".tr()
+                      : "event_owner.select_guests_screen.send_in_app".tr(
+                          args: [_selectedCount.toString()],
+                        ),
                   style: const TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
@@ -723,7 +735,9 @@ class _SelectGuestsScreenState extends State<SelectGuestsScreen> {
                     : () => _showPersonalMessageDialog(true),
                 icon: const Icon(Icons.chat_bubble, size: 16),
                 label: Text(
-                  'Send via WhatsApp to $_selectedCount',
+                  "event_owner.select_guests_screen.send_whatsapp".tr(
+                    args: [_selectedCount.toString()],
+                  ),
                   style: const TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
@@ -747,11 +761,13 @@ class _SelectGuestsScreenState extends State<SelectGuestsScreen> {
             width: double.infinity,
             height: 44,
             child: ElevatedButton.icon(
-              onPressed: _isSendingInvitations ? null : _showSendWhatsAppDirectDialog,
+              onPressed: _isSendingInvitations
+                  ? null
+                  : _showSendWhatsAppDirectDialog,
               icon: const Icon(Icons.phone, size: 16),
-              label: const Text(
-                'Send via WhatsApp Direct',
-                style: TextStyle(
+              label: Text(
+                "event_owner.select_guests_screen.send_whatsapp_direct".tr(),
+                style: const TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
                 ),
@@ -777,14 +793,16 @@ class _SelectGuestsScreenState extends State<SelectGuestsScreen> {
                 onPressed: () {
                   Navigator.pop(context);
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Skipped sending invitations'),
-                      duration: Duration(seconds: 2),
+                    SnackBar(
+                      content: Text(
+                        "event_owner.select_guests_screen.skipped".tr(),
+                      ),
+                      duration: const Duration(seconds: 2),
                     ),
                   );
                 },
                 icon: const Icon(Icons.close),
-                label: const Text('Skip for Now'),
+                label: Text("event_owner.select_guests_screen.skip".tr()),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: AppColors.primaryDark,
                   side: const BorderSide(
@@ -865,7 +883,11 @@ class _SelectGuestsScreenState extends State<SelectGuestsScreen> {
                     labelStyle: const TextStyle(fontSize: 11),
                     hintText: '+20 123 456 7890',
                     hintStyle: const TextStyle(fontSize: 11),
-                    prefixIcon: const Icon(Icons.phone, color: Color(0xFF25D366), size: 18),
+                    prefixIcon: const Icon(
+                      Icons.phone,
+                      color: Color(0xFF25D366),
+                      size: 18,
+                    ),
                     isDense: true,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
@@ -877,7 +899,10 @@ class _SelectGuestsScreenState extends State<SelectGuestsScreen> {
                         width: 2,
                       ),
                     ),
-                    contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+                    contentPadding: const EdgeInsets.symmetric(
+                      vertical: 10,
+                      horizontal: 12,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -911,7 +936,10 @@ class _SelectGuestsScreenState extends State<SelectGuestsScreen> {
                       color: Colors.grey[500],
                     ),
                     isDense: true,
-                    contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+                    contentPadding: const EdgeInsets.symmetric(
+                      vertical: 10,
+                      horizontal: 12,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 14),
@@ -934,7 +962,10 @@ class _SelectGuestsScreenState extends State<SelectGuestsScreen> {
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
-                        child: const Text('Cancel', style: TextStyle(fontSize: 11)),
+                        child: const Text(
+                          'Cancel',
+                          style: TextStyle(fontSize: 11),
+                        ),
                       ),
                     ),
                     const SizedBox(width: 10),
@@ -942,7 +973,8 @@ class _SelectGuestsScreenState extends State<SelectGuestsScreen> {
                       child: ElevatedButton(
                         onPressed: () {
                           final phone = _phoneNumberController.text.trim();
-                          final message = _personalMessageController.text.trim();
+                          final message = _personalMessageController.text
+                              .trim();
 
                           if (phone.isEmpty) {
                             _showError('Please enter a phone number');
@@ -960,7 +992,10 @@ class _SelectGuestsScreenState extends State<SelectGuestsScreen> {
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
-                        child: const Text('Send', style: TextStyle(fontSize: 11)),
+                        child: const Text(
+                          'Send',
+                          style: TextStyle(fontSize: 11),
+                        ),
                       ),
                     ),
                   ],
@@ -1047,7 +1082,10 @@ class _SelectGuestsScreenState extends State<SelectGuestsScreen> {
                       color: Colors.grey[500],
                     ),
                     isDense: true,
-                    contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+                    contentPadding: const EdgeInsets.symmetric(
+                      vertical: 10,
+                      horizontal: 12,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 14),
@@ -1069,7 +1107,10 @@ class _SelectGuestsScreenState extends State<SelectGuestsScreen> {
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
-                        child: const Text('Cancel', style: TextStyle(fontSize: 11)),
+                        child: const Text(
+                          'Cancel',
+                          style: TextStyle(fontSize: 11),
+                        ),
                       ),
                     ),
                     const SizedBox(width: 10),
@@ -1093,7 +1134,10 @@ class _SelectGuestsScreenState extends State<SelectGuestsScreen> {
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
-                        child: const Text('Send', style: TextStyle(fontSize: 11)),
+                        child: const Text(
+                          'Send',
+                          style: TextStyle(fontSize: 11),
+                        ),
                       ),
                     ),
                   ],
@@ -1194,10 +1238,7 @@ Sent via PlanZ App
 ''';
 
         // ✅ Clean phone number (remove spaces, dashes, etc.)
-        String cleanedPhone = phoneNumber.replaceAll(
-          RegExp(r'[^\d+]'),
-          '',
-        );
+        String cleanedPhone = phoneNumber.replaceAll(RegExp(r'[^\d+]'), '');
 
         // ✅ Add country code if not present
         if (!cleanedPhone.startsWith('+')) {
@@ -1311,7 +1352,10 @@ Sent via PlanZ App
   /// ============================================
   /// Send WhatsApp Direct (Without Selection)
   /// ============================================
-  Future<void> _sendWhatsAppDirect(String phoneNumber, String customMessage) async {
+  Future<void> _sendWhatsAppDirect(
+    String phoneNumber,
+    String customMessage,
+  ) async {
     try {
       setState(() => _isSendingInvitations = true);
 
@@ -1322,7 +1366,8 @@ Sent via PlanZ App
       ).format(widget.eventDate);
 
       // ✅ Build message
-      String whatsappMessage = '''
+      String whatsappMessage =
+          '''
 🎉 *Event Invitation*
 
 You're invited to: *${widget.eventName}*
@@ -1343,10 +1388,7 @@ Sent via PlanZ App
 ''';
 
       // ✅ Clean phone number
-      String cleanedPhone = phoneNumber.replaceAll(
-        RegExp(r'[^\d+]'),
-        '',
-      );
+      String cleanedPhone = phoneNumber.replaceAll(RegExp(r'[^\d+]'), '');
 
       // ✅ Add country code if not present
       if (!cleanedPhone.startsWith('+')) {
@@ -1516,7 +1558,7 @@ Sent via PlanZ App
             'invitationType': 'inApp',
             'guestCount': 1,
             'personalMessage': personalMessage.isEmpty ? null : personalMessage,
-            'attendeeFcmToken': attendee.fcmToken,  // ✅ إضافة FCM Token
+            'attendeeFcmToken': attendee.fcmToken, // ✅ إضافة FCM Token
           });
         }
       }
