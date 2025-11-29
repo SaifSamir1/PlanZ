@@ -37,7 +37,8 @@ class NotificationService {
 
     await _localNotifications
         .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>()
+          AndroidFlutterLocalNotificationsPlugin
+        >()
         ?.createNotificationChannel(channel);
   }
 
@@ -65,7 +66,9 @@ class NotificationService {
   }) async {
     try {
       debugPrint('📤 [NotificationService] Sending notification...');
-      debugPrint('   receiverId: $receiverId, role: $receiverRole, title: $title');
+      debugPrint(
+        '   receiverId: $receiverId, role: $receiverRole, title: $title',
+      );
 
       // Get receiver token if not provided
       String? token = fcmToken;
@@ -92,7 +95,10 @@ class NotificationService {
               return false;
           }
 
-          final userDoc = await _firestore.collection(collectionName).doc(receiverId).get();
+          final userDoc = await _firestore
+              .collection(collectionName)
+              .doc(receiverId)
+              .get();
           token = userDoc.data()?['fcmToken'] as String?;
           debugPrint('   Fetched FCM token: $token');
         } catch (e) {
@@ -127,16 +133,16 @@ class NotificationService {
       try {
         await _firestore.collection('notifications').add(notificationData);
         debugPrint('✅ Notification saved to Firestore');
+        debugPrint(
+          '   Firestore listener will display notification on all open devices',
+        );
       } catch (e) {
         debugPrint('⚠️ Firestore save failed: $e');
+        return false;
       }
 
-      // Show local notification on current device
-      try {
-        await showLocalNotification(title: title, body: body, id: notificationId.hashCode.abs() % 2147483647);
-      } catch (e) {
-        debugPrint('⚠️ Local notification error: $e');
-      }
+      // ✅ Don't show local notification here - let Firestore listener handle it
+      // This prevents duplicate notifications and ensures all devices get notified equally
 
       return true;
     } catch (e) {
@@ -179,23 +185,29 @@ class NotificationService {
     required String body,
     int id = 999,
   }) async {
-    const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
-      'plan_z_channel',
-      'PlanZ Notifications',
-      channelDescription: 'Important notifications for PlanZ users.',
-      importance: Importance.max,
-      priority: Priority.high,
-      icon: '@drawable/ic_notification',
-    );
+    const AndroidNotificationDetails androidDetails =
+        AndroidNotificationDetails(
+          'plan_z_channel',
+          'PlanZ Notifications',
+          channelDescription: 'Important notifications for PlanZ users.',
+          importance: Importance.max,
+          priority: Priority.high,
+          icon: '@drawable/ic_notification',
+        );
 
-    const NotificationDetails platformDetails = NotificationDetails(android: androidDetails);
+    const NotificationDetails platformDetails = NotificationDetails(
+      android: androidDetails,
+    );
 
     await _localNotifications.show(id, title, body, platformDetails);
     debugPrint('✅ Local notification displayed: $title');
   }
 
   // -------------------- Firestore Streams --------------------
-  static Stream<List<Map<String, dynamic>>> getUserNotifications(String userId, String userRole) {
+  static Stream<List<Map<String, dynamic>>> getUserNotifications(
+    String userId,
+    String userRole,
+  ) {
     return _firestore
         .collection('notifications')
         .where('receiverId', isEqualTo: userId)
@@ -258,7 +270,10 @@ class NotificationService {
     }
   }
 
-  static Future<int> clearAllNotifications(String userId, String userRole) async {
+  static Future<int> clearAllNotifications(
+    String userId,
+    String userRole,
+  ) async {
     try {
       final docs = await _firestore
           .collection('notifications')
@@ -289,7 +304,10 @@ class NotificationService {
 
       final eventsSnapshot = await _firestore
           .collection('events')
-          .where('eventDate', isGreaterThanOrEqualTo: Timestamp.fromDate(startRange))
+          .where(
+            'eventDate',
+            isGreaterThanOrEqualTo: Timestamp.fromDate(startRange),
+          )
           .where('eventDate', isLessThanOrEqualTo: Timestamp.fromDate(endRange))
           .get();
 

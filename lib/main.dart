@@ -42,7 +42,6 @@ import 'package:workmanager/workmanager.dart';
 
 const String eventReminderTask = "eventReminderTask";
 
-
 // ✅ Local Notifications plugin instance
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
@@ -57,7 +56,9 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 @pragma('vm:entry-point')
 void callbackDispatcher() {
   Workmanager().executeTask((task, inputData) async {
-    await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
 
     switch (task) {
       case eventReminderTask:
@@ -312,11 +313,17 @@ class _PlanZState extends State<PlanZ> {
     debugPrint('   User ID: $userId');
     debugPrint('   User Role: $userRole');
 
+    // Only show notifications from the last 5 minutes to avoid old notifications on app restart
+    final fiveMinutesAgo = Timestamp.fromDate(
+      DateTime.now().subtract(const Duration(minutes: 5)),
+    );
+
     // Listen to notifications collection for current user
     FirebaseFirestore.instance
         .collection('notifications')
         .where('receiverId', isEqualTo: userId)
         .where('receiverRole', isEqualTo: userRole)
+        .where('createdAt', isGreaterThan: fiveMinutesAgo)
         .orderBy('createdAt', descending: true)
         .snapshots()
         .listen(
