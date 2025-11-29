@@ -1,1 +1,37 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"planz-app","appId":"1:261555413721:android:2fa06b24ca4fc3d7e0d4c8","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"planz-app","configurations":{"android":"1:261555413721:android:2fa06b24ca4fc3d7e0d4c8","ios":"1:261555413721:ios:507c74ed484bd29ae0d4c8"}}}}}}
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "planz-app",
+          "appId": "1:261555413721:android:2fa06b24ca4fc3d7e0d4c8",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "planz-app",
+          "configurations": {
+            "android": "1:261555413721:android:2fa06b24ca4fc3d7e0d4c8",
+            "ios": "1:261555413721:ios:507c74ed484bd29ae0d4c8"
+          }
+        }
+      }
+    }
+  },
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "default",
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.local"
+      ],
+      "predeploy": [
+      ]
+    }
+  ]
+}

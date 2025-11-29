@@ -1,40 +1,34 @@
-// lib/core/services/event_reminder_service.dart
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:plan_z/core/constants/constants.dart';
-import 'package:plan_z/core/services/notification_service.dart';
-import 'package:plan_z/features/event_owners/create_event_screen/data/models/event_invitation_model.dart';
 
 class EventReminderService {
   static final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  static final FlutterLocalNotificationsPlugin _localNotifications =
+      FlutterLocalNotificationsPlugin();
 
-  /// ✅ Check and send reminders for events happening tomorrow
-  /// This should be called on app launch or periodically
-  static Future<void> checkAndSendReminders() async {
+  /// Initialize the local notifications plugin
+  static Future<void> initNotifications() async {
+    const androidSettings = AndroidInitializationSettings('@drawable/ic_notification');
+    const initSettings =
+        InitializationSettings(android: androidSettings);
+
+    await _localNotifications.initialize(initSettings);
+  }
+
+  /// Schedule reminders for upcoming events (2 days ahead)
+  static Future<void> scheduleReminders() async {
     try {
-      debugPrint('🔔 [EventReminderService] Checking for upcoming events...');
-
-      // Calculate 2 days before event range (42-54 hours from now)
       final now = DateTime.now();
-      final startRange = now.add(const Duration(hours: 42)); // 1.75 days
-      final endRange = now.add(const Duration(hours: 54)); // 2.25 days
+      final startRange = now.add(const Duration(hours: 42));
+      final endRange = now.add(const Duration(hours: 54));
 
-      debugPrint('   Checking events between $startRange and $endRange');
-
-      // Query events happening in 2 days
       final eventsSnapshot = await _firestore
           .collection(FirebaseCollections.events)
-          .where(
-            'eventDate',
-            isGreaterThanOrEqualTo: Timestamp.fromDate(startRange),
-          )
+          .where('eventDate', isGreaterThanOrEqualTo: Timestamp.fromDate(startRange))
           .where('eventDate', isLessThanOrEqualTo: Timestamp.fromDate(endRange))
           .get();
-
-      debugPrint(
-        '   Found ${eventsSnapshot.docs.length} events happening tomorrow',
-      );
 
       for (var eventDoc in eventsSnapshot.docs) {
         final eventData = eventDoc.data();
@@ -42,100 +36,57 @@ class EventReminderService {
         final eventName = eventData['eventName'] as String? ?? 'Event';
         final eventDate =
             (eventData['eventDate'] as Timestamp?)?.toDate() ?? DateTime.now();
-        final eventLocation = eventData['location'] as String? ?? '';
 
-        debugPrint('   📅 Processing event: $eventName');
-
-        // Get all accepted invitations for this event
+        // Get accepted invitations
         final invitationsSnapshot = await _firestore
             .collection(FirebaseCollections.eventInvitations)
             .where('eventId', isEqualTo: eventId)
-            .where('status', isEqualTo: InvitationStatus.accepted.name)
+            .where('status', isEqualTo: 'accepted')
             .get();
 
-        debugPrint(
-          '      Found ${invitationsSnapshot.docs.length} accepted attendees',
-        );
-
-        // Send reminder to each accepted attendee
         for (var invitationDoc in invitationsSnapshot.docs) {
           final invitationData = invitationDoc.data();
           final attendeeId = invitationData['attendeeId'] as String?;
-          final attendeeName =
-              invitationData['inviteeName'] as String? ?? 'Attendee';
           final reminderSent = invitationData['reminderSent'] as bool? ?? false;
 
-          // Only send if attendeeId exists and reminder hasn't been sent yet
           if (attendeeId != null && !reminderSent) {
-            try {
-              // Send reminder notification
-              await NotificationService.sendNotification(
-                receiverId: attendeeId,
-                receiverRole: 'attendee',
-                title: '⏰ Event Reminder',
-                body: 'Your event "$eventName" is happening in 2 days!',
-                type: 'event_reminder',
-                data: {
-                  'eventId': eventId,
-                  'eventName': eventName,
-                  'eventDate': eventDate.toIso8601String(),
-                  'eventLocation': eventLocation,
-                },
-              );
+            // Schedule local notification on device
+            await _scheduleLocalNotification(
+              title: '⏰ Event Reminder',
+              body: 'Your event "$eventName" is happening in 2 days!',
+              scheduledTime: eventDate.subtract(const Duration(days: 2)),
+              id: eventId.hashCode,
+            );
 
-              // Mark reminder as sent
-              await invitationDoc.reference.update({
-                'reminderSent': true,
-                'reminderSentAt': Timestamp.now(),
-              });
+            await invitationDoc.reference.update({
+              'reminderSent': true,
+              'reminderSentAt': Timestamp.now(),
+            });
 
-              debugPrint('      ✅ Reminder sent to: $attendeeName');
-            } catch (e) {
-              debugPrint(
-                '      ❌ Failed to send reminder to $attendeeName: $e',
-              );
-            }
-          } else if (reminderSent) {
-            debugPrint('      ℹ️ Reminder already sent to: $attendeeName');
-          } else {
-            debugPrint('      ⚠️ No attendeeId for: $attendeeName');
+            debugPrint('✅ Reminder scheduled locally for attendee: $attendeeId');
           }
         }
       }
-
-      debugPrint('✅ [EventReminderService] Reminder check completed');
     } catch (e) {
-      debugPrint('❌ [EventReminderService] Error checking reminders: $e');
+      debugPrint('❌ Error scheduling reminders: $e');
     }
   }
 
-  /// ✅ Send event reminder to a specific attendee
-  static Future<bool> sendEventReminder({
-    required String attendeeId,
-    required String eventId,
-    required String eventName,
-    required DateTime eventDate,
-    String? eventLocation,
+  /// Helper: schedule a local notification
+  static Future<void> _scheduleLocalNotification({
+    required String title,
+    required String body,
+    required DateTime scheduledTime,
+    int id = 0,
   }) async {
-    try {
-      await NotificationService.sendNotification(
-        receiverId: attendeeId,
-        receiverRole: 'attendee',
-        title: '⏰ Event Reminder',
-        body: 'Your event "$eventName" is happening in 2 days!',
-        type: 'event_reminder',
-        data: {
-          'eventId': eventId,
-          'eventName': eventName,
-          'eventDate': eventDate.toIso8601String(),
-          'eventLocation': eventLocation ?? '',
-        },
-      );
+    const androidDetails = AndroidNotificationDetails(
+      'plan_z_channel',
+      'PlanZ Notifications',
+      channelDescription: 'Channel for PlanZ notifications',
+      importance: Importance.max,
+      priority: Priority.high,
+    );
 
-      return true;
-    } catch (e) {
-      debugPrint('❌ [sendEventReminder] Error: $e');
-      return false;
-    }
+    
   }
 }
