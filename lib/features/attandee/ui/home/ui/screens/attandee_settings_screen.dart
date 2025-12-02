@@ -469,14 +469,14 @@ class _AttandeeSettingsScreenState extends State<AttandeeSettingsScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             RadioListTile<String>(
-              title: const Text('English'),
+              title: Text('attendee.settings_language_english'.tr()),
               value: 'en',
               groupValue: _selectedLanguage,
               activeColor: AppColors.primaryGold,
               onChanged: (val) => _changeLanguage(val!, dialogContext),
             ),
             RadioListTile<String>(
-              title: const Text('العربية'),
+              title: Text('attendee.settings_language_arabic'.tr()),
               value: 'ar',
               groupValue: _selectedLanguage,
               activeColor: AppColors.primaryGold,
@@ -517,7 +517,7 @@ class _AttandeeSettingsScreenState extends State<AttandeeSettingsScreen> {
               const CircularProgressIndicator(color: AppColors.primaryGold),
               const SizedBox(height: 16),
               Text(
-                'Changing language...',
+                'attendee.settings_changing_language'.tr(),
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,

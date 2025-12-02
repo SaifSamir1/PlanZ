@@ -1,5 +1,6 @@
 // lib/features/attendee/presentation/widgets/invitation_details/event_info_section.dart
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:plan_z/core/theming/text_styles.dart';
@@ -9,10 +10,7 @@ import 'package:plan_z/features/event_owners/create_event_screen/data/models/eve
 class EventInfoSection extends StatelessWidget {
   final EventInvitationModel invitation;
 
-  const EventInfoSection({
-    super.key,
-    required this.invitation,
-  });
+  const EventInfoSection({super.key, required this.invitation});
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +33,7 @@ class EventInfoSection extends StatelessWidget {
           children: [
             // Section Title
             Text(
-              "Event Details",
+              'attendee.invitations_section_event_details_title'.tr(),
               style: AppTextStyles.subtitle.copyWith(
                 fontWeight: FontWeight.bold,
               ),
@@ -46,39 +44,45 @@ class EventInfoSection extends StatelessWidget {
             // Event Date
             _buildInfoRow(
               icon: Icons.calendar_today_rounded,
-              label: "Date",
-              value: DateFormat('EEE, MMM d, y • h:mm a', 'en_US').format(invitation.eventDate),
+              label: 'attendee.invitations_section_date_label'.tr(),
+              value: DateFormat(
+                'EEE, MMM d, y • h:mm a',
+                'en_US',
+              ).format(invitation.eventDate),
               color: AppColors.buttonPrimary,
             ),
 
             const SizedBox(height: 12),
 
             // Event Location
-            if (invitation.eventLocation != null && invitation.eventLocation!.isNotEmpty)
+            if (invitation.eventLocation != null &&
+                invitation.eventLocation!.isNotEmpty)
               _buildInfoRow(
                 icon: Icons.location_on_rounded,
-                label: "Location",
+                label: 'attendee.invitations_section_location_label'.tr(),
                 value: invitation.eventLocation!,
                 color: Colors.red,
               ),
 
             // City (if available)
-            if (invitation.eventCity != null && invitation.eventCity!.isNotEmpty) ...[
+            if (invitation.eventCity != null &&
+                invitation.eventCity!.isNotEmpty) ...[
               const SizedBox(height: 12),
               _buildInfoRow(
                 icon: Icons.location_city_rounded,
-                label: "City",
+                label: 'attendee.invitations_section_city_label'.tr(),
                 value: invitation.eventCity!,
                 color: Colors.orange,
               ),
             ],
 
             // Address (if available)
-            if (invitation.eventAddress != null && invitation.eventAddress!.isNotEmpty) ...[
+            if (invitation.eventAddress != null &&
+                invitation.eventAddress!.isNotEmpty) ...[
               const SizedBox(height: 12),
               _buildInfoRow(
                 icon: Icons.home_rounded,
-                label: "Address",
+                label: 'attendee.invitations_section_address_label'.tr(),
                 value: invitation.eventAddress!,
                 color: Colors.purple,
               ),
@@ -89,8 +93,9 @@ class EventInfoSection extends StatelessWidget {
             // Guest Count Allowed
             _buildInfoRow(
               icon: Icons.people_rounded,
-              label: "Guests Allowed",
-              value: "${invitation.guestCount} ${invitation.guestCount == 1 ? 'Guest' : 'Guests'}",
+              label: 'attendee.invitations_section_guests_allowed_label'.tr(),
+              value:
+                  "${invitation.guestCount} ${invitation.guestCount == 1 ? 'attendee.invitations_section_guest_singular'.tr() : 'attendee.invitations_section_guest_plural'.tr()}",
               color: Colors.green,
             ),
 
@@ -98,8 +103,9 @@ class EventInfoSection extends StatelessWidget {
               const SizedBox(height: 12),
               _buildInfoRow(
                 icon: Icons.check_circle_rounded,
-                label: "Confirmed Guests",
-                value: "${invitation.confirmedGuestCount} ${invitation.confirmedGuestCount == 1 ? 'Guest' : 'Guests'}",
+                label: 'attendee.confirmed'.tr(),
+                value:
+                    "${invitation.confirmedGuestCount} ${invitation.confirmedGuestCount == 1 ? 'attendee.invitations_section_guest_singular'.tr() : 'attendee.invitations_section_guest_plural'.tr()}",
                 color: Colors.blue,
               ),
             ],
@@ -109,8 +115,10 @@ class EventInfoSection extends StatelessWidget {
               const SizedBox(height: 12),
               _buildInfoRow(
                 icon: Icons.group_rounded,
-                label: "Total Expected Guests",
-                value: "${invitation.expectedGuestCount} Guests",
+                label: 'attendee.invitations_section_total_expected_guests'
+                    .tr(),
+                value:
+                    "${invitation.expectedGuestCount} ${'attendee.invitations_section_guest_plural'.tr()}",
                 color: Colors.teal,
               ),
             ],
@@ -143,16 +151,12 @@ class EventInfoSection extends StatelessWidget {
             children: [
               Text(
                 label,
-                style: AppTextStyles.caption.copyWith(
-                  color: Colors.grey[600],
-                ),
+                style: AppTextStyles.caption.copyWith(color: Colors.grey[600]),
               ),
               const SizedBox(height: 2),
               Text(
                 value,
-                style: AppTextStyles.body.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
+                style: AppTextStyles.body.copyWith(fontWeight: FontWeight.w600),
               ),
             ],
           ),

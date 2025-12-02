@@ -95,8 +95,8 @@ class _RequestDetailsScreenState extends State<RequestDetailsScreen> {
                 title: widget.request.eventName,
                 subtitle: widget.request.eventType,
                 details: [
-                  '${'event_review.date'.tr()}: ${_formatDate(widget.request.eventDate)}',
-                  '${'event_review.guest_count'.tr()}: ${widget.request.guestCount}',
+                  '${'vendor.requests.date'.tr()}: ${_formatDate(widget.request.eventDate)}',
+                  '${'vendor.requests.guest_count'.tr()}: ${widget.request.guestCount}',
                 ],
               ),
               const SizedBox(height: 16),
@@ -147,7 +147,7 @@ class _RequestDetailsScreenState extends State<RequestDetailsScreen> {
                       ),
                       child: Text(
                         widget.request.customRequirements!['description'] ??
-                            'No description',
+                            'vendor.requests.no_description'.tr(),
                         style: const TextStyle(
                           fontSize: 13,
                           color: AppColors.textSecondary,
@@ -330,9 +330,9 @@ class _RequestDetailsScreenState extends State<RequestDetailsScreen> {
             ],
           ),
           const SizedBox(height: 8),
-          _buildDetailRow('event_review.location'.tr(), location),
-          _buildDetailRow('event_review.city'.tr(), city),
-          _buildDetailRow('Address', address),
+          _buildDetailRow('vendor.requests.location'.tr(), location),
+          _buildDetailRow('vendor.requests.city'.tr(), city),
+          _buildDetailRow('vendor.requests.address'.tr(), address),
         ],
       ),
     );
@@ -381,8 +381,14 @@ class _RequestDetailsScreenState extends State<RequestDetailsScreen> {
             ],
           ),
           const SizedBox(height: 8),
-          _buildDetailRow('Service ID', widget.request.serviceId),
-          _buildDetailRow('Package ID', widget.request.packageId),
+          _buildDetailRow(
+            'vendor.requests.service_id'.tr(),
+            widget.request.serviceId,
+          ),
+          _buildDetailRow(
+            'vendor.requests.package_id'.tr(),
+            widget.request.packageId,
+          ),
         ],
       ),
     );
@@ -418,8 +424,8 @@ class _RequestDetailsScreenState extends State<RequestDetailsScreen> {
             children: [
               Icon(Icons.money, color: Colors.green, size: 20),
               const SizedBox(width: 8),
-              const Text(
-                'Budget Information',
+              Text(
+                'vendor.requests.budget_information'.tr(),
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
@@ -537,7 +543,7 @@ class _RequestDetailsScreenState extends State<RequestDetailsScreen> {
       ),
       child: Center(
         child: Text(
-          'Status: $statusText',
+          '${'vendor.requests.status_label'.tr()}: $statusText',
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.bold,
@@ -609,24 +615,32 @@ class _RequestDetailsScreenState extends State<RequestDetailsScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Request Information'),
+        title: Text('vendor.requests.request_information'.tr()),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Request ID: ${widget.request.requestId}'),
+            Text(
+              '${'vendor.requests.request_id'.tr()}: ${widget.request.requestId}',
+            ),
             const SizedBox(height: 8),
-            Text('Created: ${_formatDate(widget.request.requestedAt)}'),
+            Text(
+              '${'vendor.requests.created'.tr()}: ${_formatDate(widget.request.requestedAt)}',
+            ),
             const SizedBox(height: 8),
-            Text('Expires: ${_formatDate(widget.request.expiresAt)}'),
+            Text(
+              '${'vendor.requests.expires'.tr()}: ${_formatDate(widget.request.expiresAt)}',
+            ),
             const SizedBox(height: 8),
-            Text('Is Expired: ${widget.request.isExpired ? "Yes" : "No"}'),
+            Text(
+              '${'vendor.requests.is_expired'.tr()}: ${widget.request.isExpired ? "vendor.requests.yes".tr() : "vendor.requests.no".tr()}',
+            ),
           ],
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
+            child: Text('vendor.requests.close'.tr()),
           ),
         ],
       ),

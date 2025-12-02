@@ -469,14 +469,14 @@ class _VendorSettingsScreenState extends State<VendorSettingsScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             RadioListTile<String>(
-              title: const Text('English'),
+              title: Text('settings.english'.tr()),
               value: 'en',
               groupValue: _selectedLanguage,
               activeColor: AppColors.primaryGold,
               onChanged: (val) => _changeLanguage(val!, dialogContext),
             ),
             RadioListTile<String>(
-              title: const Text('العربية'),
+              title: Text('settings.arabic'.tr()),
               value: 'ar',
               groupValue: _selectedLanguage,
               activeColor: AppColors.primaryGold,
@@ -485,6 +485,7 @@ class _VendorSettingsScreenState extends State<VendorSettingsScreen> {
           ],
         ),
       ),
+      
     );
   }
 

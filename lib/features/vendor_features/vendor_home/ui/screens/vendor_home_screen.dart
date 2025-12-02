@@ -835,21 +835,29 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
   Widget _buildRequestCard(PackageRequestModel request) {
     // ✅ Status configuration
     Color statusColor;
+    String statusText;
+
     switch (request.status) {
       case RequestStatus.pending:
         statusColor = AppColors.warning;
+        statusText = 'vendor.requests.pending'.tr();
         break;
       case RequestStatus.accepted:
         statusColor = AppColors.success;
+        statusText = 'vendor.requests.accepted'.tr();
         break;
       case RequestStatus.rejected:
         statusColor = AppColors.error;
+        statusText = 'vendor.requests.rejected'.tr();
         break;
       case RequestStatus.expired:
         statusColor = AppColors.textSecondary;
+        statusText = 'vendor.requests.expired'.tr();
         break;
-      default:
-        statusColor = AppColors.textSecondary;
+      case RequestStatus.cancelled:
+        statusColor = AppColors.error;
+        statusText = 'vendor.requests.cancelled'.tr();
+        break;
     }
 
     return Container(
@@ -902,7 +910,7 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        '${'event_review.event_name'.tr()}: ${request.eventId}', // ✅ Can be replaced with event name
+                        '${'vendor.requests.event_name'.tr()}: ${request.eventId}', // ✅ Can be replaced with event name
                         style: AppTextStyles.body.copyWith(
                           color: AppColors.textSecondary,
                           fontSize: 13,
@@ -923,7 +931,7 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
-                    request.status.name.toUpperCase(),
+                    statusText,
                     style: TextStyle(
                       color: statusColor,
                       fontSize: 12,
@@ -1000,7 +1008,7 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
       child: ElevatedButton.icon(
         onPressed: () => _showRequestDetails(request),
         icon: const Icon(Icons.info_outline, size: 18),
-        label: Text('browse_packages.details'.tr()),
+        label: Text('vendor.requests.details'.tr()),
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primaryGold,
           foregroundColor: Colors.white,
@@ -1042,13 +1050,19 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
     if (difference.inDays > 7) {
       return '${date.day}/${date.month}/${date.year}';
     } else if (difference.inDays >= 1) {
-      return 'attendee.days_ago'.tr(args: [difference.inDays.toString()]);
+      return 'vendor.notifications.days_ago'.tr(
+        args: [difference.inDays.toString()],
+      );
     } else if (difference.inHours >= 1) {
-      return 'attendee.hours_ago'.tr(args: [difference.inHours.toString()]);
+      return 'vendor.notifications.hours_ago'.tr(
+        args: [difference.inHours.toString()],
+      );
     } else if (difference.inMinutes >= 1) {
-      return 'attendee.minutes_ago'.tr(args: [difference.inMinutes.toString()]);
+      return 'vendor.notifications.minutes_ago'.tr(
+        args: [difference.inMinutes.toString()],
+      );
     } else {
-      return 'attendee.just_now'.tr();
+      return 'vendor.notifications.just_now'.tr();
     }
   }
 
@@ -1056,7 +1070,7 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
   Widget _buildNotificationsList() {
     final vendorId = _userManager.userId;
     if (vendorId == null) {
-      return Center(child: Text('attendee.please_login_notifications'.tr()));
+      return Center(child: Text('vendor.notifications.please_login'.tr()));
     }
 
     return StreamBuilder<QuerySnapshot>(
@@ -1088,7 +1102,7 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'attendee.no_notifications'.tr(),
+                    'vendor.notifications.no_notifications'.tr(),
                     style: AppTextStyles.title.copyWith(
                       color: AppColors.textSecondary,
                     ),

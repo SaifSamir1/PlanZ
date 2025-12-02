@@ -10,6 +10,7 @@ import 'package:plan_z/core/utils/app_colors.dart';
 import 'package:plan_z/core/widgets/custom_app_bar.dart';
 import 'package:plan_z/features/attandee/cubit/attendee_cubit.dart';
 import 'package:plan_z/features/attandee/ui/home/ui/screens/attandee_notification.dart';
+import 'package:plan_z/features/attandee/ui/home/ui/screens/attandee_settings_screen.dart';
 import 'package:plan_z/features/attandee/ui/home/ui/widgets/attendee_stats_card.dart';
 import 'package:plan_z/features/attandee/ui/home/ui/widgets/quick_actions_section.dart';
 import 'package:plan_z/features/attandee/ui/home/ui/widgets/upcoming_events_section.dart';
@@ -132,7 +133,7 @@ class _AttendeeHomeScreenState extends State<AttendeeHomeScreen> {
       backgroundColor: AppColors.background,
       floatingActionButton: _buildChatFAB(),
       appBar: CustomAppBar(
-        title: "EventFlow",
+        title: 'attendee.home_app_bar_title'.tr(),
         actions: [
           // Notification Icon
           SlideInRight(
@@ -160,7 +161,14 @@ class _AttendeeHomeScreenState extends State<AttendeeHomeScreen> {
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: GestureDetector(
-                onTap: _showLogoutConfirmation,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const AttandeeSettingsScreen(),
+                    ),
+                  );
+                },
                 child: CircleAvatar(
                   backgroundColor: const Color(0xfff8f9fa),
                   radius: 19,
@@ -371,7 +379,7 @@ class _AttendeeHomeScreenState extends State<AttendeeHomeScreen> {
           children: [
             // ✅ Animated Title
             SizedBox(
-              height: 48,
+              height: 58,
               child: AnimatedTextKit(
                 animatedTexts: [
                   TyperAnimatedText(

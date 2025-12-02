@@ -705,7 +705,7 @@ class _VendorEarningsScreenState extends State<VendorEarningsScreen> {
             Icon(Icons.error_outline, size: 48, color: Colors.red),
             const SizedBox(height: 12),
             Text(
-              'Failed to load transactions',
+              'vendor.earnings.failed_load_transactions'.tr(),
               style: TextStyle(
                 color: AppColors.textPrimary,
                 fontWeight: FontWeight.w600,
@@ -756,7 +756,9 @@ class _VendorEarningsScreenState extends State<VendorEarningsScreen> {
             ),
             title: Text(transaction['title'] as String),
             subtitle: Text(
-              'EGP ${amount.abs().toStringAsFixed(2)}',
+              'vendor.earnings.transaction_amount_format'.tr(
+                args: [amount.abs().toStringAsFixed(2)],
+              ),
               style: TextStyle(
                 color: isEarning ? Colors.green : Colors.red,
                 fontWeight: FontWeight.w600,
@@ -764,7 +766,7 @@ class _VendorEarningsScreenState extends State<VendorEarningsScreen> {
             ),
             trailing: Chip(
               label: Text(
-                transaction['status'] as String,
+                _getStatusLabel(transaction['status'] as String),
                 style: const TextStyle(fontSize: 12),
               ),
               backgroundColor: _getStatusColor(transaction['status'] as String),
@@ -785,5 +787,17 @@ class _VendorEarningsScreenState extends State<VendorEarningsScreen> {
       return Colors.red;
     }
     return Colors.grey;
+  }
+
+  String _getStatusLabel(String status) {
+    final upper = status.toUpperCase();
+    if (upper.contains('COMPLETED')) {
+      return 'vendor.earnings.transaction_status_completed'.tr();
+    } else if (upper.contains('PENDING')) {
+      return 'vendor.earnings.transaction_status_pending'.tr();
+    } else if (upper.contains('REJECTED')) {
+      return 'vendor.earnings.transaction_status_rejected'.tr();
+    }
+    return 'vendor.earnings.transaction_status_unknown'.tr();
   }
 }

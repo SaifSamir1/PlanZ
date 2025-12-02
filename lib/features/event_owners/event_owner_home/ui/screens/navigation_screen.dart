@@ -194,7 +194,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
 
   Widget _buildLabel(String text, bool isActive, {bool isSpecial = false}) {
     return Padding(
-      padding: const EdgeInsets.only(top: 4),
+      padding: const EdgeInsets.only(top: 3),
       child: Text(
         text,
         style: TextStyle(
@@ -203,7 +203,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
               : isActive
               ? AppColors.primaryDark
               : AppColors.primaryDark.withOpacity(0.5),
-          fontSize: isSpecial ? 12 : 10,
+          fontSize: isSpecial ? 11 : 9,
           fontWeight: isSpecial ? FontWeight.w700 : FontWeight.w600,
           letterSpacing: 0.3,
         ),

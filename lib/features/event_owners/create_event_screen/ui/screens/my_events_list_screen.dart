@@ -12,6 +12,7 @@ import 'package:plan_z/features/event_owners/create_event_screen/cubits/create_e
 import 'package:plan_z/features/event_owners/create_event_screen/data/models/event_model.dart';
 import 'package:plan_z/features/event_owners/create_event_screen/data/models/event_model_enum.dart';
 import 'package:plan_z/features/event_owners/create_event_screen/ui/screens/event_details_screen.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class MyEventsListScreen extends StatefulWidget {
   const MyEventsListScreen({super.key});
@@ -21,7 +22,7 @@ class MyEventsListScreen extends StatefulWidget {
 }
 
 class _MyEventsListScreenState extends State<MyEventsListScreen> {
-  String _selectedFilter = 'All';
+  String _selectedFilter = 'event_owner.my_events_screen.filter.all'.tr();
   bool _isLocaleInitialized = false;
 
   @override
@@ -56,10 +57,11 @@ class _MyEventsListScreenState extends State<MyEventsListScreen> {
 
   /// ✅ Filter Events based on Status
   List<EventModel> _filterEvents(List<EventModel> events) {
-    if (_selectedFilter == 'All') return events;
+    if (_selectedFilter == 'event_owner.my_events_screen.filter.all'.tr())
+      return events;
 
     // ✅ Check for Active filter
-    if (_selectedFilter == 'Active') {
+    if (_selectedFilter == 'event_owner.my_events_screen.filter.active'.tr()) {
       return events.where((event) {
         final isPaid = event.paymentStatus.name == 'paid';
         final allApproved = event.allVendorsApproved;
@@ -79,12 +81,10 @@ class _MyEventsListScreenState extends State<MyEventsListScreen> {
     if (!_isLocaleInitialized) {
       return Scaffold(
         backgroundColor: Colors.white,
-        appBar: CustomAppBar(title: 'My Events'),
+        appBar: CustomAppBar(title: 'event_owner.my_events_screen.title'.tr()),
         body: const Center(
           child: CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(
-              AppColors.primaryGold,
-            ),
+            valueColor: AlwaysStoppedAnimation<Color>(AppColors.primaryGold),
           ),
         ),
       );
@@ -93,14 +93,18 @@ class _MyEventsListScreenState extends State<MyEventsListScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: CustomAppBar(
-        title: 'My Events',
+        title: 'event_owner.my_events_screen.title'.tr(),
         actions: [
           IconButton(
             icon: const Icon(Icons.add_circle_outline, color: Colors.white),
             onPressed: () {
               // Navigate to create new event
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Navigate to Create Event')),
+                SnackBar(
+                  content: Text(
+                    'event_owner.my_events_screen.navigate_create'.tr(),
+                  ),
+                ),
               );
             },
           ),
@@ -133,12 +137,9 @@ class _MyEventsListScreenState extends State<MyEventsListScreen> {
                 children: [
                   Icon(Icons.error_outline, size: 64, color: Colors.red[300]),
                   const SizedBox(height: 16),
-                  const Text(
-                    'Failed to load events',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
+                  Text(
+                    'event_owner.my_events_screen.failed_load'.tr(),
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(height: 8),
                   Text(state.message),
@@ -146,7 +147,7 @@ class _MyEventsListScreenState extends State<MyEventsListScreen> {
                   ElevatedButton.icon(
                     onPressed: _loadEvents,
                     icon: const Icon(Icons.refresh),
-                    label: const Text('Retry'),
+                    label: Text('event_owner.my_events_screen.retry'.tr()),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.red,
                     ),
@@ -202,7 +203,14 @@ class _MyEventsListScreenState extends State<MyEventsListScreen> {
   /// Filter Tabs Widget
   /// ============================================
   Widget _buildFilterTabs() {
-    final filters = ['All', 'Active', 'Draft', 'Pending', 'Approved', 'Confirmed'];
+    final filters = [
+      'event_owner.my_events_screen.filter.all'.tr(),
+      'event_owner.my_events_screen.filter.active'.tr(),
+      'event_owner.my_events_screen.filter.draft'.tr(),
+      'event_owner.my_events_screen.filter.pending'.tr(),
+      'event_owner.my_events_screen.filter.approved'.tr(),
+      'event_owner.my_events_screen.filter.confirmed'.tr(),
+    ];
 
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
@@ -256,7 +264,8 @@ class _MyEventsListScreenState extends State<MyEventsListScreen> {
       formattedDate = DateFormat('MMM d, yyyy').format(event.eventDate);
     } catch (e) {
       // Fallback format
-      formattedDate = '${event.eventDate.month}/${event.eventDate.day}/${event.eventDate.year}';
+      formattedDate =
+          '${event.eventDate.month}/${event.eventDate.day}/${event.eventDate.year}';
     }
 
     final statusColor = _getStatusColor(event.status);
@@ -359,10 +368,7 @@ class _MyEventsListScreenState extends State<MyEventsListScreen> {
                       const SizedBox(width: 8),
                       Text(
                         formattedDate,
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: Colors.grey[600],
-                        ),
+                        style: TextStyle(fontSize: 13, color: Colors.grey[600]),
                       ),
                     ],
                   ),
@@ -399,7 +405,8 @@ class _MyEventsListScreenState extends State<MyEventsListScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              'Vendor Approvals',
+                              'event_owner.my_events_screen.vendor_approvals'
+                                  .tr(),
                               style: TextStyle(
                                 fontSize: 11,
                                 color: Colors.grey[500],
@@ -421,11 +428,14 @@ class _MyEventsListScreenState extends State<MyEventsListScreen> {
                           borderRadius: BorderRadius.circular(3),
                           child: LinearProgressIndicator(
                             value: event.totalVendorsCount > 0
-                                ? event.approvedVendorsCount / event.totalVendorsCount
+                                ? event.approvedVendorsCount /
+                                      event.totalVendorsCount
                                 : 0,
                             minHeight: 4,
                             backgroundColor: Colors.grey[300],
-                            valueColor: const AlwaysStoppedAnimation<Color>(Colors.orange),
+                            valueColor: const AlwaysStoppedAnimation<Color>(
+                              Colors.orange,
+                            ),
                           ),
                         ),
                         const SizedBox(height: 12),
@@ -437,10 +447,15 @@ class _MyEventsListScreenState extends State<MyEventsListScreen> {
                       children: [
                         Row(
                           children: [
-                            const Icon(Icons.check_circle, size: 14, color: Colors.green),
+                            const Icon(
+                              Icons.check_circle,
+                              size: 14,
+                              color: Colors.green,
+                            ),
                             const SizedBox(width: 6),
                             Text(
-                              'All Vendors Approved',
+                              'event_owner.my_events_screen.all_vendors_approved'
+                                  .tr(),
                               style: TextStyle(
                                 fontSize: 11,
                                 color: Colors.green,
@@ -461,7 +476,7 @@ class _MyEventsListScreenState extends State<MyEventsListScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Budget',
+                            'event_owner.my_events_screen.budget'.tr(),
                             style: TextStyle(
                               fontSize: 11,
                               color: Colors.grey[500],
@@ -483,7 +498,7 @@ class _MyEventsListScreenState extends State<MyEventsListScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Guests',
+                            'event_owner.my_events_screen.guests'.tr(),
                             style: TextStyle(
                               fontSize: 11,
                               color: Colors.grey[500],
@@ -506,7 +521,7 @@ class _MyEventsListScreenState extends State<MyEventsListScreen> {
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             Text(
-                              'Days Left',
+                              'event_owner.my_events_screen.days_left'.tr(),
                               style: TextStyle(
                                 fontSize: 11,
                                 color: Colors.grey[500],
@@ -515,7 +530,9 @@ class _MyEventsListScreenState extends State<MyEventsListScreen> {
                             ),
                             const SizedBox(height: 2),
                             Text(
-                              daysUntil == 0 ? 'Today!' : '$daysUntil days',
+                              daysUntil == 0
+                                  ? 'event_owner.my_events_screen.today'.tr()
+                                  : '$daysUntil ${'event_owner.my_events_screen.days'.tr()}',
                               style: TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,
@@ -545,24 +562,19 @@ class _MyEventsListScreenState extends State<MyEventsListScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.event_busy_rounded,
-            size: 64,
-            color: Colors.grey[300],
-          ),
+          Icon(Icons.event_busy_rounded, size: 64, color: Colors.grey[300]),
           const SizedBox(height: 16),
-          const Text(
-            'No Events',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-            ),
+          Text(
+            'event_owner.my_events_screen.no_events'.tr(),
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 8),
           Text(
-            _selectedFilter == 'All'
-                ? 'Create your first event'
-                : 'No events with status: $_selectedFilter',
+            _selectedFilter == 'event_owner.my_events_screen.filter.all'.tr()
+                ? 'event_owner.my_events_screen.create_first'.tr()
+                : 'event_owner.my_events_screen.no_events_status'.tr(
+                    args: [_selectedFilter],
+                  ),
             style: TextStyle(color: Colors.grey[600]),
           ),
         ],
@@ -621,19 +633,19 @@ class _MyEventsListScreenState extends State<MyEventsListScreen> {
   String _getStatusLabel(EventStatus status) {
     switch (status) {
       case EventStatus.draft:
-        return 'Draft';
+        return 'event_owner.my_events_screen.status.draft'.tr();
       case EventStatus.pending:
-        return 'Pending';
+        return 'event_owner.my_events_screen.status.pending'.tr();
       case EventStatus.approved:
-        return 'Approved';
+        return 'event_owner.my_events_screen.status.approved'.tr();
       case EventStatus.partiallyPaid:
-        return 'Partial';
+        return 'event_owner.my_events_screen.status.partial'.tr();
       case EventStatus.confirmed:
-        return 'Confirmed';
+        return 'event_owner.my_events_screen.status.confirmed'.tr();
       case EventStatus.cancelled:
-        return 'Cancelled';
+        return 'event_owner.my_events_screen.status.cancelled'.tr();
       case EventStatus.completed:
-        return 'Completed';
+        return 'event_owner.my_events_screen.status.completed'.tr();
     }
   }
 }

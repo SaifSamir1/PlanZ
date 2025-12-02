@@ -1,5 +1,6 @@
 // lib/features/new_owner_features/user_info/ui/widgets/logout_button_widget.dart
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:plan_z/core/utils/app_colors.dart';
@@ -18,7 +19,7 @@ class LogoutButtonWidget extends StatelessWidget {
         if (state is AuthSignOutSuccess) {
           // إخفاء أي Dialogs مفتوحة
           Navigator.of(context).popUntil((route) => route.isFirst);
-          
+
           // الانتقال إلى StakeholdersSelectionScreen
           Navigator.of(context).pushAndRemoveUntil(
             MaterialPageRoute(
@@ -34,9 +35,7 @@ class LogoutButtonWidget extends StatelessWidget {
                 children: [
                   const Icon(Icons.check_circle, color: Colors.white),
                   const SizedBox(width: 12),
-                  const Expanded(
-                    child: Text('Logged out successfully!'),
-                  ),
+                  const Expanded(child: Text('Logged out successfully!')),
                 ],
               ),
               backgroundColor: AppColors.success,
@@ -59,9 +58,7 @@ class LogoutButtonWidget extends StatelessWidget {
                 children: [
                   const Icon(Icons.error_outline, color: Colors.white),
                   const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(state.message),
-                  ),
+                  Expanded(child: Text(state.message)),
                 ],
               ),
               backgroundColor: AppColors.error,
@@ -114,15 +111,11 @@ class LogoutButtonWidget extends StatelessWidget {
                   )
                 : Row(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
-                      Icon(
-                        Icons.logout_rounded,
-                        size: 20,
-                        color: Colors.black,
-                      ),
+                    children: [
+                      Icon(Icons.logout_rounded, size: 20, color: Colors.black),
                       SizedBox(width: 8),
                       Text(
-                        "Logout",
+                        "event_owner.logout".tr(),
                         style: TextStyle(
                           color: Colors.black,
                           fontSize: 16,
@@ -141,9 +134,7 @@ class LogoutButtonWidget extends StatelessWidget {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Row(
           children: [
             Container(
@@ -159,21 +150,15 @@ class LogoutButtonWidget extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 12),
-            const Text(
-              'Logout',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
+            Text(
+              'event_owner.logout_confirmation'.tr(),
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
           ],
         ),
-        content: const Text(
-          'Are you sure you want to logout from your account?',
-          style: TextStyle(
-            fontSize: 16,
-            height: 1.5,
-          ),
+        content: Text(
+          'event_owner.logout_message'.tr(),
+          style: const TextStyle(fontSize: 16, height: 1.5),
         ),
         actions: [
           TextButton(
@@ -181,18 +166,15 @@ class LogoutButtonWidget extends StatelessWidget {
             style: TextButton.styleFrom(
               foregroundColor: AppColors.textSecondary,
             ),
-            child: const Text(
-              'Cancel',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              ),
+            child: Text(
+              'event_owner.cancel'.tr(),
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
             ),
           ),
           ElevatedButton(
             onPressed: () {
               Navigator.of(dialogContext).pop(); // إغلاق Dialog
-              
+
               // استدعاء Logout من Cubit
               context.read<AuthCubit>().signOut();
             },
@@ -204,12 +186,9 @@ class LogoutButtonWidget extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
-            child: const Text(
-              'Logout',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
+            child: Text(
+              'event_owner.logout'.tr(),
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
           ),
         ],

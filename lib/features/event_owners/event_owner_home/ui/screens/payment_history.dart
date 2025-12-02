@@ -336,25 +336,27 @@ class _PaymentHistoryState extends State<PaymentHistory> {
           child: Icon(icon, size: 16, color: iconColor),
         ),
         const SizedBox(width: 8),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              label,
-              style: AppTextStyles.body.copyWith(
-                color: Colors.white.withOpacity(0.7),
-                fontSize: 11,
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: AppTextStyles.body.copyWith(
+                  color: Colors.white.withOpacity(0.7),
+                  fontSize: 11,
+                ),
               ),
-            ),
-            Text(
-              value,
-              style: AppTextStyles.body.copyWith(
-                color: Colors.white,
-                fontSize: 13,
-                fontWeight: FontWeight.bold,
+              Text(
+                value,
+                style: AppTextStyles.body.copyWith(
+                  color: Colors.white,
+                  fontSize: 13,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ],
     );

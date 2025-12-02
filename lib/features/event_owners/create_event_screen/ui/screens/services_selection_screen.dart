@@ -335,35 +335,43 @@ class _ServicesSelectionScreenState extends State<ServicesSelectionScreen> {
             const SizedBox(height: 8),
             Row(
               children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: isRequired
-                        ? Colors.red.withOpacity(0.2)
-                        : Colors.blue.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Text(
-                    isRequired
-                        ? "event_owner.services_selection_screen.required".tr()
-                        : "event_owner.services_selection_screen.optional".tr(),
-                    style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                      color: isRequired ? Colors.red : Colors.blue,
+                Flexible(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: isRequired
+                          ? Colors.red.withOpacity(0.2)
+                          : Colors.blue.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Text(
+                      isRequired
+                          ? "event_owner.services_selection_screen.required"
+                                .tr()
+                          : "event_owner.services_selection_screen.optional"
+                                .tr(),
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                        color: isRequired ? Colors.red : Colors.blue,
+                      ),
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ),
                 const SizedBox(width: 8),
-                Text(
-                  '$budgetPercentage% • EGP ${_formatNumber(allocatedAmount.toInt())}',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.primaryGold,
+                Flexible(
+                  child: Text(
+                    '$budgetPercentage% • EGP ${_formatNumber(allocatedAmount.toInt())}',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.primaryGold,
+                    ),
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
               ],

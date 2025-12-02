@@ -38,6 +38,7 @@ import 'package:plan_z/features/vendor_features/packages_mangment/ui/screens/cre
 import 'package:plan_z/features/vendor_features/vendor_home/ui/screens/vendor_earnings_screen.dart';
 import 'package:plan_z/features/vendor_features/vendor_home/ui/screens/vendor_home_screen.dart';
 
+import 'package:plan_z/core/localization/vendor_asset_loader.dart';
 import 'package:plan_z/core/services/event_reminder_service.dart';
 import 'package:plan_z/firebase_options.dart';
 
@@ -101,7 +102,7 @@ Future<void> main() async {
   // ✅ 8. Initialize UserManager (after Hive)
   await UserManager().init();
 
-  // ✅ 9. Initialize EasyLocalization
+  // ✅ 9. Initialize EasyLocalization with custom multi-role asset loader (supports attendee, vendor, and event owner)
   await EasyLocalization.ensureInitialized();
 
   runApp(
@@ -109,6 +110,8 @@ Future<void> main() async {
       supportedLocales: const [Locale('en'), Locale('ar')],
       path: 'assets/translations',
       fallbackLocale: const Locale('en'),
+      // Use custom loader to load main, vendor, attendee, and event owner-specific files
+      assetLoader: const MultiRoleAssetLoader(),
       child: const PlanZ(),
     ),
   );

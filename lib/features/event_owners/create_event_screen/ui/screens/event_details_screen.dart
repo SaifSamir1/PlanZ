@@ -61,7 +61,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: CustomAppBar(
-        title: 'event_details_screen.title'.tr(),
+        title: 'event_owner.event_details_screen.title'.tr(),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh, color: Colors.white),
@@ -144,15 +144,15 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
             unselectedLabelColor: Colors.white70,
             tabs: [
               Tab(
-                text: 'event_details_screen.tabs.overview'.tr(),
+                text: 'event_owner.event_details_screen.tabs.overview'.tr(),
                 icon: const Icon(Icons.info),
               ),
               Tab(
-                text: 'event_details_screen.tabs.services'.tr(),
+                text: 'event_owner.event_details_screen.tabs.services'.tr(),
                 icon: const Icon(Icons.business_center),
               ),
               Tab(
-                text: 'event_details_screen.tabs.budget'.tr(),
+                text: 'event_owner.event_details_screen.tabs.budget'.tr(),
                 icon: const Icon(Icons.attach_money),
               ),
             ],
@@ -225,7 +225,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
               color: Colors.grey[300],
             ),
             const SizedBox(height: 16),
-            Text('event_details_screen.no_services_selected'.tr()),
+            Text('event_owner.event_details_screen.no_services_selected'.tr()),
           ],
         ),
       );
@@ -235,7 +235,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
       padding: const EdgeInsets.all(16),
       children: [
         Text(
-          'event_details_screen.selected_services_count'.tr(
+          'event_owner.event_details_screen.selected_services_count'.tr(
             args: [event.services.length.toString()],
           ),
           style: const TextStyle(
@@ -267,7 +267,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
 
         // ✅ Breakdown
         Text(
-          'event_details_screen.budget_breakdown'.tr(),
+          'event_owner.event_details_screen.budget_breakdown'.tr(),
           style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
@@ -276,7 +276,11 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
         ),
         const SizedBox(height: 16),
         if (event.services.isEmpty)
-          Center(child: Text('event_details_screen.no_services_breakdown'.tr()))
+          Center(
+            child: Text(
+              'event_owner.event_details_screen.no_services_breakdown'.tr(),
+            ),
+          )
         else
           ...event.services.map(
             (service) => _buildBudgetBreakdownItem(service, event.totalBudget),
@@ -399,7 +403,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'event_details_screen.event_information'.tr(),
+            'event_owner.event_details_screen.event_information'.tr(),
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
@@ -409,31 +413,31 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
           const Divider(height: 20),
           _buildInfoRow(
             Icons.location_on,
-            'event_details_screen.location'.tr(),
+            'event_owner.event_details_screen.location'.tr(),
             event.location,
           ),
           const SizedBox(height: 12),
           _buildInfoRow(
             Icons.location_city,
-            'event_details_screen.city'.tr(),
-            event.city ?? 'event_details_screen.na'.tr(),
+            'event_owner.event_details_screen.city'.tr(),
+            event.city ?? 'event_owner.event_details_screen.na'.tr(),
           ),
           const SizedBox(height: 12),
           _buildInfoRow(
             Icons.home,
-            'event_details_screen.address'.tr(),
-            event.address ?? 'event_details_screen.na'.tr(),
+            'event_owner.event_details_screen.address'.tr(),
+            event.address ?? 'event_owner.event_details_screen.na'.tr(),
           ),
           const SizedBox(height: 12),
           _buildInfoRow(
             Icons.people,
-            'event_details_screen.expected_guests'.tr(),
-            '${event.expectedGuestCount} ${'event_details_screen.people'.tr()}',
+            'event_owner.event_details_screen.expected_guests'.tr(),
+            '${event.expectedGuestCount} ${'event_owner.event_details_screen.people'.tr()}',
           ),
           if (event.description != null && event.description!.isNotEmpty) ...{
             const Divider(height: 20),
             Text(
-              'event_details_screen.description'.tr(),
+              'event_owner.event_details_screen.description'.tr(),
               style: const TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.bold,
@@ -459,7 +463,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
       children: [
         Expanded(
           child: _buildStatCard(
-            'event_details_screen.quick_stats_services'.tr(),
+            'event_owner.event_details_screen.quick_stats_services'.tr(),
             event.services.length.toString(),
             Icons.business_center,
             Colors.blue,
@@ -468,8 +472,8 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
         const SizedBox(width: 12),
         Expanded(
           child: _buildStatCard(
-            'event_details_screen.quick_stats_budget'.tr(),
-            'event_details_screen.egp_format'.tr(
+            'event_owner.event_details_screen.quick_stats_budget'.tr(),
+            'event_owner.event_details_screen.egp_format'.tr(
               args: [_formatNumber(event.totalBudget.toInt())],
             ),
             Icons.attach_money,
@@ -527,8 +531,8 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
     // ✅ Determine status color based on vendor approval
     final statusColor = service.vendorApproved ? Colors.green : Colors.orange;
     final statusLabel = service.vendorApproved
-        ? 'event_details_screen.approved'.tr()
-        : 'event_details_screen.pending'.tr();
+        ? 'event_owner.event_details_screen.approved'.tr()
+        : 'event_owner.event_details_screen.pending'.tr();
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -574,7 +578,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'event_details_screen.vendor'.tr(
+                      'event_owner.event_details_screen.vendor'.tr(
                         args: [service.vendorName],
                       ),
                       style: TextStyle(fontSize: 11, color: Colors.grey[600]),
@@ -608,7 +612,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
             children: [
               Expanded(
                 child: Text(
-                  'event_details_screen.price'.tr(
+                  'event_owner.event_details_screen.price'.tr(
                     args: [_formatNumber(service.packagePrice.toInt())],
                   ),
                   style: const TextStyle(
@@ -630,7 +634,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(
-                    'event_details_screen.required'.tr(),
+                    'event_owner.event_details_screen.required'.tr(),
                     style: TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.bold,
@@ -661,7 +665,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'event_details_screen.budget_overview'.tr(),
+            'event_owner.event_details_screen.budget_overview'.tr(),
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -674,19 +678,19 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
             children: [
               Expanded(
                 child: _buildBudgetItem(
-                  'event_details_screen.budget_total'.tr(),
+                  'event_owner.event_details_screen.budget_total'.tr(),
                   event.totalBudget,
                 ),
               ),
               Expanded(
                 child: _buildBudgetItem(
-                  'event_details_screen.budget_allocated'.tr(),
+                  'event_owner.event_details_screen.budget_allocated'.tr(),
                   event.allocatedBudget,
                 ),
               ),
               Expanded(
                 child: _buildBudgetItem(
-                  'event_details_screen.budget_remaining'.tr(),
+                  'event_owner.event_details_screen.budget_remaining'.tr(),
                   event.remainingBudget,
                 ),
               ),
@@ -706,7 +710,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
           ),
           const SizedBox(height: 8),
           Text(
-            'event_details_screen.budget_allocated_percent'.tr(
+            'event_owner.event_details_screen.budget_allocated_percent'.tr(
               args: [percentage.toString()],
             ),
             style: const TextStyle(
@@ -735,7 +739,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
         ),
         const SizedBox(height: 4),
         Text(
-          'event_details_screen.egp_format'.tr(
+          'event_owner.event_details_screen.egp_format'.tr(
             args: [_formatNumber(amount.toInt())],
           ),
           style: const TextStyle(
@@ -792,7 +796,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
               ),
               const SizedBox(width: 12),
               Text(
-                'event_details_screen.egp_format'.tr(
+                'event_owner.event_details_screen.egp_format'.tr(
                   args: [_formatNumber(amount.toInt())],
                 ),
                 style: const TextStyle(
@@ -815,7 +819,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
           ),
           const SizedBox(height: 8),
           Text(
-            'event_details_screen.budget_percentage_of_total'.tr(
+            'event_owner.event_details_screen.budget_percentage_of_total'.tr(
               args: [percentage.toStringAsFixed(1)],
             ),
             style: const TextStyle(fontSize: 12, color: Colors.grey),
@@ -867,7 +871,9 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
                 ).then((_) => _loadEventData());
               },
               icon: const Icon(Icons.track_changes),
-              label: Text('event_details_screen.track_package_approvals'.tr()),
+              label: Text(
+                'event_owner.event_details_screen.track_package_approvals'.tr(),
+              ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blue,
                 foregroundColor: Colors.white,
@@ -893,7 +899,9 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
                 ).then((_) => _loadEventData());
               },
               icon: const Icon(Icons.shopping_bag),
-              label: Text('event_details_screen.manage_packages'.tr()),
+              label: Text(
+                'event_owner.event_details_screen.manage_packages'.tr(),
+              ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primaryGold,
                 foregroundColor: Colors.white,
@@ -922,7 +930,9 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
                   ).then((_) => _loadEventData());
                 },
                 icon: const Icon(Icons.payment),
-                label: Text('event_details_screen.proceed_to_payment'.tr()),
+                label: Text(
+                  'event_owner.event_details_screen.proceed_to_payment'.tr(),
+                ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green,
                   foregroundColor: Colors.white,
@@ -954,7 +964,9 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
                   ).then((_) => _loadEventData());
                 },
                 icon: const Icon(Icons.people_alt),
-                label: Text('event_details_screen.invite_guests'.tr()),
+                label: Text(
+                  'event_owner.event_details_screen.invite_guests'.tr(),
+                ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green,
                   foregroundColor: Colors.white,
@@ -990,7 +1002,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
             children: [
               Expanded(
                 child: Text(
-                  'event_details_screen.vendor_approvals'.tr(),
+                  'event_owner.event_details_screen.vendor_approvals'.tr(),
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
@@ -1009,8 +1021,9 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
                 ),
                 child: Text(
                   event.allVendorsApproved
-                      ? 'event_details_screen.all_approved_check'.tr()
-                      : 'event_details_screen.pending'.tr(),
+                      ? 'event_owner.event_details_screen.all_approved_check'
+                            .tr()
+                      : 'event_owner.event_details_screen.pending'.tr(),
                   style: const TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.bold,
@@ -1038,7 +1051,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
             children: [
               Expanded(
                 child: Text(
-                  'event_details_screen.approved_count'.tr(
+                  'event_owner.event_details_screen.approved_count'.tr(
                     args: [
                       event.approvedVendorsCount.toString(),
                       event.totalVendorsCount.toString(),
@@ -1051,7 +1064,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
               ),
               Expanded(
                 child: Text(
-                  'event_details_screen.pending_count'.tr(
+                  'event_owner.event_details_screen.pending_count'.tr(
                     args: [event.pendingVendorsCount.toString()],
                   ),
                   style: const TextStyle(fontSize: 12, color: Colors.orange),
@@ -1062,7 +1075,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
               if (event.rejectedVendorsCount > 0)
                 Expanded(
                   child: Text(
-                    'event_details_screen.rejected_count'.tr(
+                    'event_owner.event_details_screen.rejected_count'.tr(
                       args: [event.rejectedVendorsCount.toString()],
                     ),
                     style: const TextStyle(fontSize: 12, color: Colors.red),
@@ -1088,7 +1101,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
           Icon(Icons.error_outline, size: 64, color: Colors.red[300]),
           const SizedBox(height: 16),
           Text(
-            'event_details_screen.failed_load_event'.tr(),
+            'event_owner.event_details_screen.failed_load_event'.tr(),
             style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
@@ -1100,7 +1113,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
               _loadEventData();
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: Text('event_details_screen.retry'.tr()),
+            child: Text('event_owner.event_details_screen.retry'.tr()),
           ),
         ],
       ),
@@ -1142,50 +1155,61 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
     switch (status) {
       case EventStatus.draft:
         return {
-          'title': 'event_details_screen.status.draft_title'.tr(),
-          'description': 'event_details_screen.status.draft_desc'.tr(),
+          'title': 'event_owner.event_details_screen.status.draft_title'.tr(),
+          'description': 'event_owner.event_details_screen.status.draft_desc'
+              .tr(),
           'icon': Icons.edit,
           'color': Colors.grey,
         };
       case EventStatus.pending:
         return {
-          'title': 'event_details_screen.status.pending_title'.tr(),
-          'description': 'event_details_screen.status.pending_desc'.tr(),
+          'title': 'event_owner.event_details_screen.status.pending_title'.tr(),
+          'description': 'event_owner.event_details_screen.status.pending_desc'
+              .tr(),
           'icon': Icons.hourglass_empty,
           'color': Colors.orange,
         };
       case EventStatus.approved:
         return {
-          'title': 'event_details_screen.status.approved_title'.tr(),
-          'description': 'event_details_screen.status.approved_desc'.tr(),
+          'title': 'event_owner.event_details_screen.status.approved_title'
+              .tr(),
+          'description': 'event_owner.event_details_screen.status.approved_desc'
+              .tr(),
           'icon': Icons.check_circle,
           'color': Colors.green,
         };
       case EventStatus.partiallyPaid:
         return {
-          'title': 'event_details_screen.status.partial_title'.tr(),
-          'description': 'event_details_screen.status.partial_desc'.tr(),
+          'title': 'event_owner.event_details_screen.status.partial_title'.tr(),
+          'description': 'event_owner.event_details_screen.status.partial_desc'
+              .tr(),
           'icon': Icons.payment,
           'color': Colors.amber,
         };
       case EventStatus.confirmed:
         return {
-          'title': 'event_details_screen.status.confirmed_title'.tr(),
-          'description': 'event_details_screen.status.confirmed_desc'.tr(),
+          'title': 'event_owner.event_details_screen.status.confirmed_title'
+              .tr(),
+          'description':
+              'event_owner.event_details_screen.status.confirmed_desc'.tr(),
           'icon': Icons.verified,
           'color': Colors.green,
         };
       case EventStatus.cancelled:
         return {
-          'title': 'event_details_screen.status.cancelled_title'.tr(),
-          'description': 'event_details_screen.status.cancelled_desc'.tr(),
+          'title': 'event_owner.event_details_screen.status.cancelled_title'
+              .tr(),
+          'description':
+              'event_owner.event_details_screen.status.cancelled_desc'.tr(),
           'icon': Icons.cancel,
           'color': Colors.red,
         };
       case EventStatus.completed:
         return {
-          'title': 'event_details_screen.status.completed_title'.tr(),
-          'description': 'event_details_screen.status.completed_desc'.tr(),
+          'title': 'event_owner.event_details_screen.status.completed_title'
+              .tr(),
+          'description':
+              'event_owner.event_details_screen.status.completed_desc'.tr(),
           'icon': Icons.check_circle_outline,
           'color': Colors.blue,
         };

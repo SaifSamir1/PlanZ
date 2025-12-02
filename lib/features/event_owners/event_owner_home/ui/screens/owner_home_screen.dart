@@ -473,7 +473,7 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
     return Material(
       color: Colors.transparent,
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
@@ -488,10 +488,11 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
             // ✅ Icon with gradient background
             Container(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
@@ -506,16 +507,16 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
                   color: AppColors.primaryGold.withOpacity(0.2),
                 ),
               ),
-              child: Icon(icon, color: AppColors.primaryGold, size: 28),
+              child: Icon(icon, color: AppColors.primaryGold, size: 26),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 10),
             // ✅ Label
             Text(
               label,
               style: const TextStyle(
                 fontWeight: FontWeight.w600,
                 color: AppColors.primaryDark,
-                fontSize: 14,
+                fontSize: 13,
               ),
               textAlign: TextAlign.center,
               maxLines: 2,
@@ -523,13 +524,13 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
             ),
             // ✅ Description (optional)
             if (description != null) ...[
-              const SizedBox(height: 6),
+              const SizedBox(height: 4),
               Text(
                 description,
                 style: TextStyle(
                   fontWeight: FontWeight.w400,
                   color: AppColors.primaryDark.withOpacity(0.6),
-                  fontSize: 11,
+                  fontSize: 10,
                 ),
                 textAlign: TextAlign.center,
                 maxLines: 2,
