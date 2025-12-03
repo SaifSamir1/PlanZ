@@ -1,5 +1,6 @@
 // ignore_for_file: deprecated_member_use
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:plan_z/core/theming/text_styles.dart';
@@ -48,7 +49,7 @@ class _SignUpRedirectState extends State<SignUpRedirect>
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            "Don't have an account? ",
+            "auth.dont_have_account".tr(),
             style: AppTextStyles.body.copyWith(
               color: AppColors.blue400,
               fontSize: 15,
@@ -96,7 +97,7 @@ class _SignUpRedirectState extends State<SignUpRedirect>
                             : Colors.transparent,
                       ),
                       child: Text(
-                        'Sign Up',
+                        'auth.sign_up_link'.tr(),
                         style: AppTextStyles.body.copyWith(
                           color: _isHovered
                               ? AppColors.primaryDark

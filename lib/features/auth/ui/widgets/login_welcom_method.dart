@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:plan_z/core/theming/text_styles.dart';
 import 'package:plan_z/features/auth/data/models/user_model.dart';
@@ -18,7 +19,7 @@ class LoginWelcomeMessage extends StatelessWidget {
         ),
         const SizedBox(height: 8.0),
         Text(
-          'Login to continue',
+          'auth.login_subtitle'.tr(),
           style: AppTextStyles.subtitle,
           textAlign: TextAlign.center,
         ),
@@ -29,13 +30,13 @@ class LoginWelcomeMessage extends StatelessWidget {
   String _getWelcomeTitle() {
     switch (userType) {
       case UserType.vendor:
-        return 'Welcome, Service Provider';
+        return 'auth.welcome_service_provider'.tr();
       case UserType.eventOwner:
-        return 'Welcome, Event Organizer';
+        return 'auth.welcome_event_organizer'.tr();
       case UserType.attendee:
-        return 'Welcome, Attendee';
+        return 'auth.welcome_attendee_comma'.tr();
       case UserType.admin:
-        return 'Welcome, Admin';
+        return 'auth.welcome_admin_comma'.tr();
     }
   }
 }

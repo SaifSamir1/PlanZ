@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -6,7 +7,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:intl/intl.dart';
+import 'package:intl/intl.dart' hide TextDirection;
+import 'dart:ui' as ui;
 import 'package:plan_z/core/services/notification_service.dart';
 
 // Your imports
@@ -37,6 +39,8 @@ import 'package:plan_z/features/vendor_features/packages_mangment/ui/screens/cre
 import 'package:plan_z/features/vendor_features/vendor_home/ui/screens/vendor_earnings_screen.dart';
 import 'package:plan_z/features/vendor_features/vendor_home/ui/screens/vendor_home_screen.dart';
 
+import 'package:plan_z/core/localization/vendor_asset_loader.dart';
+import 'package:plan_z/core/services/event_reminder_service.dart';
 import 'package:plan_z/firebase_options.dart';
 import 'package:workmanager/workmanager.dart';
 
@@ -130,13 +134,19 @@ Future<void> main() async {
   // ✅ 8. Initialize UserManager (after Hive)
   await UserManager().init();
 
-  // ✅ 9. Setup FCM token refresh listener
-  FirebaseMessaging.instance.onTokenRefresh.listen((newToken) async {
-    print("🔄 FCM Token refreshed: $newToken");
-    await _updateUserFCMToken(newToken);
-  });
+  // ✅ 9. Initialize EasyLocalization with custom multi-role asset loader (supports attendee, vendor, and event owner)
+  await EasyLocalization.ensureInitialized();
 
-  runApp(const PlanZ());
+  runApp(
+    EasyLocalization(
+      supportedLocales: const [Locale('en'), Locale('ar')],
+      path: 'assets/translations',
+      fallbackLocale: const Locale('en'),
+      // Use custom loader to load main, vendor, attendee, and event owner-specific files
+      assetLoader: const MultiRoleAssetLoader(),
+      child: const PlanZ(),
+    ),
+  );
 }
 
 /// ✅ Update user's FCM token in Firestore when token refreshes
@@ -180,6 +190,10 @@ Future<void> _updateUserFCMToken(String newToken) async {
 
 class PlanZ extends StatefulWidget {
   const PlanZ({super.key});
+
+  static void restartApp(BuildContext context) {
+    context.findAncestorStateOfType<_PlanZState>()?.restartApp();
+  }
 
   /// 🔍 Determine home screen based on login status
   Widget getHomeScreen() {
@@ -235,12 +249,21 @@ class PlanZ extends StatefulWidget {
 }
 
 class _PlanZState extends State<PlanZ> {
-  // Track shown notification IDs to prevent duplicates
-  final Set<String> _shownNotificationIds = {};
+  Key _key = UniqueKey();
+
+  void restartApp() {
+    setState(() {
+      _key = UniqueKey();
+    });
+  }
 
   @override
   void initState() {
     super.initState();
+
+    // ✅ Save FCM Token and listen for refresh
+    _saveFCMToken();
+    FirebaseMessaging.instance.onTokenRefresh.listen(_saveFCMToken);
 
     // ✅ Listen to Firestore notifications collection for real-time updates
     _listenToFirestoreNotifications();
@@ -295,6 +318,46 @@ class _PlanZState extends State<PlanZ> {
     });
   }
 
+  /// ✅ Save current FCM token to Firestore
+  Future<void> _saveFCMToken([String? token]) async {
+    final userManager = UserManager();
+    if (!userManager.isLoggedIn || userManager.userId == null) return;
+
+    try {
+      final fcmToken = token ?? await FirebaseMessaging.instance.getToken();
+      if (fcmToken == null) return;
+
+      debugPrint('🔄 [_saveFCMToken] Updating FCM token for user...');
+
+      String collectionName;
+      switch (userManager.userType) {
+        case UserType.vendor:
+          collectionName = 'vendors';
+          break;
+        case UserType.eventOwner:
+          collectionName = 'event_owners';
+          break;
+        case UserType.attendee:
+          collectionName = 'attendees';
+          break;
+        case UserType.admin:
+          collectionName = 'admins';
+          break;
+        default:
+          return;
+      }
+
+      await FirebaseFirestore.instance
+          .collection(collectionName)
+          .doc(userManager.userId)
+          .update({'fcmToken': fcmToken});
+
+      debugPrint('✅ [_saveFCMToken] FCM token updated successfully');
+    } catch (e) {
+      debugPrint('❌ [_saveFCMToken] Error updating token: $e');
+    }
+  }
+
   /// ✅ Listen to Firestore notifications collection for real-time updates
   void _listenToFirestoreNotifications() {
     final userManager = UserManager();
@@ -319,6 +382,9 @@ class _PlanZState extends State<PlanZ> {
         .where('receiverRole', isEqualTo: userRole)
         .orderBy('createdAt', descending: true)
         .snapshots()
+        .skip(
+          1,
+        ) // ✅ Skip the first emission (current state) to avoid spam on open
         .listen(
           (snapshot) {
             for (var change in snapshot.docChanges) {
@@ -436,9 +502,21 @@ class _PlanZState extends State<PlanZ> {
           BlocProvider(create: (context) => ChatCubit()),
         ],
         child: MaterialApp(
-          home: widget.getHomeScreen(),
-          // title: 'PlanZ Chat',
+          key: _key,
+          locale: context.locale,
+          supportedLocales: context.supportedLocales,
+          localizationsDelegates: context.localizationDelegates,
           debugShowCheckedModeBanner: false,
+          builder: (context, child) {
+            // ✅ Wrap with Directionality for RTL support
+            return Directionality(
+              textDirection: context.locale.languageCode == 'ar'
+                  ? ui.TextDirection.rtl
+                  : ui.TextDirection.ltr,
+              child: child ?? const SizedBox(),
+            );
+          },
+          home: widget.getHomeScreen(),
           routes: {
             '/create_event': (_) => SelectEventTypeScreen(),
             '/notifications': (_) => NotificationsScreen(),

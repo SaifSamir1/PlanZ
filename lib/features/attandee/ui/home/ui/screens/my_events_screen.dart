@@ -1,6 +1,7 @@
 // lib/features/attendee/presentation/screens/my_events_screen.dart
 
 import 'package:animate_do/animate_do.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:plan_z/core/utils/app_colors.dart';
@@ -34,8 +35,7 @@ class _MyEventsScreenState extends State<MyEventsScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this, initialIndex: 1);
-    
-    
+
     _loadEvents();
 
     // Listen to tab changes
@@ -52,7 +52,7 @@ class _MyEventsScreenState extends State<MyEventsScreen>
   void _loadEvents() {
     debugPrint('📥 Loading attendee events with filter: $selectedFilter');
     final userId = userManager.currentUser?.id;
-    
+
     if (userId == null) {
       debugPrint('❌ User ID is null');
       return;
@@ -86,10 +86,7 @@ class _MyEventsScreenState extends State<MyEventsScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: CustomAppBar(
-        title: "My Events",
-        
-      ),
+      appBar: CustomAppBar(title: 'attendee.my_events_title'.tr()),
       body: Column(
         children: [
           // Filter Tabs
@@ -148,9 +145,7 @@ class _MyEventsScreenState extends State<MyEventsScreen>
 
         // Empty State
         if (events.isEmpty) {
-          return Empty1EventsWidget(
-            filterType: selectedFilter,
-          );
+          return Empty1EventsWidget(filterType: selectedFilter);
         }
 
         // Display Events
@@ -186,30 +181,26 @@ class _MyEventsScreenState extends State<MyEventsScreen>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.error_outline_rounded,
-              size: 64,
-              color: Colors.red[300],
-            ),
+            Icon(Icons.error_outline_rounded, size: 64, color: Colors.red[300]),
             const SizedBox(height: 16),
             Text(
-              "Failed to load events",
+              'attendee.upcoming_events_failed'.tr(),
               style: Theme.of(context).textTheme.titleLarge,
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
             Text(
               message,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Colors.grey[600],
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
             ElevatedButton.icon(
               onPressed: _loadEvents,
               icon: const Icon(Icons.refresh),
-              label: const Text("Retry"),
+              label: Text('attendee.retry'.tr()),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.buttonPrimary,
               ),

@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:plan_z/core/utils/app_colors.dart';
@@ -39,9 +40,9 @@ class _LoginScreenState extends State<LoginScreen> {
     if (_formKey.currentState!.validate()) {
       // استدعاء الـ Cubit لتسجيل الدخول
       context.read<AuthCubit>().signIn(
-            email: _emailController.text.trim(),
-            password: _passwordController.text.trim(),
-          );
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+      );
     }
   }
 
@@ -58,14 +59,13 @@ class _LoginScreenState extends State<LoginScreen> {
       case UserType.attendee:
         destination = const AttendeeHomeScreen();
       case UserType.admin:
-         destination = const OwnerDashboardScreen();  
+        destination = const OwnerDashboardScreen();
         break;
-      
     }
 
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (context) => destination),
-    );
+    Navigator.of(
+      context,
+    ).pushReplacement(MaterialPageRoute(builder: (context) => destination));
   }
 
   @override
@@ -77,16 +77,17 @@ class _LoginScreenState extends State<LoginScreen> {
           // معالجة حالات النجاح والفشل
           if (state is AuthSignInSuccess) {
             // التحقق من أن نوع المستخدم يطابق الشاشة
-              _navigateBasedOnUserType(state.user);
-              
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Welcome back, ${state.user.name}!'),
-                  backgroundColor: Colors.green,
-                  duration: const Duration(seconds: 2),
+            _navigateBasedOnUserType(state.user);
+
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  'auth.welcome_back_user'.tr(args: [state.user.name]),
                 ),
-              );
-            
+                backgroundColor: Colors.green,
+                duration: const Duration(seconds: 2),
+              ),
+            );
           } else if (state is AuthSignInError) {
             // إظهار رسالة الخطأ
             ScaffoldMessenger.of(context).showSnackBar(
@@ -108,24 +109,24 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Column(
                   children: [
                     const SizedBox(height: 20.0),
-                    
+
                     // App Logo with animation
                     FadeInDown(
                       duration: const Duration(milliseconds: 400),
                       child: const AppLogo(),
                     ),
-                    
+
                     const SizedBox(height: 24.0),
-                    
+
                     // Welcome message with animation
                     FadeInLeft(
                       duration: const Duration(milliseconds: 600),
                       delay: const Duration(milliseconds: 100),
                       child: LoginWelcomeMessage(userType: widget.userType),
                     ),
-                    
+
                     const SizedBox(height: 32.0),
-                    
+
                     // Login form with animation
                     FadeInUp(
                       duration: const Duration(milliseconds: 800),
@@ -137,25 +138,23 @@ class _LoginScreenState extends State<LoginScreen> {
                         userType: widget.userType,
                       ),
                     ),
-                    
+
                     const SizedBox(height: 24.0),
-                    
+
                     // Login button with loading state
                     FadeInUp(
                       duration: const Duration(milliseconds: 1200),
                       delay: const Duration(milliseconds: 400),
                       child: isLoading
-                          ? const Center(
-                              child: CircularProgressIndicator(),
-                            )
+                          ? const Center(child: CircularProgressIndicator())
                           : AppButton(
-                              text: 'Login',
+                              text: 'auth.login_btn'.tr(),
                               onPressed: _attemptLogin,
                             ),
                     ),
-                    
+
                     const SizedBox(height: 16.0),
-                    
+
                     // Sign up redirect with animation
                     FadeIn(
                       duration: const Duration(milliseconds: 1000),

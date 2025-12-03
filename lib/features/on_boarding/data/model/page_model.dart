@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:plan_z/core/utils/app_colors.dart';
 
@@ -14,25 +15,22 @@ class PageModel {
     required this.progress,
   });
 
-  static List<PageModel> pagesDetails = [
+  static List<PageModel> get pagesDetails => [
     PageModel(
-      title: 'Create Your Event in Minutes',
-      subTitle:
-          'Pick your event type, set a budget, explore vendors, and preview your event before booking.',
+      title: 'onboarding.title_1'.tr(),
+      subTitle: 'onboarding.subtitle_1'.tr(),
       color: AppColors.primaryGold,
       progress: 0.33,
     ),
     PageModel(
-      title: 'Grow Your Business',
-      subTitle:
-          "Add packages, set prices, and get discovered by event organizers looking for your services.",
+      title: 'onboarding.title_2'.tr(),
+      subTitle: 'onboarding.subtitle_2'.tr(),
       color: AppColors.blue300,
       progress: 0.66,
     ),
     PageModel(
-      title: 'Stay Connected',
-      subTitle:
-          "Receive invitations, RSVP instantly, and get reminders — never miss an event.",
+      title: 'onboarding.title_3'.tr(),
+      subTitle: 'onboarding.subtitle_3'.tr(),
       color: AppColors.primaryDark,
       progress: 1.0,
     ),

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:plan_z/core/utils/app_colors.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:plan_z/core/widgets/custom_app_bar.dart';
 import 'package:plan_z/features/event_owners/create_event_screen/cubits/create_event_cubit/create_event_cubit.dart';
 import 'package:plan_z/features/event_owners/create_event_screen/cubits/create_event_cubit/create_event_state.dart';
@@ -17,10 +18,7 @@ import 'package:plan_z/features/event_owners/create_event_screen/ui/screens/sele
 class EventDetailsScreen extends StatefulWidget {
   final String eventId;
 
-  const EventDetailsScreen({
-    super.key,
-    required this.eventId,
-  });
+  const EventDetailsScreen({super.key, required this.eventId});
 
   @override
   State<EventDetailsScreen> createState() => _EventDetailsScreenState();
@@ -30,7 +28,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   bool _isInitializing = true;
-  
+
   // ✅ IMPORTANT: Cache event data to persist across state changes
   EventModel? _cachedEvent;
 
@@ -38,7 +36,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
-    
+
     // ✅ Load data after frame
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadEventData();
@@ -63,7 +61,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: CustomAppBar(
-        title: 'Event Details',
+        title: 'event_owner.event_details_screen.title'.tr(),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh, color: Colors.white),
@@ -91,7 +89,8 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
           // ============================================
           // Loading State
           // ============================================
-          if (state is GetEventByIdLoading || (_isInitializing && _cachedEvent == null)) {
+          if (state is GetEventByIdLoading ||
+              (_isInitializing && _cachedEvent == null)) {
             return const Center(
               child: CircularProgressIndicator(
                 valueColor: AlwaysStoppedAnimation<Color>(
@@ -121,9 +120,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
           // ============================================
           return const Center(
             child: CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(
-                AppColors.primaryGold,
-              ),
+              valueColor: AlwaysStoppedAnimation<Color>(AppColors.primaryGold),
             ),
           );
         },
@@ -145,10 +142,19 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
             indicatorColor: AppColors.primaryGold,
             labelColor: Colors.white,
             unselectedLabelColor: Colors.white70,
-            tabs: const [
-              Tab(text: 'Overview', icon: Icon(Icons.info)),
-              Tab(text: 'Services', icon: Icon(Icons.business_center)),
-              Tab(text: 'Budget', icon: Icon(Icons.attach_money)),
+            tabs: [
+              Tab(
+                text: 'event_owner.event_details_screen.tabs.overview'.tr(),
+                icon: const Icon(Icons.info),
+              ),
+              Tab(
+                text: 'event_owner.event_details_screen.tabs.services'.tr(),
+                icon: const Icon(Icons.business_center),
+              ),
+              Tab(
+                text: 'event_owner.event_details_screen.tabs.budget'.tr(),
+                icon: const Icon(Icons.attach_money),
+              ),
             ],
           ),
         ),
@@ -213,9 +219,13 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.shopping_bag_outlined, size: 64, color: Colors.grey[300]),
+            Icon(
+              Icons.shopping_bag_outlined,
+              size: 64,
+              color: Colors.grey[300],
+            ),
             const SizedBox(height: 16),
-            const Text('No Services Selected'),
+            Text('event_owner.event_details_screen.no_services_selected'.tr()),
           ],
         ),
       );
@@ -225,7 +235,9 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
       padding: const EdgeInsets.all(16),
       children: [
         Text(
-          'Selected Services (${event.services.length})',
+          'event_owner.event_details_screen.selected_services_count'.tr(
+            args: [event.services.length.toString()],
+          ),
           style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
@@ -255,7 +267,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
 
         // ✅ Breakdown
         Text(
-          'Budget Breakdown',
+          'event_owner.event_details_screen.budget_breakdown'.tr(),
           style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
@@ -264,7 +276,11 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
         ),
         const SizedBox(height: 16),
         if (event.services.isEmpty)
-          const Center(child: Text('No services to show breakdown'))
+          Center(
+            child: Text(
+              'event_owner.event_details_screen.no_services_breakdown'.tr(),
+            ),
+          )
         else
           ...event.services.map(
             (service) => _buildBudgetBreakdownItem(service, event.totalBudget),
@@ -281,7 +297,10 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [AppColors.primaryDark, AppColors.primaryDark.withOpacity(0.8)],
+          colors: [
+            AppColors.primaryDark,
+            AppColors.primaryDark.withOpacity(0.8),
+          ],
         ),
         borderRadius: BorderRadius.circular(16),
       ),
@@ -383,8 +402,8 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Event Information',
+          Text(
+            'event_owner.event_details_screen.event_information'.tr(),
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
@@ -392,30 +411,34 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
             ),
           ),
           const Divider(height: 20),
-          _buildInfoRow(Icons.location_on, 'Location', event.location),
+          _buildInfoRow(
+            Icons.location_on,
+            'event_owner.event_details_screen.location'.tr(),
+            event.location,
+          ),
           const SizedBox(height: 12),
           _buildInfoRow(
             Icons.location_city,
-            'City',
-            event.city ?? 'N/A',
+            'event_owner.event_details_screen.city'.tr(),
+            event.city ?? 'event_owner.event_details_screen.na'.tr(),
           ),
           const SizedBox(height: 12),
           _buildInfoRow(
             Icons.home,
-            'Address',
-            event.address ?? 'N/A',
+            'event_owner.event_details_screen.address'.tr(),
+            event.address ?? 'event_owner.event_details_screen.na'.tr(),
           ),
           const SizedBox(height: 12),
           _buildInfoRow(
             Icons.people,
-            'Expected Guests',
-            '${event.expectedGuestCount} people',
+            'event_owner.event_details_screen.expected_guests'.tr(),
+            '${event.expectedGuestCount} ${'event_owner.event_details_screen.people'.tr()}',
           ),
           if (event.description != null && event.description!.isNotEmpty) ...{
             const Divider(height: 20),
-            const Text(
-              'Description',
-              style: TextStyle(
+            Text(
+              'event_owner.event_details_screen.description'.tr(),
+              style: const TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.bold,
                 color: Colors.grey,
@@ -440,7 +463,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
       children: [
         Expanded(
           child: _buildStatCard(
-            'Services',
+            'event_owner.event_details_screen.quick_stats_services'.tr(),
             event.services.length.toString(),
             Icons.business_center,
             Colors.blue,
@@ -449,8 +472,10 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
         const SizedBox(width: 12),
         Expanded(
           child: _buildStatCard(
-            'Budget',
-            'EGP ${_formatNumber(event.totalBudget.toInt())}',
+            'event_owner.event_details_screen.quick_stats_budget'.tr(),
+            'event_owner.event_details_screen.egp_format'.tr(
+              args: [_formatNumber(event.totalBudget.toInt())],
+            ),
             Icons.attach_money,
             Colors.green,
           ),
@@ -505,7 +530,9 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
   Widget _buildServiceCard(EventService service) {
     // ✅ Determine status color based on vendor approval
     final statusColor = service.vendorApproved ? Colors.green : Colors.orange;
-    final statusLabel = service.vendorApproved ? 'Approved' : 'Pending';
+    final statusLabel = service.vendorApproved
+        ? 'event_owner.event_details_screen.approved'.tr()
+        : 'event_owner.event_details_screen.pending'.tr();
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -547,24 +574,23 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
                     ),
                     Text(
                       service.packageName,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey,
-                      ),
+                      style: const TextStyle(fontSize: 12, color: Colors.grey),
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Vendor: ${service.vendorName}',
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: Colors.grey[600],
+                      'event_owner.event_details_screen.vendor'.tr(
+                        args: [service.vendorName],
                       ),
+                      style: TextStyle(fontSize: 11, color: Colors.grey[600]),
                     ),
                   ],
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
                   color: statusColor.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(20),
@@ -584,23 +610,31 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'Price: EGP ${_formatNumber(service.packagePrice.toInt())}',
-                style: const TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.primaryGold,
+              Expanded(
+                child: Text(
+                  'event_owner.event_details_screen.price'.tr(
+                    args: [_formatNumber(service.packagePrice.toInt())],
+                  ),
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.primaryGold,
+                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
               if (service.isRequired)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.red.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(4),
                   ),
-                  child: const Text(
-                    'Required',
+                  child: Text(
+                    'event_owner.event_details_screen.required'.tr(),
                     style: TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.bold,
@@ -630,8 +664,8 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            '💰 Budget Overview',
+          Text(
+            'event_owner.event_details_screen.budget_overview'.tr(),
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -642,16 +676,33 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _buildBudgetItem('Total', event.totalBudget),
-              _buildBudgetItem('Allocated', event.allocatedBudget),
-              _buildBudgetItem('Remaining', event.remainingBudget),
+              Expanded(
+                child: _buildBudgetItem(
+                  'event_owner.event_details_screen.budget_total'.tr(),
+                  event.totalBudget,
+                ),
+              ),
+              Expanded(
+                child: _buildBudgetItem(
+                  'event_owner.event_details_screen.budget_allocated'.tr(),
+                  event.allocatedBudget,
+                ),
+              ),
+              Expanded(
+                child: _buildBudgetItem(
+                  'event_owner.event_details_screen.budget_remaining'.tr(),
+                  event.remainingBudget,
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 16),
           ClipRRect(
             borderRadius: BorderRadius.circular(8),
             child: LinearProgressIndicator(
-              value: event.allocatedBudget / (event.totalBudget > 0 ? event.totalBudget : 1),
+              value:
+                  event.allocatedBudget /
+                  (event.totalBudget > 0 ? event.totalBudget : 1),
               minHeight: 12,
               backgroundColor: Colors.white24,
               valueColor: const AlwaysStoppedAnimation(Colors.white),
@@ -659,7 +710,9 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
           ),
           const SizedBox(height: 8),
           Text(
-            '$percentage% of budget allocated',
+            'event_owner.event_details_screen.budget_allocated_percent'.tr(
+              args: [percentage.toString()],
+            ),
             style: const TextStyle(
               fontSize: 13,
               color: Colors.white,
@@ -680,10 +733,15 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
         Text(
           label,
           style: const TextStyle(fontSize: 11, color: Colors.white70),
+          textAlign: TextAlign.center,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
         ),
         const SizedBox(height: 4),
         Text(
-          'EGP ${_formatNumber(amount.toInt())}',
+          'event_owner.event_details_screen.egp_format'.tr(
+            args: [_formatNumber(amount.toInt())],
+          ),
           style: const TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.bold,
@@ -697,10 +755,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
   /// ============================================
   /// Budget Breakdown Item
   /// ============================================
-  Widget _buildBudgetBreakdownItem(
-    EventService service,
-    double totalBudget,
-  ) {
+  Widget _buildBudgetBreakdownItem(EventService service, double totalBudget) {
     // ✅ Use actual service price
     final amount = service.packagePrice;
     final percentage = totalBudget > 0 ? ((amount / totalBudget) * 100) : 0.0;
@@ -734,17 +789,16 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
                     const SizedBox(height: 2),
                     Text(
                       service.packageName,
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: Colors.grey[600],
-                      ),
+                      style: TextStyle(fontSize: 11, color: Colors.grey[600]),
                     ),
                   ],
                 ),
               ),
               const SizedBox(width: 12),
               Text(
-                'EGP ${_formatNumber(amount.toInt())}',
+                'event_owner.event_details_screen.egp_format'.tr(
+                  args: [_formatNumber(amount.toInt())],
+                ),
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
@@ -765,11 +819,10 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
           ),
           const SizedBox(height: 8),
           Text(
-            '${percentage.toStringAsFixed(1)}% of total budget',
-            style: const TextStyle(
-              fontSize: 12,
-              color: Colors.grey,
+            'event_owner.event_details_screen.budget_percentage_of_total'.tr(
+              args: [percentage.toStringAsFixed(1)],
             ),
+            style: const TextStyle(fontSize: 12, color: Colors.grey),
           ),
         ],
       ),
@@ -818,7 +871,9 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
                 ).then((_) => _loadEventData());
               },
               icon: const Icon(Icons.track_changes),
-              label: const Text('Track Package Approvals'),
+              label: Text(
+                'event_owner.event_details_screen.track_package_approvals'.tr(),
+              ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blue,
                 foregroundColor: Colors.white,
@@ -844,7 +899,9 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
                 ).then((_) => _loadEventData());
               },
               icon: const Icon(Icons.shopping_bag),
-              label: const Text('Manage Packages'),
+              label: Text(
+                'event_owner.event_details_screen.manage_packages'.tr(),
+              ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primaryGold,
                 foregroundColor: Colors.white,
@@ -873,7 +930,9 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
                   ).then((_) => _loadEventData());
                 },
                 icon: const Icon(Icons.payment),
-                label: const Text('Proceed to Payment'),
+                label: Text(
+                  'event_owner.event_details_screen.proceed_to_payment'.tr(),
+                ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green,
                   foregroundColor: Colors.white,
@@ -905,7 +964,9 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
                   ).then((_) => _loadEventData());
                 },
                 icon: const Icon(Icons.people_alt),
-                label: const Text('Invite Guests'),
+                label: Text(
+                  'event_owner.event_details_screen.invite_guests'.tr(),
+                ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green,
                   foregroundColor: Colors.white,
@@ -939,22 +1000,30 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Vendor Approvals',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.primaryDark,
+              Expanded(
+                child: Text(
+                  'event_owner.event_details_screen.vendor_approvals'.tr(),
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.primaryDark,
+                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: event.allVendorsApproved ? Colors.green : Colors.orange,
+                  color: event.allVendorsApproved
+                      ? Colors.green
+                      : Colors.orange,
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
-                  event.allVendorsApproved ? 'All Approved ✓' : 'Pending',
+                  event.allVendorsApproved
+                      ? 'event_owner.event_details_screen.all_approved_check'
+                            .tr()
+                      : 'event_owner.event_details_screen.pending'.tr(),
                   style: const TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.bold,
@@ -980,18 +1049,39 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'Approved: ${event.approvedVendorsCount}/${event.totalVendorsCount}',
-                style: const TextStyle(fontSize: 12, color: Colors.grey),
+              Expanded(
+                child: Text(
+                  'event_owner.event_details_screen.approved_count'.tr(
+                    args: [
+                      event.approvedVendorsCount.toString(),
+                      event.totalVendorsCount.toString(),
+                    ],
+                  ),
+                  style: const TextStyle(fontSize: 12, color: Colors.grey),
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                ),
               ),
-              Text(
-                'Pending: ${event.pendingVendorsCount}',
-                style: const TextStyle(fontSize: 12, color: Colors.orange),
+              Expanded(
+                child: Text(
+                  'event_owner.event_details_screen.pending_count'.tr(
+                    args: [event.pendingVendorsCount.toString()],
+                  ),
+                  style: const TextStyle(fontSize: 12, color: Colors.orange),
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                ),
               ),
               if (event.rejectedVendorsCount > 0)
-                Text(
-                  'Rejected: ${event.rejectedVendorsCount}',
-                  style: const TextStyle(fontSize: 12, color: Colors.red),
+                Expanded(
+                  child: Text(
+                    'event_owner.event_details_screen.rejected_count'.tr(
+                      args: [event.rejectedVendorsCount.toString()],
+                    ),
+                    style: const TextStyle(fontSize: 12, color: Colors.red),
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
+                  ),
                 ),
             ],
           ),
@@ -1010,8 +1100,8 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
         children: [
           Icon(Icons.error_outline, size: 64, color: Colors.red[300]),
           const SizedBox(height: 16),
-          const Text(
-            'Failed to load event',
+          Text(
+            'event_owner.event_details_screen.failed_load_event'.tr(),
             style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
@@ -1023,7 +1113,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
               _loadEventData();
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text('Retry'),
+            child: Text('event_owner.event_details_screen.retry'.tr()),
           ),
         ],
       ),
@@ -1038,12 +1128,15 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
       children: [
         Icon(icon, size: 16, color: AppColors.primaryGold),
         const SizedBox(width: 8),
-        Text(
-          '$label: ',
-          style: const TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
-            color: Colors.grey,
+        Flexible(
+          child: Text(
+            '$label: ',
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: Colors.grey,
+            ),
+            overflow: TextOverflow.ellipsis,
           ),
         ),
         Expanded(
@@ -1062,50 +1155,61 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
     switch (status) {
       case EventStatus.draft:
         return {
-          'title': 'Draft',
-          'description': 'Event is still in draft mode',
+          'title': 'event_owner.event_details_screen.status.draft_title'.tr(),
+          'description': 'event_owner.event_details_screen.status.draft_desc'
+              .tr(),
           'icon': Icons.edit,
           'color': Colors.grey,
         };
       case EventStatus.pending:
         return {
-          'title': 'Pending Approval',
-          'description': 'Waiting for vendor responses',
+          'title': 'event_owner.event_details_screen.status.pending_title'.tr(),
+          'description': 'event_owner.event_details_screen.status.pending_desc'
+              .tr(),
           'icon': Icons.hourglass_empty,
           'color': Colors.orange,
         };
       case EventStatus.approved:
         return {
-          'title': 'Approved',
-          'description': 'All vendors approved',
+          'title': 'event_owner.event_details_screen.status.approved_title'
+              .tr(),
+          'description': 'event_owner.event_details_screen.status.approved_desc'
+              .tr(),
           'icon': Icons.check_circle,
           'color': Colors.green,
         };
       case EventStatus.partiallyPaid:
         return {
-          'title': 'Partially Paid',
-          'description': 'Partial payment received',
+          'title': 'event_owner.event_details_screen.status.partial_title'.tr(),
+          'description': 'event_owner.event_details_screen.status.partial_desc'
+              .tr(),
           'icon': Icons.payment,
           'color': Colors.amber,
         };
       case EventStatus.confirmed:
         return {
-          'title': 'Confirmed',
-          'description': 'Event confirmed and ready',
+          'title': 'event_owner.event_details_screen.status.confirmed_title'
+              .tr(),
+          'description':
+              'event_owner.event_details_screen.status.confirmed_desc'.tr(),
           'icon': Icons.verified,
           'color': Colors.green,
         };
       case EventStatus.cancelled:
         return {
-          'title': 'Cancelled',
-          'description': 'Event has been cancelled',
+          'title': 'event_owner.event_details_screen.status.cancelled_title'
+              .tr(),
+          'description':
+              'event_owner.event_details_screen.status.cancelled_desc'.tr(),
           'icon': Icons.cancel,
           'color': Colors.red,
         };
       case EventStatus.completed:
         return {
-          'title': 'Completed',
-          'description': 'Event completed successfully',
+          'title': 'event_owner.event_details_screen.status.completed_title'
+              .tr(),
+          'description':
+              'event_owner.event_details_screen.status.completed_desc'.tr(),
           'icon': Icons.check_circle_outline,
           'color': Colors.blue,
         };

@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:plan_z/features/auth/data/models/stakeholder_model.dart';
 import 'package:plan_z/features/auth/data/models/user_model.dart';
@@ -13,23 +14,20 @@ class StakeholdersScreenContent extends StatelessWidget {
       StakeHolderModel(
         icon: Icons.manage_accounts,
         userType: UserType.eventOwner,
-        titel: "Event Owner",
-        description:
-            "Plan and manage your events with ease, from vendor selection to invitations.",
+        titel: "stakeholder.event_owner_title".tr(),
+        description: "stakeholder.event_owner_desc".tr(),
       ),
       StakeHolderModel(
         icon: Icons.business_center,
         userType: UserType.vendor,
-        titel: "Vendor",
-        description:
-            "Showcase your packages, manage bookings, and connect with event owners.",
+        titel: "stakeholder.vendor_title".tr(),
+        description: "stakeholder.vendor_desc".tr(),
       ),
       StakeHolderModel(
         icon: Icons.group,
         userType: UserType.attendee,
-        titel: "Event Attendee",
-        description:
-            "View your invitations, RSVP, and stay updated on event details.",
+        titel: "stakeholder.attendee_title".tr(),
+        description: "stakeholder.attendee_desc".tr(),
       ),
     ];
 

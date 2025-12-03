@@ -1,5 +1,6 @@
 // lib/features/events/presentation/screens/budget_setup_screen.dart
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -11,10 +12,7 @@ import 'package:plan_z/features/event_owners/create_event_screen/ui/screens/serv
 class BudgetSetupScreen extends StatefulWidget {
   final Map<String, dynamic> eventInfo;
 
-  const BudgetSetupScreen({
-    super.key,
-    required this.eventInfo,
-  });
+  const BudgetSetupScreen({super.key, required this.eventInfo});
 
   @override
   State<BudgetSetupScreen> createState() => _BudgetSetupScreenState();
@@ -58,7 +56,9 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
       });
     } catch (e) {
       setState(() {
-        _errorMessage = 'Failed to load budget suggestions: $e';
+        _errorMessage = "event_owner.budget_setup_screen.failed_load".tr(
+          args: [e.toString()],
+        );
         _isLoading = false;
       });
     }
@@ -75,43 +75,43 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
-          'Budget Setup',
-          style: TextStyle(color: Colors.white),
+        title: Text(
+          "event_owner.budget_setup_screen.title".tr(),
+          style: const TextStyle(color: Colors.white),
         ),
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _errorMessage != null
-              ? _buildErrorView()
-              : Form(
-                  key: _formKey,
-                  child: ListView(
-                    padding: const EdgeInsets.all(20.0),
-                    children: [
-                      // Event Summary Card
-                      _buildEventSummaryCard(),
-                      const SizedBox(height: 24),
+          ? _buildErrorView()
+          : Form(
+              key: _formKey,
+              child: ListView(
+                padding: const EdgeInsets.all(20.0),
+                children: [
+                  // Event Summary Card
+                  _buildEventSummaryCard(),
+                  const SizedBox(height: 24),
 
-                      // Suggested Budget Section
-                      if (_suggestedBudget != null) ...[
-                        _buildSuggestedBudgetCard(),
-                        const SizedBox(height: 24),
-                      ],
+                  // Suggested Budget Section
+                  if (_suggestedBudget != null) ...[
+                    _buildSuggestedBudgetCard(),
+                    const SizedBox(height: 24),
+                  ],
 
-                      // Budget Input Field
-                      _buildBudgetInputField(),
-                      const SizedBox(height: 16),
+                  // Budget Input Field
+                  _buildBudgetInputField(),
+                  const SizedBox(height: 16),
 
-                      // Budget Tips
-                      _buildBudgetTipsCard(),
-                      const SizedBox(height: 32),
+                  // Budget Tips
+                  _buildBudgetTipsCard(),
+                  const SizedBox(height: 32),
 
-                      // Continue Button
-                      _buildContinueButton(),
-                    ],
-                  ),
-                ),
+                  // Continue Button
+                  _buildContinueButton(),
+                ],
+              ),
+            ),
     );
   }
 
@@ -124,14 +124,14 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
           const Icon(Icons.error_outline, size: 64, color: Colors.red),
           const SizedBox(height: 16),
           Text(
-            _errorMessage ?? 'An error occurred',
+            _errorMessage ?? "event_owner.budget_setup_screen.error".tr(),
             textAlign: TextAlign.center,
             style: const TextStyle(fontSize: 16),
           ),
           const SizedBox(height: 16),
           ElevatedButton(
             onPressed: _loadSuggestedBudget,
-            child: const Text('Retry'),
+            child: Text("event_owner.budget_setup_screen.retry".tr()),
           ),
         ],
       ),
@@ -161,7 +161,7 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
                   children: [
                     Text(
                       widget.eventInfo['eventName'] ?? 'Event',
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                         color: AppColors.textPrimary,
@@ -169,7 +169,7 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
                     ),
                     Text(
                       widget.eventInfo['eventType']['eventTypeName'] ?? '',
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 14,
                         color: AppColors.textSecondary,
                       ),
@@ -184,19 +184,19 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
           const SizedBox(height: 8),
           _buildInfoRow(
             Icons.calendar_today,
-            'Date',
+            "event_owner.basic_info_screen.date".tr(),
             '${widget.eventInfo['eventDate'].day}/${widget.eventInfo['eventDate'].month}/${widget.eventInfo['eventDate'].year}',
           ),
           const SizedBox(height: 8),
           _buildInfoRow(
             Icons.people,
-            'Guests',
+            "event_owner.attendee.guest_info".tr(),
             '${widget.eventInfo['guestCount']} people',
           ),
           const SizedBox(height: 8),
           _buildInfoRow(
             Icons.location_on,
-            'Location',
+            "event_owner.attendee.location".tr(),
             '${widget.eventInfo['city']}, ${widget.eventInfo['area']}',
           ),
         ],
@@ -226,10 +226,7 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
     }
 
     // Otherwise, it's an emoji
-    return Text(
-      iconStr,
-      style: const TextStyle(fontSize: 32),
-    );
+    return Text(iconStr, style: const TextStyle(fontSize: 32));
   }
 
   /// Info Row Helper
@@ -238,19 +235,24 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
       children: [
         Icon(icon, size: 16, color: AppColors.textSecondary),
         const SizedBox(width: 8),
-        Text(
-          '$label: ',
-          style: TextStyle(
-            fontSize: 14,
-            color: AppColors.textSecondary,
+        Expanded(
+          child: Text(
+            '$label: ',
+            style: const TextStyle(
+              fontSize: 14,
+              color: AppColors.textSecondary,
+            ),
           ),
         ),
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: AppColors.textPrimary,
+        Expanded(
+          child: Text(
+            value,
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textPrimary,
+            ),
+            overflow: TextOverflow.ellipsis,
           ),
         ),
       ],
@@ -278,50 +280,45 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            '💡 Suggested Budget Range',
-            style: TextStyle(
+          Text(
+            "event_owner.budget_setup_screen.suggested_range".tr(),
+            style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
               color: Colors.white,
             ),
           ),
           const SizedBox(height: 16),
-          
+
           // ✅ Option 1: Horizontal Scroll (Recommended)
           SizedBox(
             height: 90,
             child: ListView(
               scrollDirection: Axis.horizontal,
               children: [
-                _buildBudgetOption('Minimum', min, currency, Colors.orange),
+                _buildBudgetOption(
+                  "event_owner.budget_setup_screen.min".tr(),
+                  min,
+                  currency,
+                  Colors.orange,
+                ),
                 const SizedBox(width: 12),
-                _buildBudgetOption('Average', average, currency, Colors.green),
+                _buildBudgetOption(
+                  "event_owner.budget_setup_screen.avg".tr(),
+                  average,
+                  currency,
+                  Colors.green,
+                ),
                 const SizedBox(width: 12),
-                _buildBudgetOption('Maximum', max, currency, Colors.blue),
+                _buildBudgetOption(
+                  "event_owner.budget_setup_screen.max".tr(),
+                  max,
+                  currency,
+                  Colors.blue,
+                ),
               ],
             ),
           ),
-          
-          // ✅ Option 2: 2 في صف (Alternative)
-          // Wrap(
-          //   spacing: 12,
-          //   runSpacing: 12,
-          //   children: [
-          //     SizedBox(
-          //       width: (MediaQuery.of(context).size.width - 72) / 2,
-          //       child: _buildBudgetOption('Minimum', min, currency, Colors.orange),
-          //     ),
-          //     SizedBox(
-          //       width: (MediaQuery.of(context).size.width - 72) / 2,
-          //       child: _buildBudgetOption('Average', average, currency, Colors.green),
-          //     ),
-          //     SizedBox(
-          //       width: (MediaQuery.of(context).size.width - 72) / 2,
-          //       child: _buildBudgetOption('Maximum', max, currency, Colors.blue),
-          //     ),
-          //   ],
-          // ),
         ],
       ),
     );
@@ -351,10 +348,7 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
           children: [
             Text(
               label,
-              style: const TextStyle(
-                fontSize: 12,
-                color: Colors.white70,
-              ),
+              style: const TextStyle(fontSize: 12, color: Colors.white70),
             ),
             const SizedBox(height: 4),
             Text(
@@ -378,8 +372,8 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Your Total Budget',
-          style: TextStyle(
+          "event_owner.budget_setup_screen.total_budget".tr(),
+          style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
             color: AppColors.textPrimary,
@@ -389,27 +383,23 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
         TextFormField(
           controller: _budgetController,
           keyboardType: TextInputType.number,
-          inputFormatters: [
-            FilteringTextInputFormatter.digitsOnly,
-          ],
+          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
           decoration: InputDecoration(
-            hintText: 'Enter your budget',
+            hintText: "event_owner.budget_setup_screen.budget_hint".tr(),
             prefixIcon: const Icon(Icons.attach_money),
             suffixText: 'EGP',
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
             filled: true,
             fillColor: AppColors.cardBackground,
           ),
           validator: (value) {
             if (value == null || value.trim().isEmpty) {
-              return 'Please enter your budget';
+              return "event_owner.budget_setup_screen.enter_budget".tr();
             }
 
             final budget = double.tryParse(value);
             if (budget == null || budget <= 0) {
-              return 'Please enter a valid budget';
+              return "event_owner.budget_setup_screen.valid_budget".tr();
             }
 
             return null;
@@ -436,8 +426,8 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
               const Icon(Icons.lightbulb_outline, color: Colors.blue),
               const SizedBox(width: 8),
               Text(
-                'Budget Tips',
-                style: TextStyle(
+                "event_owner.budget_setup_screen.tips_title".tr(),
+                style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                   color: AppColors.textPrimary,
@@ -446,10 +436,10 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
             ],
           ),
           const SizedBox(height: 12),
-          _buildTipItem('Budget will be automatically distributed across services'),
-          _buildTipItem('You can adjust allocations in the next step'),
-          _buildTipItem('Consider a 10% buffer for unexpected costs'),
-          _buildTipItem('Payment required only after vendor confirmation'),
+          _buildTipItem("event_owner.budget_setup_screen.tip_1".tr()),
+          _buildTipItem("event_owner.budget_setup_screen.tip_2".tr()),
+          _buildTipItem("event_owner.budget_setup_screen.tip_3".tr()),
+          _buildTipItem("event_owner.budget_setup_screen.tip_4".tr()),
         ],
       ),
     );
@@ -466,7 +456,7 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
           Expanded(
             child: Text(
               text,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 14,
                 color: AppColors.textSecondary,
               ),
@@ -484,13 +474,11 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
       style: ElevatedButton.styleFrom(
         backgroundColor: AppColors.primaryGold,
         padding: const EdgeInsets.symmetric(vertical: 16),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
-      child: const Text(
-        'Continue to Services Selection',
-        style: TextStyle(
+      child: Text(
+        "event_owner.budget_setup_screen.continue_btn".tr(),
+        style: const TextStyle(
           fontSize: 16,
           fontWeight: FontWeight.bold,
           color: Colors.white,
@@ -506,10 +494,10 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
 
       // Save to EventCreationCubit
       context.read<EventCreationCubit>().setBudget(
-            totalBudget: totalBudget,
-            currency: 'EGP',
-            suggestedBudgetRange: _suggestedBudget,
-          );
+        totalBudget: totalBudget,
+        currency: 'EGP',
+        suggestedBudgetRange: _suggestedBudget,
+      );
 
       // Prepare budgetData for next screen
       final budgetData = {
@@ -536,8 +524,8 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
     if (number == null) return '0';
     final num = number is int ? number : (number as double).toInt();
     return num.toString().replaceAllMapped(
-          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-          (Match m) => '${m[1]},',
-        );
+      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+      (Match m) => '${m[1]},',
+    );
   }
 }

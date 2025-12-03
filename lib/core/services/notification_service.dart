@@ -16,44 +16,6 @@ class NotificationService {
   static final FlutterLocalNotificationsPlugin _localNotifications =
       FlutterLocalNotificationsPlugin();
 
-  // -------------------- Initialization --------------------
-  static Future<void> initLocalNotifications() async {
-    const AndroidInitializationSettings androidSettings =
-        AndroidInitializationSettings('@drawable/ic_notification');
-
-    const InitializationSettings initSettings = InitializationSettings(
-      android: androidSettings,
-    );
-
-    await _localNotifications.initialize(initSettings);
-
-    // Create notification channel (Android)
-    const AndroidNotificationChannel channel = AndroidNotificationChannel(
-      'plan_z_channel',
-      'PlanZ Notifications',
-      description: 'This channel is used for important PlanZ notifications.',
-      importance: Importance.high,
-    );
-
-    await _localNotifications
-        .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>()
-        ?.createNotificationChannel(channel);
-  }
-
-  // -------------------- Current Device Token --------------------
-  static Future<String?> getCurrentFCMToken() async {
-    try {
-      final token = await _fcm.getToken();
-      debugPrint('📱 [NotificationService] Current FCM Token: $token');
-      return token;
-    } catch (e) {
-      debugPrint('❌ [NotificationService] Error getting token: $e');
-      return null;
-    }
-  }
-
-  // -------------------- Send Single Notification --------------------
   static Future<bool> sendNotification({
     required String receiverId,
     required String receiverRole,
@@ -67,43 +29,49 @@ class NotificationService {
       debugPrint('📤 [NotificationService] Sending notification...');
       debugPrint('   receiverId: $receiverId, role: $receiverRole, title: $title');
 
-      // Get receiver token if not provided
+      // Get FCM token if not provided
       String? token = fcmToken;
       if (token == null) {
-        try {
-          String collectionName;
-          switch (receiverRole) {
-            case 'vendor':
-              collectionName = 'vendors';
-              break;
-            case 'eventOwner':
-            case 'event_owner':
-              collectionName = 'event_owners';
-              break;
-            case 'attendee':
-              collectionName = 'attendees';
-              break;
-            case 'admin':
-            case 'app_owner':
-              collectionName = 'admins';
-              break;
-            default:
-              debugPrint('❌ Unknown receiver role: $receiverRole');
-              return false;
-          }
+        debugPrint(
+          '🔍 [NotificationService] FCM token not provided, fetching from Firestore...',
+        );
+        // Determine collection based on role
+        String collectionName;
+        switch (receiverRole) {
+          case 'vendor':
+            collectionName = 'vendors';
+            break;
+          case 'eventOwner':
+            collectionName = 'event_owners';
+            break;
+          case 'attendee':
+            collectionName = 'attendees';
+            break;
+          case 'admin':
+            collectionName = 'admins';
+            break;
+          default:
+            collectionName = 'attendees'; // Default fallback
+        }
 
-          final userDoc = await _firestore.collection(collectionName).doc(receiverId).get();
-          token = userDoc.data()?['fcmToken'] as String?;
-          debugPrint('   Fetched FCM token: $token');
-        } catch (e) {
-          debugPrint('❌ Error fetching FCM token: $e');
-          return false;
+        final userDoc = await _firestore
+            .collection(collectionName)
+            .doc(receiverId)
+            .get();
+
+        if (userDoc.exists) {
+          token = userDoc.data()?['fcmToken'];
+          debugPrint('   ✅ Found FCM token in Firestore: $token');
+        } else {
+          debugPrint('   ⚠️ User document not found in $collectionName');
         }
       }
 
       if (token == null) {
-        debugPrint('❌ No FCM token available for receiver.');
-        return false;
+        debugPrint(
+          '❌ [NotificationService] No FCM token available for receiver - Notification will be saved but not sent via FCM',
+        );
+        // We still continue to save to Firestore so the user sees it in their in-app list
       }
 
       // Notification ID
@@ -118,7 +86,7 @@ class NotificationService {
         'body': body,
         'type': type,
         'data': data ?? {},
-        'fcmTokens': [token],
+        'fcmTokens': token != null ? [token] : [],
         'isRead': false,
         'createdAt': Timestamp.now(),
         'updatedAt': Timestamp.now(),

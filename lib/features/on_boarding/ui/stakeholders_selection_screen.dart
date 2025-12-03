@@ -1,4 +1,5 @@
 // lib/features/on_boarding/ui/screens/stakeholders_selection_screen.dart
+import 'package:easy_localization/easy_localization.dart';
 
 import 'package:flutter/material.dart';
 import 'package:plan_z/core/utils/app_colors.dart';
@@ -6,6 +7,7 @@ import 'package:plan_z/features/auth/ui/screens/login_screen.dart';
 import 'package:plan_z/features/auth/data/models/user_model.dart';
 import 'package:plan_z/features/on_boarding/ui/widgets/stake_holders_widget/stakeholders_screen_content.dart';
 import 'package:plan_z/core/constants/constants.dart';
+import 'package:plan_z/features/on_boarding/ui/widgets/language_selector_button.dart';
 
 class StakeholdersSelectionScreen extends StatefulWidget {
   const StakeholdersSelectionScreen({super.key});
@@ -24,8 +26,7 @@ class _StakeholdersSelectionScreenState
     final now = DateTime.now();
 
     // Reset counter if more than 2 seconds passed
-    if (_lastTapTime != null &&
-        now.difference(_lastTapTime!).inSeconds > 2) {
+    if (_lastTapTime != null && now.difference(_lastTapTime!).inSeconds > 2) {
       _secretTapCount = 0;
     }
 
@@ -46,9 +47,7 @@ class _StakeholdersSelectionScreenState
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Row(
           children: [
             Icon(
@@ -57,12 +56,9 @@ class _StakeholdersSelectionScreenState
               size: 28,
             ),
             const SizedBox(width: 12),
-            const Text(
-              'Admin Access',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
+            Text(
+              'admin_access.title'.tr(),
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
           ],
         ),
@@ -70,18 +66,15 @@ class _StakeholdersSelectionScreenState
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'Enter admin access code to continue',
-              style: TextStyle(
-                color: Colors.grey.shade600,
-                fontSize: 14,
-              ),
+              'admin_access.subtitle'.tr(),
+              style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
             ),
             const SizedBox(height: 20),
             TextField(
               controller: accessCodeController,
               obscureText: true,
               decoration: InputDecoration(
-                hintText: 'Access Code',
+                hintText: 'admin_access.hint'.tr(),
                 prefixIcon: const Icon(Icons.lock),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -100,7 +93,7 @@ class _StakeholdersSelectionScreenState
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text('admin_access.cancel'.tr()),
           ),
           ElevatedButton(
             onPressed: () {
@@ -116,8 +109,8 @@ class _StakeholdersSelectionScreenState
                 );
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Invalid access code'),
+                  SnackBar(
+                    content: Text('onboarding.invalid_code'.tr()),
                     backgroundColor: Colors.red,
                   ),
                 );
@@ -130,7 +123,7 @@ class _StakeholdersSelectionScreenState
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
-            child: const Text('Access'),
+            child: Text('admin_access.access'.tr()),
           ),
         ],
       ),
@@ -151,10 +144,17 @@ class _StakeholdersSelectionScreenState
               // Original content
               const StakeholdersScreenContent(),
 
+              // Language Selector
+              const Positioned(
+                top: 40, // Adjusted for SafeArea
+                right: 16,
+                child: LanguageSelectorButton(),
+              ),
+
               // Secret indicator (optional - for debugging only)
               if (_secretTapCount > 0)
                 Positioned(
-                  top: 10,
+                  top: 100, // Moved down to avoid overlap
                   right: 10,
                   child: Container(
                     padding: const EdgeInsets.all(4),
@@ -164,10 +164,7 @@ class _StakeholdersSelectionScreenState
                     ),
                     child: Text(
                       '$_secretTapCount/5',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 10,
-                      ),
+                      style: const TextStyle(color: Colors.white, fontSize: 10),
                     ),
                   ),
                 ),
@@ -175,7 +172,6 @@ class _StakeholdersSelectionScreenState
           ),
         ),
       ),
-      
     );
   }
 }

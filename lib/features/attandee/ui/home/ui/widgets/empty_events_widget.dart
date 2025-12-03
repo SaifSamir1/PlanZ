@@ -1,5 +1,6 @@
 // lib/features/attendee/presentation/widgets/home/empty_events_widget.dart
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:plan_z/core/theming/text_styles.dart';
 import 'package:plan_z/core/utils/app_colors.dart';
@@ -21,14 +22,10 @@ class EmptyEventsWidget extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.event_busy_rounded,
-              size: 48,
-              color: Colors.grey[400],
-            ),
+            Icon(Icons.event_busy_rounded, size: 48, color: Colors.grey[400]),
             const SizedBox(height: 12),
             Text(
-              "No Upcoming Events",
+              'attendee.empty_events_title'.tr(),
               style: AppTextStyles.subtitle.copyWith(
                 fontWeight: FontWeight.w600,
                 color: Colors.grey[700],
@@ -38,10 +35,8 @@ class EmptyEventsWidget extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 32),
               child: Text(
-                "You don't have any upcoming events yet. Check your invitations!",
-                style: AppTextStyles.caption.copyWith(
-                  color: Colors.grey[600],
-                ),
+                'attendee.empty_events_message'.tr(),
+                style: AppTextStyles.caption.copyWith(color: Colors.grey[600]),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -59,7 +54,7 @@ class EmptyEventsWidget extends StatelessWidget {
                 color: AppColors.buttonPrimary,
               ),
               label: Text(
-                "View Invitations",
+                'attendee.empty_events_view_invitations'.tr(),
                 style: TextStyle(color: AppColors.buttonPrimary),
               ),
             ),

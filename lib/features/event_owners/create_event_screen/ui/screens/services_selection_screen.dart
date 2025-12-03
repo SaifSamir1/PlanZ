@@ -1,5 +1,6 @@
 // lib/features/events/presentation/screens/services_selection_screen.dart
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:plan_z/core/utils/app_colors.dart';
 import 'package:plan_z/features/event_owners/create_event_screen/cubits/event_creation_cubit/event_creation_cubit.dart';
@@ -58,10 +59,14 @@ class _ServicesSelectionScreenState extends State<ServicesSelectionScreen> {
       final eventTypeId = widget.eventInfo['eventType']['eventTypeId'];
 
       // Load Required Services
-      final requiredServices = await JsonService.getRequiredServices(eventTypeId);
+      final requiredServices = await JsonService.getRequiredServices(
+        eventTypeId,
+      );
 
       // Load Optional Services
-      final optionalServices = await JsonService.getOptionalServices(eventTypeId);
+      final optionalServices = await JsonService.getOptionalServices(
+        eventTypeId,
+      );
 
       setState(() {
         _requiredServices = requiredServices;
@@ -114,45 +119,57 @@ class _ServicesSelectionScreenState extends State<ServicesSelectionScreen> {
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
-          'Select Services',
-          style: TextStyle(color: Colors.white),
+        title: Text(
+          "event_owner.services_selection_screen.title".tr(),
+          style: const TextStyle(color: Colors.white),
         ),
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _errorMessage != null
-              ? _buildErrorView()
-              : Column(
-                  children: [
-                    // Budget Summary Card
-                    _buildBudgetSummaryCard(),
+          ? _buildErrorView()
+          : Column(
+              children: [
+                // Budget Summary Card
+                _buildBudgetSummaryCard(),
 
-                    // Services List
-                    Expanded(
-                      child: ListView(
-                        padding: const EdgeInsets.all(20),
-                        children: [
-                          // Required Services Section
-                          _buildSectionHeader('Required Services', Icons.check_circle),
-                          const SizedBox(height: 12),
-                          ..._requiredServices.map((service) =>
-                              _buildServiceCard(service, isRequired: true)),
-                          const SizedBox(height: 24),
-
-                          // Optional Services Section
-                          _buildSectionHeader('Optional Services', Icons.add_circle_outline),
-                          const SizedBox(height: 12),
-                          ..._optionalServices.map((service) =>
-                              _buildServiceCard(service, isRequired: false)),
-                        ],
+                // Services List
+                Expanded(
+                  child: ListView(
+                    padding: const EdgeInsets.all(20),
+                    children: [
+                      // Required Services Section
+                      _buildSectionHeader(
+                        "event_owner.services_selection_screen.required_services"
+                            .tr(),
+                        Icons.check_circle,
                       ),
-                    ),
+                      const SizedBox(height: 12),
+                      ..._requiredServices.map(
+                        (service) =>
+                            _buildServiceCard(service, isRequired: true),
+                      ),
+                      const SizedBox(height: 24),
 
-                    // Continue Button
-                    _buildContinueButton(),
-                  ],
+                      // Optional Services Section
+                      _buildSectionHeader(
+                        "event_owner.services_selection_screen.optional_services"
+                            .tr(),
+                        Icons.add_circle_outline,
+                      ),
+                      const SizedBox(height: 12),
+                      ..._optionalServices.map(
+                        (service) =>
+                            _buildServiceCard(service, isRequired: false),
+                      ),
+                    ],
+                  ),
                 ),
+
+                // Continue Button
+                _buildContinueButton(),
+              ],
+            ),
     );
   }
 
@@ -165,14 +182,14 @@ class _ServicesSelectionScreenState extends State<ServicesSelectionScreen> {
           const Icon(Icons.error_outline, size: 64, color: Colors.red),
           const SizedBox(height: 16),
           Text(
-            _errorMessage ?? 'An error occurred',
+            _errorMessage ?? "event_owner.services_selection_screen.error".tr(),
             textAlign: TextAlign.center,
             style: const TextStyle(fontSize: 16),
           ),
           const SizedBox(height: 16),
           ElevatedButton(
             onPressed: _loadServices,
-            child: const Text('Retry'),
+            child: Text("event_owner.services_selection_screen.retry".tr()),
           ),
         ],
       ),
@@ -198,9 +215,18 @@ class _ServicesSelectionScreenState extends State<ServicesSelectionScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _buildBudgetItem('Total Budget', _totalBudget),
-              _buildBudgetItem('Allocated', _allocatedBudget),
-              _buildBudgetItem('Remaining', _remainingBudget),
+              _buildBudgetItem(
+                "event_owner.services_selection_screen.total_budget".tr(),
+                _totalBudget,
+              ),
+              _buildBudgetItem(
+                "event_owner.services_selection_screen.allocated".tr(),
+                _allocatedBudget,
+              ),
+              _buildBudgetItem(
+                "event_owner.services_selection_screen.remaining".tr(),
+                _remainingBudget,
+              ),
             ],
           ),
           const SizedBox(height: 12),
@@ -222,10 +248,7 @@ class _ServicesSelectionScreenState extends State<ServicesSelectionScreen> {
       children: [
         Text(
           label,
-          style: const TextStyle(
-            fontSize: 12,
-            color: Colors.white70,
-          ),
+          style: const TextStyle(fontSize: 12, color: Colors.white70),
         ),
         const SizedBox(height: 4),
         Text(
@@ -264,7 +287,8 @@ class _ServicesSelectionScreenState extends State<ServicesSelectionScreen> {
     required bool isRequired,
   }) {
     final serviceId = service['serviceId'];
-    final isSelected = isRequired || _selectedOptionalServicesIds.contains(serviceId);
+    final isSelected =
+        isRequired || _selectedOptionalServicesIds.contains(serviceId);
     final budgetPercentage = service['suggestedBudgetPercentage'] ?? 0;
     final allocatedAmount = (_totalBudget * budgetPercentage / 100);
 
@@ -306,39 +330,48 @@ class _ServicesSelectionScreenState extends State<ServicesSelectionScreen> {
             const SizedBox(height: 4),
             Text(
               service['description'] ?? '',
-              style: TextStyle(
-                fontSize: 12,
-                color: AppColors.textSecondary,
-              ),
+              style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
             ),
             const SizedBox(height: 8),
             Row(
               children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: isRequired ? Colors.red.withOpacity(0.2) : Colors.blue.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Text(
-                    isRequired ? 'Required' : 'Optional',
-                    style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                      color: isRequired ? Colors.red : Colors.blue,
+                Flexible(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: isRequired
+                          ? Colors.red.withOpacity(0.2)
+                          : Colors.blue.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Text(
+                      isRequired
+                          ? "event_owner.services_selection_screen.required"
+                                .tr()
+                          : "event_owner.services_selection_screen.optional"
+                                .tr(),
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                        color: isRequired ? Colors.red : Colors.blue,
+                      ),
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ),
                 const SizedBox(width: 8),
-                Text(
-                  '$budgetPercentage% • EGP ${_formatNumber(allocatedAmount.toInt())}',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.primaryGold,
+                Flexible(
+                  child: Text(
+                    '$budgetPercentage% • EGP ${_formatNumber(allocatedAmount.toInt())}',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.primaryGold,
+                    ),
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
               ],
@@ -374,8 +407,8 @@ class _ServicesSelectionScreenState extends State<ServicesSelectionScreen> {
             borderRadius: BorderRadius.circular(12),
           ),
         ),
-        child: const Text(
-          'Continue to Browse Packages',
+        child: Text(
+          "event_owner.services_selection_screen.continue_btn".tr(),
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
@@ -390,8 +423,10 @@ class _ServicesSelectionScreenState extends State<ServicesSelectionScreen> {
   void _onContinue() {
     if (_remainingBudget < 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Budget exceeded! Please adjust your selections.'),
+        SnackBar(
+          content: Text(
+            "event_owner.services_selection_screen.budget_exceeded".tr(),
+          ),
           backgroundColor: Colors.red,
         ),
       );
@@ -408,10 +443,10 @@ class _ServicesSelectionScreenState extends State<ServicesSelectionScreen> {
 
     // Save to EventCreationCubit
     context.read<EventCreationCubit>().setSelectedServices(
-          selectedServices: selectedServices,
-          allocatedBudget: _allocatedBudget,
-          remainingBudget: _remainingBudget,
-        );
+      selectedServices: selectedServices,
+      allocatedBudget: _allocatedBudget,
+      remainingBudget: _remainingBudget,
+    );
 
     // Prepare servicesData for next screen
     final servicesData = {
@@ -437,9 +472,9 @@ class _ServicesSelectionScreenState extends State<ServicesSelectionScreen> {
   /// Format Number Helper
   String _formatNumber(int number) {
     return number.toString().replaceAllMapped(
-          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-          (Match m) => '${m[1]},',
-        );
+      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+      (Match m) => '${m[1]},',
+    );
   }
 }
 
@@ -463,24 +498,26 @@ class ServiceCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: isSelected 
-            ? AppColors.background 
+        color: isSelected
+            ? AppColors.background
             : AppColors.background.withOpacity(0.5),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: isSelected 
+          color: isSelected
               ? (isRequired ? AppColors.success : AppColors.info)
               : AppColors.blue100,
           width: isSelected ? 2 : 1.5,
         ),
-        boxShadow: isSelected ? [
-          BoxShadow(
-            color: (isRequired ? AppColors.success : AppColors.info)
-                .withOpacity(0.1),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ] : [],
+        boxShadow: isSelected
+            ? [
+                BoxShadow(
+                  color: (isRequired ? AppColors.success : AppColors.info)
+                      .withOpacity(0.1),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ]
+            : [],
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(14),
@@ -504,9 +541,7 @@ class ServiceCard extends StatelessWidget {
                   const SizedBox(width: 12),
 
                   // Service Info
-                  Expanded(
-                    child: _buildServiceInfo(),
-                  ),
+                  Expanded(child: _buildServiceInfo()),
 
                   // Action Button (if optional)
                   if (!isRequired) _buildActionButton(),
@@ -525,11 +560,11 @@ class ServiceCard extends StatelessWidget {
       width: 20,
       height: 20,
       decoration: BoxDecoration(
-        color: isSelected 
+        color: isSelected
             ? (isRequired ? AppColors.success : AppColors.info)
             : Colors.transparent,
         border: Border.all(
-          color: isSelected 
+          color: isSelected
               ? (isRequired ? AppColors.success : AppColors.info)
               : AppColors.blue200,
           width: 2,
@@ -537,11 +572,7 @@ class ServiceCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(6),
       ),
       child: isSelected
-          ? const Icon(
-              Icons.check,
-              size: 16,
-              color: AppColors.textLight,
-            )
+          ? const Icon(Icons.check, size: 16, color: AppColors.textLight)
           : null,
     );
   }
@@ -552,119 +583,112 @@ class ServiceCard extends StatelessWidget {
       width: 50,
       height: 50,
       decoration: BoxDecoration(
-        color: (isRequired ? AppColors.success : AppColors.info)
-            .withOpacity(0.1),
+        color: (isRequired ? AppColors.success : AppColors.info).withOpacity(
+          0.1,
+        ),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Center(
-        child: Text(
-          service['icon'],
-          style: const TextStyle(fontSize: 24),
-        ),
+        child: Text(service['icon'], style: const TextStyle(fontSize: 24)),
       ),
     );
   }
 
- /// Service Info
-Widget _buildServiceInfo() {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      // Service Name
-      Row(
-        children: [
-          Expanded(
-            child: Text(
-              service['serviceName'],
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: isSelected
-                    ? AppColors.textPrimary
-                    : AppColors.textSecondary,
-              ),
-            ),
-          ),
-          if (isRequired)
-            Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 8,
-                vertical: 2,
-              ),
-              decoration: BoxDecoration(
-                color: AppColors.success.withOpacity(0.15),
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: const Text(
-                'Required',
-                style: TextStyle(
-                  fontSize: 10,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.success,
-                ),
-              ),
-            ),
-        ],
-      ),
-
-      const SizedBox(height: 4),
-
-      // Description
-      Text(
-        service['description'],
-        style: TextStyle(
-          fontSize: 10,
-          color: AppColors.textSecondary.withOpacity(0.8),
-          height: 1.3,
-        ),
-        maxLines: 2,
-        overflow: TextOverflow.ellipsis,
-      ),
-
-      const SizedBox(height: 8),
-
-      // Budget Info - FIX: Wrap Row with Flexible/Expanded
-      if (isSelected)
+  /// Service Info
+  Widget _buildServiceInfo() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Service Name
         Row(
           children: [
-            Icon(
-              Icons.account_balance_wallet,
-              size: 14,
-              color: AppColors.primaryGold,
-            ),
-            const SizedBox(width: 4),
-            Expanded(  // ✅ ADD THIS
+            Expanded(
               child: Text(
-                'Allocated: ${_formatCurrency(allocatedAmount)} EGP',
-                style: const TextStyle(
-                  fontSize: 10,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.primaryGold,
+                service['serviceName'],
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: isSelected
+                      ? AppColors.textPrimary
+                      : AppColors.textSecondary,
                 ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
               ),
             ),
-            const SizedBox(width: 4),  // ✅ REDUCE WIDTH
-            Text(
-              '(${service['suggestedBudgetPercentage']}%)',
-              style: TextStyle(
-                fontSize: 11,
-                color: AppColors.textSecondary,
+            if (isRequired)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(
+                  color: AppColors.success.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: const Text(
+                  'Required',
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.success,
+                  ),
+                ),
               ),
-            ),
           ],
         ),
-    ],
-  );
-}
+
+        const SizedBox(height: 4),
+
+        // Description
+        Text(
+          service['description'],
+          style: TextStyle(
+            fontSize: 10,
+            color: AppColors.textSecondary.withOpacity(0.8),
+            height: 1.3,
+          ),
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+        ),
+
+        const SizedBox(height: 8),
+
+        // Budget Info - FIX: Wrap Row with Flexible/Expanded
+        if (isSelected)
+          Row(
+            children: [
+              Icon(
+                Icons.account_balance_wallet,
+                size: 14,
+                color: AppColors.primaryGold,
+              ),
+              const SizedBox(width: 4),
+              Expanded(
+                // ✅ ADD THIS
+                child: Text(
+                  'Allocated: ${_formatCurrency(allocatedAmount)} EGP',
+                  style: const TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.primaryGold,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const SizedBox(width: 4), // ✅ REDUCE WIDTH
+              Text(
+                '(${service['suggestedBudgetPercentage']}%)',
+                style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
+              ),
+            ],
+          ),
+      ],
+    );
+  }
 
   /// Action Button (for optional services)
   Widget _buildActionButton() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: isSelected 
+        color: isSelected
             ? AppColors.error.withOpacity(0.1)
             : AppColors.info.withOpacity(0.1),
         borderRadius: BorderRadius.circular(8),
@@ -784,7 +808,12 @@ class BudgetSummaryCard extends StatelessWidget {
     );
   }
 
-  Widget _buildBudgetItem(String label, double amount, IconData icon, Color color) {
+  Widget _buildBudgetItem(
+    String label,
+    double amount,
+    IconData icon,
+    Color color,
+  ) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -794,10 +823,7 @@ class BudgetSummaryCard extends StatelessWidget {
             const SizedBox(width: 8),
             Text(
               '$label:',
-              style: TextStyle(
-                fontSize: 14,
-                color: AppColors.textSecondary,
-              ),
+              style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
             ),
           ],
         ),
@@ -822,10 +848,7 @@ class BudgetSummaryCard extends StatelessWidget {
           children: [
             Text(
               'Budget Usage',
-              style: TextStyle(
-                fontSize: 12,
-                color: AppColors.textSecondary,
-              ),
+              style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
             ),
             Text(
               '${percentage.toStringAsFixed(1)}%',
@@ -861,9 +884,7 @@ class BudgetSummaryCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppColors.error.withOpacity(0.1),
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(
-            color: AppColors.error.withOpacity(0.3),
-          ),
+          border: Border.all(color: AppColors.error.withOpacity(0.3)),
         ),
         child: Row(
           children: [

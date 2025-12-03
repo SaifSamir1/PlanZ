@@ -1,5 +1,6 @@
 // lib/features/events/presentation/screens/basic_event_info_screen.dart
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:plan_z/core/utils/app_colors.dart';
 import 'package:plan_z/features/event_owners/create_event_screen/cubits/event_creation_cubit/event_creation_cubit.dart';
@@ -12,10 +13,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class BasicEventInfoScreen extends StatefulWidget {
   final Map<String, dynamic> eventType;
 
-  const BasicEventInfoScreen({
-    super.key,
-    required this.eventType,
-  });
+  const BasicEventInfoScreen({super.key, required this.eventType});
 
   @override
   State<BasicEventInfoScreen> createState() => _BasicEventInfoScreenState();
@@ -37,8 +35,6 @@ class _BasicEventInfoScreenState extends State<BasicEventInfoScreen> {
   TimeOfDay? _selectedTime;
   String? _selectedCity;
   String? _selectedArea;
-
-
 
   @override
   void dispose() {
@@ -62,9 +58,9 @@ class _BasicEventInfoScreenState extends State<BasicEventInfoScreen> {
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
-          'Basic Event Info',
-          style: TextStyle(color: Colors.white),
+        title: Text(
+          "event_owner.basic_info_screen.title".tr(),
+          style: const TextStyle(color: Colors.white),
         ),
       ),
       body: Form(
@@ -125,7 +121,8 @@ class _BasicEventInfoScreenState extends State<BasicEventInfoScreen> {
       ),
     );
   }
- /// ✅ Helper to build icon (supports emoji or asset path)
+
+  /// ✅ Helper to build icon (supports emoji or asset path)
   Widget _buildIcon(dynamic icon) {
     if (icon == null) {
       return const Icon(Icons.event, size: 48, color: AppColors.primaryDark);
@@ -143,20 +140,29 @@ class _BasicEventInfoScreenState extends State<BasicEventInfoScreen> {
         color: AppColors.primaryDark, // ✅ Tint icon white
         colorBlendMode: BlendMode.srcIn,
         errorBuilder: (context, error, stackTrace) {
-          return const Icon(Icons.event, size: 48, color: AppColors.primaryDark);
+          return const Icon(
+            Icons.event,
+            size: 48,
+            color: AppColors.primaryDark,
+          );
         },
       );
     }
 
     // Otherwise, it's an emoji
-    return Text(
-      iconStr,
-      style: const TextStyle(fontSize: 40),
-    );
+    return Text(iconStr, style: const TextStyle(fontSize: 40));
   }
 
   /// Event Type Summary Card
   Widget _buildEventTypeSummaryCard() {
+    // Determine the localized name based on current locale
+    final isArabic = context.locale.languageCode == 'ar';
+    final eventTypeName = isArabic
+        ? (widget.eventType['eventTypeNameAr'] ??
+              widget.eventType['eventTypeName'] ??
+              'Event')
+        : (widget.eventType['eventTypeName'] ?? 'Event');
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -173,8 +179,8 @@ class _BasicEventInfoScreenState extends State<BasicEventInfoScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  widget.eventType['eventTypeName'] ?? 'Event',
-                  style: TextStyle(
+                  eventTypeName,
+                  style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: AppColors.textPrimary,
@@ -183,7 +189,7 @@ class _BasicEventInfoScreenState extends State<BasicEventInfoScreen> {
                 const SizedBox(height: 4),
                 Text(
                   widget.eventType['description'] ?? '',
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 12,
                     color: AppColors.textSecondary,
                   ),
@@ -203,18 +209,16 @@ class _BasicEventInfoScreenState extends State<BasicEventInfoScreen> {
     return TextFormField(
       controller: _eventNameController,
       decoration: InputDecoration(
-        labelText: 'Event Name',
-        hintText: 'e.g., Ahmed & Sara Wedding',
+        labelText: "event_owner.basic_info_screen.event_name".tr(),
+        hintText: "event_owner.basic_info_screen.event_name_hint".tr(),
         prefixIcon: const Icon(Icons.celebration),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         filled: true,
         fillColor: AppColors.cardBackground,
       ),
       validator: (value) {
         if (value == null || value.trim().isEmpty) {
-          return 'Please enter event name';
+          return "event_owner.basic_info_screen.enter_event_name".tr();
         }
         return null;
       },
@@ -227,21 +231,21 @@ class _BasicEventInfoScreenState extends State<BasicEventInfoScreen> {
       onTap: _selectDate,
       child: InputDecorator(
         decoration: InputDecoration(
-          labelText: 'Date',
+          labelText: "event_owner.basic_info_screen.date".tr(),
           prefixIcon: const Icon(Icons.calendar_today),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
           filled: true,
           fillColor: AppColors.cardBackground,
-          errorText: _selectedDate == null && _formKey.currentState?.validate() == false
-              ? 'Required'
+          errorText:
+              _selectedDate == null &&
+                  _formKey.currentState?.validate() == false
+              ? "event_owner.basic_info_screen.required".tr()
               : null,
         ),
         child: Text(
           _selectedDate != null
               ? '${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}'
-              : 'Select Date',
+              : "event_owner.basic_info_screen.select_date".tr(),
           style: TextStyle(
             color: _selectedDate != null
                 ? AppColors.textPrimary
@@ -258,21 +262,21 @@ class _BasicEventInfoScreenState extends State<BasicEventInfoScreen> {
       onTap: _selectTime,
       child: InputDecorator(
         decoration: InputDecoration(
-          labelText: 'Time',
+          labelText: "event_owner.basic_info_screen.time".tr(),
           prefixIcon: const Icon(Icons.access_time),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
           filled: true,
           fillColor: AppColors.cardBackground,
-          errorText: _selectedTime == null && _formKey.currentState?.validate() == false
-              ? 'Required'
+          errorText:
+              _selectedTime == null &&
+                  _formKey.currentState?.validate() == false
+              ? "event_owner.basic_info_screen.required".tr()
               : null,
         ),
         child: Text(
           _selectedTime != null
               ? _selectedTime!.format(context)
-              : 'Select Time',
+              : "event_owner.basic_info_screen.select_time".tr(),
           style: TextStyle(
             color: _selectedTime != null
                 ? AppColors.textPrimary
@@ -288,19 +292,14 @@ class _BasicEventInfoScreenState extends State<BasicEventInfoScreen> {
     return DropdownButtonFormField<String>(
       value: _selectedCity,
       decoration: InputDecoration(
-        labelText: 'City',
+        labelText: "event_owner.basic_info_screen.city".tr(),
         prefixIcon: const Icon(Icons.location_city),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         filled: true,
         fillColor: AppColors.cardBackground,
       ),
       items: cities.map((city) {
-        return DropdownMenuItem(
-          value: city,
-          child: Text(city),
-        );
+        return DropdownMenuItem(value: city, child: Text(city));
       }).toList(),
       onChanged: (value) {
         setState(() {
@@ -310,7 +309,7 @@ class _BasicEventInfoScreenState extends State<BasicEventInfoScreen> {
       },
       validator: (value) {
         if (value == null) {
-          return 'Please select a city';
+          return "event_owner.basic_info_screen.select_city".tr();
         }
         return null;
       },
@@ -324,21 +323,16 @@ class _BasicEventInfoScreenState extends State<BasicEventInfoScreen> {
     return DropdownButtonFormField<String>(
       value: _selectedArea,
       decoration: InputDecoration(
-        labelText: 'Area',
+        labelText: "event_owner.basic_info_screen.area".tr(),
         prefixIcon: const Icon(Icons.location_on),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         filled: true,
         fillColor: AppColors.cardBackground,
       ),
       items: areas1.isEmpty
           ? []
           : areas1.map((area) {
-              return DropdownMenuItem<String>(
-                value: area,
-                child: Text(area),
-              );
+              return DropdownMenuItem<String>(value: area, child: Text(area));
             }).toList(),
       onChanged: areas.isEmpty
           ? null
@@ -349,7 +343,7 @@ class _BasicEventInfoScreenState extends State<BasicEventInfoScreen> {
             },
       validator: (value) {
         if (value == null) {
-          return 'Please select an area';
+          return "event_owner.basic_info_screen.select_area".tr();
         }
         return null;
       },
@@ -362,22 +356,20 @@ class _BasicEventInfoScreenState extends State<BasicEventInfoScreen> {
       controller: _guestCountController,
       keyboardType: TextInputType.number,
       decoration: InputDecoration(
-        labelText: 'Expected Guest Count',
-        hintText: 'e.g., 200',
+        labelText: "event_owner.basic_info_screen.guest_count".tr(),
+        hintText: "event_owner.basic_info_screen.guest_count_hint".tr(),
         prefixIcon: const Icon(Icons.people),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         filled: true,
         fillColor: AppColors.cardBackground,
       ),
       validator: (value) {
         if (value == null || value.trim().isEmpty) {
-          return 'Please enter guest count';
+          return "event_owner.basic_info_screen.enter_guest_count".tr();
         }
         final guestCount = int.tryParse(value);
         if (guestCount == null || guestCount <= 0) {
-          return 'Please enter a valid number';
+          return "event_owner.basic_info_screen.valid_number".tr();
         }
         return null;
       },
@@ -390,15 +382,13 @@ class _BasicEventInfoScreenState extends State<BasicEventInfoScreen> {
       controller: _additionalNotesController,
       maxLines: 4,
       decoration: InputDecoration(
-        labelText: 'Additional Notes (Optional)',
-        hintText: 'Any special requirements or preferences...',
+        labelText: "event_owner.basic_info_screen.notes".tr(),
+        hintText: "event_owner.basic_info_screen.notes_hint".tr(),
         prefixIcon: const Padding(
           padding: EdgeInsets.only(bottom: 60),
           child: Icon(Icons.notes),
         ),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         filled: true,
         fillColor: AppColors.cardBackground,
       ),
@@ -412,13 +402,11 @@ class _BasicEventInfoScreenState extends State<BasicEventInfoScreen> {
       style: ElevatedButton.styleFrom(
         backgroundColor: AppColors.primaryGold,
         padding: const EdgeInsets.symmetric(vertical: 16),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
-      child: const Text(
-        'Continue to Budget Setup',
-        style: TextStyle(
+      child: Text(
+        "event_owner.basic_info_screen.continue_btn".tr(),
+        style: const TextStyle(
           fontSize: 16,
           fontWeight: FontWeight.bold,
           color: Colors.white,
@@ -464,30 +452,38 @@ class _BasicEventInfoScreenState extends State<BasicEventInfoScreen> {
       // Additional validation for date and time
       if (_selectedDate == null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Please select event date')),
+          SnackBar(
+            content: Text(
+              "event_owner.basic_info_screen.select_event_date".tr(),
+            ),
+          ),
         );
         return;
       }
 
       if (_selectedTime == null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Please select event time')),
+          SnackBar(
+            content: Text(
+              "event_owner.basic_info_screen.select_event_time".tr(),
+            ),
+          ),
         );
         return;
       }
 
       // Save to EventCreationCubit
       context.read<EventCreationCubit>().setBasicInfo(
-            eventName: _eventNameController.text.trim(),
-            eventDate: _selectedDate!,
-            eventTime: _selectedTime!,
-            city: _selectedCity!,
-            area: _selectedArea!,
-            guestCount: int.parse(_guestCountController.text.trim()),
-            additionalNotes: _additionalNotesController.text.trim().isNotEmpty
-                ? _additionalNotesController.text.trim()
-                : null,
-          );
+        eventName: _eventNameController.text.trim(),
+        eventDate: _selectedDate!,
+        eventTime: _selectedTime!,
+        city: _selectedCity!,
+        area: _selectedArea!,
+        guestCount: int.parse(_guestCountController.text.trim()),
+        additionalNotes: _additionalNotesController.text.trim().isNotEmpty
+            ? _additionalNotesController.text.trim()
+            : null,
+      );
 
       // Prepare eventInfo Map for next screen (backward compatibility)
       final eventInfo = {
@@ -520,9 +516,7 @@ class _BasicEventInfoScreenState extends State<BasicEventInfoScreen> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => BudgetSetupScreen(
-            eventInfo: eventInfo,
-          ),
+          builder: (context) => BudgetSetupScreen(eventInfo: eventInfo),
         ),
       );
     }
@@ -532,28 +526,32 @@ class _BasicEventInfoScreenState extends State<BasicEventInfoScreen> {
   Widget _buildLocationField() => TextFormField(
     controller: _locationController,
     decoration: InputDecoration(
-      labelText: 'Event Location/Venue Name',
-      hintText: 'e.g., Grand Ballroom, Nile Hilton',
+      labelText: "event_owner.basic_info_screen.location".tr(),
+      hintText: "event_owner.basic_info_screen.location_hint".tr(),
       prefixIcon: const Icon(Icons.location_on),
       border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
       filled: true,
       fillColor: AppColors.cardBackground,
     ),
-    validator: (value) => (value == null || value.trim().isEmpty) ? 'Please enter event location' : null,
+    validator: (value) => (value == null || value.trim().isEmpty)
+        ? "event_owner.basic_info_screen.enter_location".tr()
+        : null,
   );
 
   /// Address Field
   Widget _buildAddressField() => TextFormField(
     controller: _addressController,
     decoration: InputDecoration(
-      labelText: 'Full Address',
-      hintText: 'e.g., 123 Main Street, Downtown Cairo',
+      labelText: "event_owner.basic_info_screen.address".tr(),
+      hintText: "event_owner.basic_info_screen.address_hint".tr(),
       prefixIcon: const Icon(Icons.home),
       border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
       filled: true,
       fillColor: AppColors.cardBackground,
     ),
-    validator: (value) => (value == null || value.trim().isEmpty) ? 'Please enter address' : null,
+    validator: (value) => (value == null || value.trim().isEmpty)
+        ? "event_owner.basic_info_screen.enter_address".tr()
+        : null,
   );
 
   /// Phone Field
@@ -561,13 +559,15 @@ class _BasicEventInfoScreenState extends State<BasicEventInfoScreen> {
     controller: _phoneController,
     keyboardType: TextInputType.phone,
     decoration: InputDecoration(
-      labelText: 'Your Phone Number',
-      hintText: 'e.g., +20 100 123 4567',
+      labelText: "event_owner.basic_info_screen.phone".tr(),
+      hintText: "event_owner.basic_info_screen.phone_hint".tr(),
       prefixIcon: const Icon(Icons.phone),
       border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
       filled: true,
       fillColor: AppColors.cardBackground,
     ),
-    validator: (value) => (value == null || value.trim().isEmpty) ? 'Please enter phone number' : null,
+    validator: (value) => (value == null || value.trim().isEmpty)
+        ? "event_owner.basic_info_screen.enter_phone".tr()
+        : null,
   );
 }

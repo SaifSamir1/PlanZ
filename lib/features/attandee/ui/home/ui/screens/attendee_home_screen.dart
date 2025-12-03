@@ -1,5 +1,6 @@
 // lib/features/attendee/presentation/screens/attendee_home_screen.dart
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +10,7 @@ import 'package:plan_z/core/utils/app_colors.dart';
 import 'package:plan_z/core/widgets/custom_app_bar.dart';
 import 'package:plan_z/features/attandee/cubit/attendee_cubit.dart';
 import 'package:plan_z/features/attandee/ui/home/ui/screens/attandee_notification.dart';
+import 'package:plan_z/features/attandee/ui/home/ui/screens/attandee_settings_screen.dart';
 import 'package:plan_z/features/attandee/ui/home/ui/widgets/attendee_stats_card.dart';
 import 'package:plan_z/features/attandee/ui/home/ui/widgets/quick_actions_section.dart';
 import 'package:plan_z/features/attandee/ui/home/ui/widgets/upcoming_events_section.dart';
@@ -56,23 +58,20 @@ class _AttendeeHomeScreenState extends State<AttendeeHomeScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text(
-            "Logout Confirmation",
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
+          title: Text(
+            "attendee.logout_confirmation".tr(),
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
-          content: const Text(
-            'Are you sure you want to logout?',
-            style: TextStyle(fontSize: 16),
+          content: Text(
+            'attendee.logout_message'.tr(),
+            style: const TextStyle(fontSize: 16),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text(
-                'Cancel',
-                style: TextStyle(color: Colors.grey, fontSize: 16),
+              child: Text(
+                'attendee.cancel'.tr(),
+                style: const TextStyle(color: Colors.grey, fontSize: 16),
               ),
             ),
             TextButton(
@@ -80,9 +79,9 @@ class _AttendeeHomeScreenState extends State<AttendeeHomeScreen> {
                 Navigator.pop(context);
                 _performLogout();
               },
-              child: const Text(
-                'Logout',
-                style: TextStyle(
+              child: Text(
+                'attendee.logout'.tr(),
+                style: const TextStyle(
                   color: Colors.red,
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -122,14 +121,9 @@ class _AttendeeHomeScreenState extends State<AttendeeHomeScreen> {
       backgroundColor: AppColors.buttonPrimary,
       foregroundColor: Colors.white,
       elevation: 8,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
-      tooltip: 'Chat with Assistant',
-      child: const Icon(
-        Icons.chat_bubble_rounded,
-        size: 26,
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      tooltip: 'attendee.chat_tooltip'.tr(),
+      child: const Icon(Icons.chat_bubble_rounded, size: 26),
     );
   }
 
@@ -139,7 +133,7 @@ class _AttendeeHomeScreenState extends State<AttendeeHomeScreen> {
       backgroundColor: AppColors.background,
       floatingActionButton: _buildChatFAB(),
       appBar: CustomAppBar(
-        title: "EventFlow",
+        title: 'attendee.home_app_bar_title'.tr(),
         actions: [
           // Notification Icon
           SlideInRight(
@@ -167,7 +161,14 @@ class _AttendeeHomeScreenState extends State<AttendeeHomeScreen> {
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: GestureDetector(
-                onTap: _showLogoutConfirmation,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const AttandeeSettingsScreen(),
+                    ),
+                  );
+                },
                 child: CircleAvatar(
                   backgroundColor: const Color(0xfff8f9fa),
                   radius: 19,
@@ -185,7 +186,9 @@ class _AttendeeHomeScreenState extends State<AttendeeHomeScreen> {
         listenWhen: (previous, current) => current is AuthSignOutSuccess,
         listener: (context, state) {
           if (state is AuthSignOutSuccess) {
-            debugPrint('✅ [BlocListener] Logout successful, navigating to OnBoarding');
+            debugPrint(
+              '✅ [BlocListener] Logout successful, navigating to OnBoarding',
+            );
             Navigator.of(context).pushAndRemoveUntil(
               MaterialPageRoute(builder: (context) => const OnBoardingScreen()),
               (route) => false,
@@ -212,7 +215,9 @@ class _AttendeeHomeScreenState extends State<AttendeeHomeScreen> {
                 // Stats Card
                 FadeInUp(
                   duration: const Duration(milliseconds: 500),
-                  child: AttendeeStatsCard(attendeeId: userManager.currentUser!.id),
+                  child: AttendeeStatsCard(
+                    attendeeId: userManager.currentUser!.id,
+                  ),
                 ),
 
                 const SizedBox(height: 28),
@@ -230,7 +235,9 @@ class _AttendeeHomeScreenState extends State<AttendeeHomeScreen> {
                 FadeInUp(
                   duration: const Duration(milliseconds: 700),
                   delay: const Duration(milliseconds: 200),
-                  child: UpcomingEventsSection(attendeeId: userManager.currentUser!.id),
+                  child: UpcomingEventsSection(
+                    attendeeId: userManager.currentUser!.id,
+                  ),
                 ),
 
                 const SizedBox(height: 150),
@@ -282,7 +289,7 @@ class _AttendeeHomeScreenState extends State<AttendeeHomeScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Welcome back,',
+                    'attendee.welcome_back'.tr(),
                     style: AppTextStyles.body.copyWith(
                       color: Colors.white.withOpacity(0.85),
                       fontSize: 13,
@@ -292,7 +299,7 @@ class _AttendeeHomeScreenState extends State<AttendeeHomeScreen> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    userManager.userName ?? 'Guest',
+                    userManager.userName ?? 'attendee.guest'.tr(),
                     style: AppTextStyles.title.copyWith(
                       color: Colors.white,
                       fontSize: 26,
@@ -304,7 +311,7 @@ class _AttendeeHomeScreenState extends State<AttendeeHomeScreen> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Ready to discover amazing events?',
+                    'attendee.ready_to_discover'.tr(),
                     style: AppTextStyles.body.copyWith(
                       color: Colors.white.withOpacity(0.7),
                       fontSize: 12,
@@ -372,11 +379,11 @@ class _AttendeeHomeScreenState extends State<AttendeeHomeScreen> {
           children: [
             // ✅ Animated Title
             SizedBox(
-              height: 48,
+              height: 58,
               child: AnimatedTextKit(
                 animatedTexts: [
                   TyperAnimatedText(
-                    'Discover Amazing Events',
+                    'attendee.discover_amazing_events'.tr(),
                     textStyle: AppTextStyles.title.copyWith(
                       fontSize: 22,
                       fontWeight: FontWeight.w800,
@@ -393,7 +400,7 @@ class _AttendeeHomeScreenState extends State<AttendeeHomeScreen> {
             const SizedBox(height: 14),
             // ✅ Description
             Text(
-              'Browse and join events happening near you. Connect with people, make memories, and experience unforgettable moments.',
+              'attendee.intro_description'.tr(),
               style: AppTextStyles.body.copyWith(
                 color: AppColors.textSecondary,
                 fontSize: 13,
@@ -411,10 +418,22 @@ class _AttendeeHomeScreenState extends State<AttendeeHomeScreen> {
               physics: const NeverScrollableScrollPhysics(),
               childAspectRatio: 1.45,
               children: [
-                _buildFeatureItem(Icons.event_rounded, 'Browse Events'),
-                _buildFeatureItem(Icons.favorite_border_rounded, 'Save Favorites'),
-                _buildFeatureItem(Icons.people_rounded, 'Connect'),
-                _buildFeatureItem(Icons.notifications_rounded, 'Get Updates'),
+                _buildFeatureItem(
+                  Icons.event_rounded,
+                  'attendee.browse_events'.tr(),
+                ),
+                _buildFeatureItem(
+                  Icons.favorite_border_rounded,
+                  'attendee.save_favorites'.tr(),
+                ),
+                _buildFeatureItem(
+                  Icons.people_rounded,
+                  'attendee.connect'.tr(),
+                ),
+                _buildFeatureItem(
+                  Icons.notifications_rounded,
+                  'attendee.get_updates'.tr(),
+                ),
               ],
             ),
           ],
@@ -451,11 +470,7 @@ class _AttendeeHomeScreenState extends State<AttendeeHomeScreen> {
               color: AppColors.buttonPrimary.withOpacity(0.08),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(
-              icon,
-              color: AppColors.buttonPrimary,
-              size: 22,
-            ),
+            child: Icon(icon, color: AppColors.buttonPrimary, size: 22),
           ),
           const SizedBox(height: 6),
           Text(

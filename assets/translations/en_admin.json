@@ -1,0 +1,8 @@
+{
+    "approve": "Approve",
+    "reject": "Reject",
+    "approve_package": "Approve Package",
+    "pending_approvals": "Pending Approvals",
+    "approved": "Approved",
+    "rejected": "Rejected"
+}

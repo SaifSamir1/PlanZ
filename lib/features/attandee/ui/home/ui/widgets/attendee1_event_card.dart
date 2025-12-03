@@ -1,6 +1,7 @@
 // lib/features/attendee/presentation/widgets/my_events/attendee_event_card.dart
 
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:plan_z/core/theming/text_styles.dart';
 import 'package:plan_z/core/utils/app_colors.dart';
 import 'package:plan_z/features/attandee/ui/home/ui/widgets/event_date_badge.dart';
@@ -28,7 +29,9 @@ class Attendee1EventCard extends StatelessWidget {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
           side: BorderSide(
-            color: isPastEvent ? Colors.grey[300]! : AppColors.buttonPrimary.withOpacity(0.3),
+            color: isPastEvent
+                ? Colors.grey[300]!
+                : AppColors.buttonPrimary.withOpacity(0.3),
             width: 1,
           ),
         ),
@@ -41,10 +44,7 @@ class Attendee1EventCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Date Badge
-                EventDateBadge(
-                  date: event.eventDate,
-                  isPast: isPastEvent,
-                ),
+                EventDateBadge(date: event.eventDate, isPast: isPastEvent),
 
                 const SizedBox(width: 16),
 
@@ -72,14 +72,18 @@ class Attendee1EventCard extends StatelessWidget {
                           Icon(
                             Icons.celebration_rounded,
                             size: 16,
-                            color: isPastEvent ? Colors.grey[500] : AppColors.buttonPrimary,
+                            color: isPastEvent
+                                ? Colors.grey[500]
+                                : AppColors.buttonPrimary,
                           ),
                           const SizedBox(width: 6),
                           Expanded(
                             child: Text(
                               event.eventTypeName,
                               style: AppTextStyles.caption.copyWith(
-                                color: isPastEvent ? Colors.grey[600] : Colors.grey[700],
+                                color: isPastEvent
+                                    ? Colors.grey[600]
+                                    : Colors.grey[700],
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -103,7 +107,9 @@ class Attendee1EventCard extends StatelessWidget {
                             child: Text(
                               event.location,
                               style: AppTextStyles.caption.copyWith(
-                                color: isPastEvent ? Colors.grey[600] : Colors.grey[700],
+                                color: isPastEvent
+                                    ? Colors.grey[600]
+                                    : Colors.grey[700],
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -125,9 +131,13 @@ class Attendee1EventCard extends StatelessWidget {
                           const SizedBox(width: 6),
                           Expanded(
                             child: Text(
-                              "Hosted by ${event.eventOwnerName}",
+                              'attendee.invitation_card_hosted_by'.tr(
+                                args: [event.eventOwnerName],
+                              ),
                               style: AppTextStyles.caption.copyWith(
-                                color: isPastEvent ? Colors.grey[600] : Colors.grey[700],
+                                color: isPastEvent
+                                    ? Colors.grey[600]
+                                    : Colors.grey[700],
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -158,7 +168,7 @@ class Attendee1EventCard extends StatelessWidget {
                               ),
                               const SizedBox(width: 4),
                               Text(
-                                "Past Event",
+                                'attendee.my_events_past_badge'.tr(),
                                 style: AppTextStyles.caption.copyWith(
                                   fontSize: 11,
                                   color: Colors.grey[600],

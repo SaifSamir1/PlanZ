@@ -11,6 +11,7 @@ import 'package:plan_z/core/widgets/custom_app_bar.dart';
 import 'package:plan_z/features/auth/data/models/user_manager.dart';
 import 'package:plan_z/features/vendor_features/packages_mangment/cubit/vendor_cubit.dart';
 import 'package:plan_z/features/vendor_features/packages_mangment/cubit/vendor_state.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class CreatePackageScreen extends StatefulWidget {
   final bool isEdit;
@@ -65,7 +66,7 @@ class _CreatePackageScreenState extends State<CreatePackageScreen> {
       });
     } catch (e) {
       setState(() => _isLoadingServices = false);
-      _showErrorSnackBar('Failed to load services');
+      _showErrorSnackBar('vendor.packages.failed_load_services'.tr());
     }
   }
 
@@ -119,17 +120,17 @@ class _CreatePackageScreenState extends State<CreatePackageScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     if (_selectedService == null) {
-      _showErrorSnackBar('Please select a service');
+      _showErrorSnackBar('vendor.packages.select_service_required'.tr());
       return;
     }
 
     if (_features.isEmpty) {
-      _showErrorSnackBar('Please add at least one feature');
+      _showErrorSnackBar('vendor.packages.add_feature_required'.tr());
       return;
     }
 
     if (_keywords.isEmpty) {
-      _showErrorSnackBar('Please add at least one keyword');
+      _showErrorSnackBar('vendor.packages.add_keyword_required'.tr());
       return;
     }
 
@@ -176,14 +177,16 @@ class _CreatePackageScreenState extends State<CreatePackageScreen> {
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: CustomAppBar(
-        title: widget.isEdit ? 'Edit Package' : 'Create Package',
+        title: widget.isEdit
+            ? 'vendor.packages.edit_package'.tr()
+            : 'vendor.packages.create_package'.tr(),
       ),
       body: BlocListener<VendorCubit, VendorState>(
         listener: (context, state) {
           if (state is CreatePackageSuccess) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Package created successfully!'),
+              SnackBar(
+                content: Text('vendor.packages.package_created_success'.tr()),
                 backgroundColor: Colors.green,
               ),
             );
@@ -192,8 +195,8 @@ class _CreatePackageScreenState extends State<CreatePackageScreen> {
             _showErrorSnackBar(state.message);
           } else if (state is UpdatePackageSuccess) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Package updated successfully!'),
+              SnackBar(
+                content: Text('vendor.packages.package_updated_success'.tr()),
                 backgroundColor: Colors.green,
               ),
             );
@@ -317,7 +320,9 @@ class _CreatePackageScreenState extends State<CreatePackageScreen> {
                       ),
                     )
                   : Text(
-                      widget.isEdit ? 'Update Package' : 'Create Package',
+                      widget.isEdit
+                          ? 'vendor.packages.update_package'.tr()
+                          : 'vendor.packages.create_package'.tr(),
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -396,7 +401,7 @@ class PackageBasicInfoSection extends StatelessWidget {
         ),
         const SizedBox(width: 12),
         Text(
-          '📝 Basic Information',
+          '📝  ${'vendor.packages.basic_information'.tr()}',
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
@@ -411,8 +416,8 @@ class PackageBasicInfoSection extends StatelessWidget {
     return TextFormField(
       controller: nameController,
       decoration: InputDecoration(
-        labelText: 'Package Name',
-        hintText: 'e.g., Premium Wedding Photography',
+        labelText: 'vendor.packages.package_name'.tr(),
+        hintText: 'vendor.packages.package_name_hint'.tr(),
         prefixIcon: Icon(Icons.card_giftcard, color: AppColors.primaryGold),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         focusedBorder: OutlineInputBorder(
@@ -424,10 +429,10 @@ class PackageBasicInfoSection extends StatelessWidget {
       ),
       validator: (value) {
         if (value == null || value.trim().isEmpty) {
-          return 'Please enter package name';
+          return 'vendor.packages.package_name_required'.tr();
         }
         if (value.trim().length < 3) {
-          return 'Name must be at least 3 characters';
+          return 'vendor.packages.package_name_min'.tr();
         }
         return null;
       },
@@ -439,8 +444,8 @@ class PackageBasicInfoSection extends StatelessWidget {
       controller: descriptionController,
       maxLines: 4,
       decoration: InputDecoration(
-        labelText: 'Description',
-        hintText: 'Describe your package in detail...',
+        labelText: 'vendor.packages.description'.tr(),
+        hintText: 'vendor.packages.description_hint'.tr(),
         prefixIcon: Padding(
           padding: const EdgeInsets.only(bottom: 60),
           child: Icon(Icons.description, color: AppColors.primaryGold),
@@ -455,10 +460,10 @@ class PackageBasicInfoSection extends StatelessWidget {
       ),
       validator: (value) {
         if (value == null || value.trim().isEmpty) {
-          return 'Please enter description';
+          return 'vendor.packages.description_required'.tr();
         }
         if (value.trim().length < 20) {
-          return 'Description must be at least 20 characters';
+          return 'vendor.packages.description_min'.tr();
         }
         return null;
       },
@@ -490,9 +495,10 @@ class ServiceSelectorSection extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
             gradient: LinearGradient(
-              colors: [ AppColors.primaryDark.withOpacity(0.08),
+              colors: [
+                AppColors.primaryDark.withOpacity(0.08),
                 AppColors.primaryDark.withOpacity(0.008),
-                ],
+              ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
@@ -528,7 +534,7 @@ class ServiceSelectorSection extends StatelessWidget {
         ),
         const SizedBox(width: 12),
         Text(
-          '🎨 Select Service',
+          'vendor.packages.service_category'.tr(),
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
@@ -550,7 +556,7 @@ class ServiceSelectorSection extends StatelessWidget {
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
           isExpanded: true,
-          hint: const Text('Choose a service category'),
+          hint: Text('vendor.packages.service_category'.tr()),
           value: selectedService?['serviceId'],
           icon: Icon(Icons.arrow_drop_down, color: AppColors.primaryGold),
           items: services.map((service) {
@@ -711,9 +717,7 @@ class _FeaturesSectionState extends State<FeaturesSection> {
       delay: const Duration(milliseconds: 300),
       child: Card(
         elevation: 4,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
@@ -751,16 +755,12 @@ class _FeaturesSectionState extends State<FeaturesSection> {
             color: AppColors.primaryGold.withOpacity(0.15),
             borderRadius: BorderRadius.circular(12),
           ),
-          child: Icon(
-            Icons.stars,
-            color: AppColors.primaryGold,
-            size: 24,
-          ),
+          child: Icon(Icons.stars, color: AppColors.primaryGold, size: 24),
         ),
         const SizedBox(width: 12),
         Expanded(
           child: Text(
-            'Package Features',
+            'vendor.packages.features'.tr(),
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -796,7 +796,7 @@ class _FeaturesSectionState extends State<FeaturesSection> {
           child: TextField(
             controller: _featureController,
             decoration: InputDecoration(
-              hintText: 'Add a feature...',
+              hintText: 'vendor.packages.add_feature'.tr(),
               hintStyle: TextStyle(color: Colors.grey[400]),
               prefixIcon: Icon(
                 Icons.add_circle_outline,
@@ -812,10 +812,7 @@ class _FeaturesSectionState extends State<FeaturesSection> {
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(
-                  color: AppColors.primaryGold,
-                  width: 2,
-                ),
+                borderSide: BorderSide(color: AppColors.primaryGold, width: 2),
               ),
               filled: true,
               fillColor: Colors.grey[50],
@@ -836,11 +833,7 @@ class _FeaturesSectionState extends State<FeaturesSection> {
             borderRadius: BorderRadius.circular(12),
             child: Container(
               padding: const EdgeInsets.all(16),
-              child: const Icon(
-                Icons.add,
-                color: Colors.white,
-                size: 24,
-              ),
+              child: const Icon(Icons.add, color: Colors.white, size: 24),
             ),
           ),
         ),
@@ -863,11 +856,8 @@ class _FeaturesSectionState extends State<FeaturesSection> {
               Icon(Icons.inbox, size: 48, color: Colors.grey[400]),
               const SizedBox(height: 12),
               Text(
-                'No features added yet',
-                style: TextStyle(
-                  color: Colors.grey[600],
-                  fontSize: 14,
-                ),
+                'vendor.packages.no_features_yet'.tr(),
+                style: TextStyle(color: Colors.grey[600], fontSize: 14),
               ),
             ],
           ),
@@ -888,9 +878,7 @@ class _FeaturesSectionState extends State<FeaturesSection> {
             decoration: BoxDecoration(
               color: AppColors.primaryGold.withOpacity(0.08),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: AppColors.primaryGold.withOpacity(0.2),
-              ),
+              border: Border.all(color: AppColors.primaryGold.withOpacity(0.2)),
             ),
             child: ListTile(
               contentPadding: const EdgeInsets.symmetric(
@@ -930,7 +918,7 @@ class _FeaturesSectionState extends State<FeaturesSection> {
                   size: 22,
                 ),
                 onPressed: () => _removeFeature(index),
-                tooltip: 'Remove feature',
+                tooltip: 'vendor.packages.remove_feature_tooltip'.tr(),
               ),
             ),
           ),
@@ -939,7 +927,6 @@ class _FeaturesSectionState extends State<FeaturesSection> {
     );
   }
 }
-
 
 class KeywordsSection extends StatefulWidget {
   final List<String> keywords;
@@ -970,19 +957,17 @@ class _KeywordsSectionState extends State<KeywordsSection> {
     final trimmedKeyword = keyword.trim().toLowerCase();
 
     if (trimmedKeyword.isEmpty) {
-      _showError('Keyword cannot be empty');
+      _showError('vendor.packages.keyword_empty_error'.tr());
       return;
     }
 
     if (trimmedKeyword.length < 2) {
-      _showError('Keyword must be at least 2 characters');
+      _showError('vendor.packages.keyword_min_error'.tr());
       return;
     }
 
-    if (widget.keywords
-        .map((k) => k.toLowerCase())
-        .contains(trimmedKeyword)) {
-      _showError('This keyword already exists');
+    if (widget.keywords.map((k) => k.toLowerCase()).contains(trimmedKeyword)) {
+      _showError('vendor.packages.keyword_exists_error'.tr());
       return;
     }
 
@@ -992,7 +977,9 @@ class _KeywordsSectionState extends State<KeywordsSection> {
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Keyword "$trimmedKeyword" added'),
+        content: Text(
+          'vendor.packages.keyword_added_success'.tr(args: [trimmedKeyword]),
+        ),
         backgroundColor: Colors.green,
         behavior: SnackBarBehavior.floating,
         duration: const Duration(seconds: 2),
@@ -1024,9 +1011,7 @@ class _KeywordsSectionState extends State<KeywordsSection> {
       delay: const Duration(milliseconds: 400),
       child: Card(
         elevation: 4,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
@@ -1077,7 +1062,7 @@ class _KeywordsSectionState extends State<KeywordsSection> {
         const SizedBox(width: 12),
         Expanded(
           child: Text(
-            '🔍 Search Keywords',
+            'vendor.packages.search_keywords_title'.tr(),
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
@@ -1115,12 +1100,9 @@ class _KeywordsSectionState extends State<KeywordsSection> {
             controller: _keywordController,
             maxLines: 1,
             decoration: InputDecoration(
-              hintText: 'Add keyword (e.g., photography, design)',
+              hintText: 'vendor.packages.add_keyword_hint_text'.tr(),
               hintStyle: TextStyle(color: Colors.grey[400]),
-              prefixIcon: Icon(
-                Icons.search,
-                color: AppColors.primaryGold,
-              ),
+              prefixIcon: Icon(Icons.search, color: AppColors.primaryGold),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide(color: Colors.grey[300]!),
@@ -1131,10 +1113,7 @@ class _KeywordsSectionState extends State<KeywordsSection> {
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(
-                  color: AppColors.primaryGold,
-                  width: 2,
-                ),
+                borderSide: BorderSide(color: AppColors.primaryGold, width: 2),
               ),
               filled: true,
               fillColor: Colors.grey[50],
@@ -1155,11 +1134,7 @@ class _KeywordsSectionState extends State<KeywordsSection> {
             borderRadius: BorderRadius.circular(12),
             child: Container(
               padding: const EdgeInsets.all(16),
-              child: const Icon(
-                Icons.add,
-                color: Colors.white,
-                size: 24,
-              ),
+              child: const Icon(Icons.add, color: Colors.white, size: 24),
             ),
           ),
         ),
@@ -1169,10 +1144,11 @@ class _KeywordsSectionState extends State<KeywordsSection> {
 
   Widget _buildSuggestedKeywords() {
     final unselectedSuggestions = widget.suggestedKeywords
-        .where((keyword) =>
-            !widget.keywords
-                .map((k) => k.toLowerCase())
-                .contains(keyword.toLowerCase()))
+        .where(
+          (keyword) => !widget.keywords
+              .map((k) => k.toLowerCase())
+              .contains(keyword.toLowerCase()),
+        )
         .toList();
 
     if (unselectedSuggestions.isEmpty) return const SizedBox.shrink();
@@ -1181,7 +1157,7 @@ class _KeywordsSectionState extends State<KeywordsSection> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Suggested Keywords:',
+          'vendor.packages.suggested_keywords_label'.tr(),
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
@@ -1249,19 +1225,13 @@ class _KeywordsSectionState extends State<KeywordsSection> {
               Icon(Icons.label_off, size: 48, color: Colors.grey[400]),
               const SizedBox(height: 12),
               Text(
-                'No keywords added yet',
-                style: TextStyle(
-                  color: Colors.grey[600],
-                  fontSize: 14,
-                ),
+                'vendor.packages.no_keywords_yet'.tr(),
+                style: TextStyle(color: Colors.grey[600], fontSize: 14),
               ),
               const SizedBox(height: 4),
               Text(
-                'Add keywords to help customers find your service',
-                style: TextStyle(
-                  color: Colors.grey[500],
-                  fontSize: 12,
-                ),
+                'vendor.packages.keywords_help_text'.tr(),
+                style: TextStyle(color: Colors.grey[500], fontSize: 12),
               ),
             ],
           ),
@@ -1273,7 +1243,7 @@ class _KeywordsSectionState extends State<KeywordsSection> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Added Keywords:',
+          'vendor.packages.added_keywords_label'.tr(),
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
@@ -1335,7 +1305,6 @@ class _KeywordsSectionState extends State<KeywordsSection> {
   }
 }
 
-
 class PortfolioSection extends StatefulWidget {
   final List<PortfolioItem> portfolioLinks;
   final Function(List<PortfolioItem>) onPortfolioChanged;
@@ -1367,14 +1336,16 @@ class _PortfolioSectionState extends State<PortfolioSection> {
     final title = _titleController.text.trim();
 
     if (url.isEmpty) {
-      _showError('Please enter a URL');
+      _showError('vendor.packages.enter_url_error'.tr());
       return;
     }
 
     // Validate URL
     final uri = Uri.tryParse(url);
-    if (uri == null || !uri.hasAbsolutePath || (!uri.scheme.startsWith('http'))) {
-      _showError('Please enter a valid URL (e.g., https://example.com)');
+    if (uri == null ||
+        !uri.hasAbsolutePath ||
+        (!uri.scheme.startsWith('http'))) {
+      _showError('vendor.packages.valid_url_error'.tr());
       return;
     }
 
@@ -1394,7 +1365,7 @@ class _PortfolioSectionState extends State<PortfolioSection> {
     // Show success
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: const Text('Proof added successfully!'),
+        content: Text('vendor.packages.proof_added_success'.tr()),
         backgroundColor: Colors.green,
         behavior: SnackBarBehavior.floating,
         duration: const Duration(seconds: 2),
@@ -1425,9 +1396,7 @@ class _PortfolioSectionState extends State<PortfolioSection> {
       delay: const Duration(milliseconds: 500),
       child: Card(
         elevation: 4,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
@@ -1473,16 +1442,12 @@ class _PortfolioSectionState extends State<PortfolioSection> {
             color: AppColors.primaryGold.withOpacity(0.15),
             borderRadius: BorderRadius.circular(12),
           ),
-          child: Icon(
-            Icons.verified,
-            color: AppColors.primaryGold,
-            size: 24,
-          ),
+          child: Icon(Icons.verified, color: AppColors.primaryGold, size: 24),
         ),
         const SizedBox(width: 12),
         Expanded(
           child: Text(
-            '✓ Work Proof & Evidence',
+            '✓ ${'vendor.packages.work_proof'.tr()}',
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
@@ -1526,7 +1491,7 @@ class _PortfolioSectionState extends State<PortfolioSection> {
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              'Add links to your previous work, photos, or videos to prove your service quality',
+              'vendor.packages.work_proof_info'.tr(),
               style: TextStyle(
                 fontSize: 13,
                 color: Colors.blue[900],
@@ -1544,13 +1509,10 @@ class _PortfolioSectionState extends State<PortfolioSection> {
       controller: _urlController,
       keyboardType: TextInputType.url,
       decoration: InputDecoration(
-        labelText: 'Proof Link (URL)*',
-        hintText: 'https://example.com/my-work',
+        labelText: '${'vendor.packages.work_proof_link'.tr()}*',
+        hintText: 'vendor.packages.work_proof_url_hint'.tr(),
         hintStyle: TextStyle(color: Colors.grey[400]),
-        prefixIcon: Icon(
-          Icons.link,
-          color: AppColors.primaryGold,
-        ),
+        prefixIcon: Icon(Icons.link, color: AppColors.primaryGold),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: Colors.grey[300]!),
@@ -1561,10 +1523,7 @@ class _PortfolioSectionState extends State<PortfolioSection> {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(
-            color: AppColors.primaryGold,
-            width: 2,
-          ),
+          borderSide: BorderSide(color: AppColors.primaryGold, width: 2),
         ),
         filled: true,
         fillColor: Colors.grey[50],
@@ -1580,13 +1539,11 @@ class _PortfolioSectionState extends State<PortfolioSection> {
     return TextField(
       controller: _titleController,
       decoration: InputDecoration(
-        labelText: 'Description (Optional)',
-        hintText: 'Wedding photography - Dec 2024',
+        labelText:
+            '${'vendor.packages.work_proof_title'.tr()} ${'vendor.packages.work_proof_title_optional'.tr()}',
+        hintText: 'vendor.packages.work_proof_title_hint'.tr(),
         hintStyle: TextStyle(color: Colors.grey[400]),
-        prefixIcon: Icon(
-          Icons.description,
-          color: AppColors.primaryGold,
-        ),
+        prefixIcon: Icon(Icons.description, color: AppColors.primaryGold),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: Colors.grey[300]!),
@@ -1597,10 +1554,7 @@ class _PortfolioSectionState extends State<PortfolioSection> {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(
-            color: AppColors.primaryGold,
-            width: 2,
-          ),
+          borderSide: BorderSide(color: AppColors.primaryGold, width: 2),
         ),
         filled: true,
         fillColor: Colors.grey[50],
@@ -1614,16 +1568,28 @@ class _PortfolioSectionState extends State<PortfolioSection> {
 
   Widget _buildTypeSelector() {
     final types = [
-      {'value': 'website', 'label': 'Website', 'icon': Icons.language},
-      {'value': 'image', 'label': 'Image', 'icon': Icons.image},
-      {'value': 'video', 'label': 'Video', 'icon': Icons.video_library},
+      {
+        'value': 'website',
+        'label': 'vendor.packages.type_website'.tr(),
+        'icon': Icons.language,
+      },
+      {
+        'value': 'image',
+        'label': 'vendor.packages.type_image'.tr(),
+        'icon': Icons.image,
+      },
+      {
+        'value': 'video',
+        'label': 'vendor.packages.type_video'.tr(),
+        'icon': Icons.video_library,
+      },
     ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Content Type',
+          'vendor.packages.content_type_label'.tr(),
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
@@ -1637,16 +1603,15 @@ class _PortfolioSectionState extends State<PortfolioSection> {
           children: types.map((type) {
             final isSelected = _selectedType == type['value'];
             return GestureDetector(
-              onTap: () => setState(() => _selectedType = type['value'] as String),
+              onTap: () =>
+                  setState(() => _selectedType = type['value'] as String),
               child: Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 16,
                   vertical: 10,
                 ),
                 decoration: BoxDecoration(
-                  color: isSelected
-                      ? AppColors.primaryGold
-                      : Colors.grey[100],
+                  color: isSelected ? AppColors.primaryGold : Colors.grey[100],
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
                     color: isSelected
@@ -1687,12 +1652,9 @@ class _PortfolioSectionState extends State<PortfolioSection> {
       child: ElevatedButton.icon(
         onPressed: _addPortfolioLink,
         icon: const Icon(Icons.add, size: 20),
-        label: const Text(
-          'Add Proof Link',
-          style: TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.bold,
-          ),
+        label: Text(
+          '${'vendor.packages.add_proof_link'.tr()}',
+          style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
         ),
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primaryGold,
@@ -1722,19 +1684,13 @@ class _PortfolioSectionState extends State<PortfolioSection> {
               Icon(Icons.link_off, size: 48, color: Colors.grey[400]),
               const SizedBox(height: 12),
               Text(
-                'No proof links added yet',
-                style: TextStyle(
-                  color: Colors.grey[600],
-                  fontSize: 14,
-                ),
+                '${'vendor.packages.no_proof_links_yet'.tr()}',
+                style: TextStyle(color: Colors.grey[600], fontSize: 14),
               ),
               const SizedBox(height: 4),
               Text(
-                'Add links to showcase your work',
-                style: TextStyle(
-                  color: Colors.grey[500],
-                  fontSize: 12,
-                ),
+                '${'vendor.packages.add_links_to_showcase_your_work'.tr()}',
+                style: TextStyle(color: Colors.grey[500], fontSize: 12),
               ),
             ],
           ),
@@ -1755,9 +1711,7 @@ class _PortfolioSectionState extends State<PortfolioSection> {
             decoration: BoxDecoration(
               color: AppColors.primaryGold.withOpacity(0.08),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: AppColors.primaryGold.withOpacity(0.2),
-              ),
+              border: Border.all(color: AppColors.primaryGold.withOpacity(0.2)),
             ),
             child: ListTile(
               contentPadding: const EdgeInsets.symmetric(
@@ -1773,7 +1727,10 @@ class _PortfolioSectionState extends State<PortfolioSection> {
                 child: _getTypeIcon(link.type),
               ),
               title: Text(
-                link.thumbnail ?? 'Proof Link ${index + 1}',
+                link.thumbnail ??
+                    'vendor.packages.proof_link_default'.tr(
+                      args: [(index + 1).toString()],
+                    ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
@@ -1786,10 +1743,7 @@ class _PortfolioSectionState extends State<PortfolioSection> {
                 link.url,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey[600],
-                ),
+                style: TextStyle(fontSize: 12, color: Colors.grey[600]),
               ),
               trailing: IconButton(
                 icon: const Icon(
@@ -1809,7 +1763,7 @@ class _PortfolioSectionState extends State<PortfolioSection> {
 
   Icon _getTypeIcon(String type) {
     Color iconColor = AppColors.primaryGold;
-    
+
     switch (type) {
       case 'image':
         return Icon(Icons.image, color: iconColor, size: 24);
@@ -1844,9 +1798,7 @@ class PricingSection extends StatelessWidget {
       delay: const Duration(milliseconds: 200),
       child: Card(
         elevation: 4,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
@@ -1901,7 +1853,7 @@ class PricingSection extends StatelessWidget {
         const SizedBox(width: 12),
         Expanded(
           child: Text(
-            '💰 Pricing',
+            '💰 ${'vendor.packages.pricing'.tr()}',
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
@@ -1920,13 +1872,10 @@ class PricingSection extends StatelessWidget {
       keyboardType: TextInputType.number,
       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
       decoration: InputDecoration(
-        labelText: 'Price',
+        labelText: '${'vendor.packages.price'.tr()}',
         hintText: '0',
         hintStyle: TextStyle(color: Colors.grey[400]),
-        prefixIcon: Icon(
-          Icons.monetization_on,
-          color: AppColors.primaryGold,
-        ),
+        prefixIcon: Icon(Icons.monetization_on, color: AppColors.primaryGold),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: Colors.grey[300]!),
@@ -1937,10 +1886,7 @@ class PricingSection extends StatelessWidget {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(
-            color: AppColors.primaryGold,
-            width: 2,
-          ),
+          borderSide: BorderSide(color: AppColors.primaryGold, width: 2),
         ),
         filled: true,
         fillColor: Colors.grey[50],
@@ -1951,11 +1897,11 @@ class PricingSection extends StatelessWidget {
       ),
       validator: (value) {
         if (value == null || value.trim().isEmpty) {
-          return 'Enter price';
+          return '${'vendor.packages.enter_price'.tr()}';
         }
         final price = double.tryParse(value);
         if (price == null || price <= 0) {
-          return 'Invalid price';
+          return '${'vendor.packages.invalid_price'.tr()}';
         }
         return null;
       },
@@ -1974,10 +1920,7 @@ class PricingSection extends StatelessWidget {
         child: DropdownButton<String>(
           value: selectedCurrency,
           isExpanded: true,
-          icon: Icon(
-            Icons.arrow_drop_down,
-            color: AppColors.primaryGold,
-          ),
+          icon: Icon(Icons.arrow_drop_down, color: AppColors.primaryGold),
           items: ['EGP', 'USD', 'EUR', 'SAR'].map((currency) {
             return DropdownMenuItem(
               value: currency,
@@ -1999,16 +1942,28 @@ class PricingSection extends StatelessWidget {
 
   Widget _buildPriceUnitSelector() {
     final units = [
-      {'value': 'per_event', 'label': 'Per Event', 'icon': Icons.event},
-      {'value': 'per_hour', 'label': 'Per Hour', 'icon': Icons.access_time},
-      {'value': 'per_day', 'label': 'Per Day', 'icon': Icons.today},
+      {
+        'value': 'per_event',
+        'label': '${'vendor.packages.per_event'.tr()}',
+        'icon': Icons.event,
+      },
+      {
+        'value': 'per_hour',
+        'label': '${'vendor.packages.per_hour'.tr()}',
+        'icon': Icons.access_time,
+      },
+      {
+        'value': 'per_day',
+        'label': '${'vendor.packages.per_day'.tr()}',
+        'icon': Icons.today,
+      },
     ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Price Unit',
+          '${'vendor.packages.price_unit'.tr()}',
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
@@ -2029,9 +1984,7 @@ class PricingSection extends StatelessWidget {
                   vertical: 10,
                 ),
                 decoration: BoxDecoration(
-                  color: isSelected
-                      ? AppColors.primaryGold
-                      : Colors.grey[100],
+                  color: isSelected ? AppColors.primaryGold : Colors.grey[100],
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
                     color: isSelected
@@ -2074,9 +2027,7 @@ class PricingSection extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.primaryGold.withOpacity(0.08),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: AppColors.primaryGold.withOpacity(0.2),
-        ),
+        border: Border.all(color: AppColors.primaryGold.withOpacity(0.2)),
       ),
       child: Row(
         children: [
@@ -2085,7 +2036,7 @@ class PricingSection extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Total Price',
+                  '${'vendor.packages.total_price'.tr()}',
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
@@ -2111,10 +2062,7 @@ class PricingSection extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 12,
-              vertical: 6,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
               color: AppColors.primaryGold,
               borderRadius: BorderRadius.circular(20),
@@ -2134,7 +2082,9 @@ class PricingSection extends StatelessWidget {
   }
 
   String _formatPrice(double price) {
-    return price.toStringAsFixed(0).replaceAllMapped(
+    return price
+        .toStringAsFixed(0)
+        .replaceAllMapped(
           RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
           (Match m) => '${m[1]},',
         );
@@ -2143,14 +2093,13 @@ class PricingSection extends StatelessWidget {
   String _formatUnit(String unit) {
     switch (unit) {
       case 'per_event':
-        return 'Event';
+        return 'vendor.packages.unit_event'.tr();
       case 'per_hour':
-        return 'Hour';
+        return 'vendor.packages.unit_hour'.tr();
       case 'per_day':
-        return 'Day';
+        return 'vendor.packages.unit_day'.tr();
       default:
-        return 'Event';
+        return 'vendor.packages.unit_event'.tr();
     }
   }
 }
-
