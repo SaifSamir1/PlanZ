@@ -6,8 +6,13 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class NotificationService {
+  // Firestore instance
   static final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  // FCM instance
   static final FirebaseMessaging _fcm = FirebaseMessaging.instance;
+
+  // Local notifications plugin
   static final FlutterLocalNotificationsPlugin _localNotifications =
       FlutterLocalNotificationsPlugin();
 
@@ -22,10 +27,7 @@ class NotificationService {
   }) async {
     try {
       debugPrint('📤 [NotificationService] Sending notification...');
-      debugPrint('   receiverId: $receiverId');
-      debugPrint('   receiverRole: $receiverRole');
-      debugPrint('   title: $title');
-      debugPrint('   type: $type');
+      debugPrint('   receiverId: $receiverId, role: $receiverRole, title: $title');
 
       // Get FCM token if not provided
       String? token = fcmToken;
@@ -72,10 +74,10 @@ class NotificationService {
         // We still continue to save to Firestore so the user sees it in their in-app list
       }
 
-      // Create notification ID
+      // Notification ID
       final notificationId = DateTime.now().millisecondsSinceEpoch.toString();
 
-      // Create notification document
+      // Save to Firestore
       final notificationData = {
         'notificationId': notificationId,
         'receiverId': receiverId,
@@ -90,42 +92,28 @@ class NotificationService {
         'updatedAt': Timestamp.now(),
       };
 
-      // 1. Save to Firestore
-      debugPrint('🔥 [NotificationService] Attempting to save to Firestore...');
       try {
         await _firestore.collection('notifications').add(notificationData);
-        debugPrint(
-          '✅ [NotificationService] Notification saved to Firestore successfully!',
-        );
-      } catch (firestoreError) {
-        debugPrint(
-          '❌ [NotificationService] FIRESTORE SAVE FAILED: $firestoreError',
-        );
-        // Continue to show local notification even if Firestore fails
+        debugPrint('✅ Notification saved to Firestore');
+      } catch (e) {
+        debugPrint('⚠️ Firestore save failed: $e');
       }
 
-      // 2. Immediately trigger local notification display
+      // Show local notification on current device
       try {
-        debugPrint(
-          '📱 [NotificationService] Triggering immediate local notification...',
-        );
-        // Use hashCode to ensure ID fits in 32-bit integer
-        final notifId = notificationId.hashCode.abs() % 2147483647;
-        await showLocalNotification(title: title, body: body, id: notifId);
-        debugPrint('✅ [NotificationService] Local notification displayed');
+        await showLocalNotification(title: title, body: body, id: notificationId.hashCode.abs() % 2147483647);
       } catch (e) {
-        debugPrint('⚠️ [NotificationService] Local notification error: $e');
+        debugPrint('⚠️ Local notification error: $e');
       }
 
       return true;
     } catch (e) {
-      debugPrint('❌ [NotificationService] OVERALL Error: $e');
-      debugPrint('❌ Stack trace: ${StackTrace.current}');
+      debugPrint('❌ Overall notification error: $e');
       return false;
     }
   }
 
-  /// ✅ Send notification to multiple users
+  // -------------------- Bulk Notifications --------------------
   static Future<int> sendBulkNotifications({
     required List<String> receiverIds,
     required String receiverRole,
@@ -149,80 +137,42 @@ class NotificationService {
       if (success) successCount++;
     }
 
-    debugPrint(
-      '📊 [NotificationService] Sent $successCount/$receiverIds.length notifications',
-    );
+    debugPrint('📊 Sent $successCount/${receiverIds.length} notifications');
     return successCount;
   }
 
-  /// ✅ Get notifications for a specific user
-  static Stream<List<Map<String, dynamic>>> getUserNotifications(
-    String userId,
-    String userRole,
-  ) {
+  // -------------------- Local Notification --------------------
+  static Future<void> showLocalNotification({
+    required String title,
+    required String body,
+    int id = 999,
+  }) async {
+    const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
+      'plan_z_channel',
+      'PlanZ Notifications',
+      channelDescription: 'Important notifications for PlanZ users.',
+      importance: Importance.max,
+      priority: Priority.high,
+      icon: '@drawable/ic_notification',
+    );
+
+    const NotificationDetails platformDetails = NotificationDetails(android: androidDetails);
+
+    await _localNotifications.show(id, title, body, platformDetails);
+    debugPrint('✅ Local notification displayed: $title');
+  }
+
+  // -------------------- Firestore Streams --------------------
+  static Stream<List<Map<String, dynamic>>> getUserNotifications(String userId, String userRole) {
     return _firestore
         .collection('notifications')
         .where('receiverId', isEqualTo: userId)
         .where('receiverRole', isEqualTo: userRole)
         .orderBy('createdAt', descending: true)
         .snapshots()
-        .map(
-          (snapshot) => snapshot.docs
-              .map((doc) => doc.data() as Map<String, dynamic>)
-              .toList(),
-        );
+        .map((snapshot) => snapshot.docs.map((doc) => doc.data()).toList());
   }
 
-  /// ✅ Mark notification as read
-  static Future<bool> markAsRead(String notificationId) async {
-    try {
-      final doc = await _firestore
-          .collection('notifications')
-          .where('notificationId', isEqualTo: notificationId)
-          .limit(1)
-          .get();
-
-      if (doc.docs.isEmpty) {
-        debugPrint('❌ [NotificationService] Notification not found');
-        return false;
-      }
-
-      await doc.docs.first.reference.update({
-        'isRead': true,
-        'updatedAt': Timestamp.now(),
-      });
-
-      debugPrint('✅ [NotificationService] Marked as read');
-      return true;
-    } catch (e) {
-      debugPrint('❌ [NotificationService] Error marking as read: $e');
-      return false;
-    }
-  }
-
-  /// ✅ Delete notification
-  static Future<bool> deleteNotification(String notificationId) async {
-    try {
-      final doc = await _firestore
-          .collection('notifications')
-          .where('notificationId', isEqualTo: notificationId)
-          .limit(1)
-          .get();
-
-      if (doc.docs.isEmpty) {
-        return false;
-      }
-
-      await doc.docs.first.reference.delete();
-      debugPrint('✅ [NotificationService] Notification deleted');
-      return true;
-    } catch (e) {
-      debugPrint('❌ [NotificationService] Error deleting: $e');
-      return false;
-    }
-  }
-
-  /// ✅ Get unread notification count
   static Stream<int> getUnreadCount(String userId, String userRole) {
     return _firestore
         .collection('notifications')
@@ -233,11 +183,50 @@ class NotificationService {
         .map((snapshot) => snapshot.docs.length);
   }
 
-  /// ✅ Clear all notifications for a user
-  static Future<int> clearAllNotifications(
-    String userId,
-    String userRole,
-  ) async {
+  // -------------------- Firestore Operations --------------------
+  static Future<bool> markAsRead(String notificationId) async {
+    try {
+      final doc = await _firestore
+          .collection('notifications')
+          .where('notificationId', isEqualTo: notificationId)
+          .limit(1)
+          .get();
+
+      if (doc.docs.isEmpty) return false;
+
+      await doc.docs.first.reference.update({
+        'isRead': true,
+        'updatedAt': Timestamp.now(),
+      });
+
+      debugPrint('✅ Notification marked as read');
+      return true;
+    } catch (e) {
+      debugPrint('❌ Error marking as read: $e');
+      return false;
+    }
+  }
+
+  static Future<bool> deleteNotification(String notificationId) async {
+    try {
+      final doc = await _firestore
+          .collection('notifications')
+          .where('notificationId', isEqualTo: notificationId)
+          .limit(1)
+          .get();
+
+      if (doc.docs.isEmpty) return false;
+
+      await doc.docs.first.reference.delete();
+      debugPrint('✅ Notification deleted');
+      return true;
+    } catch (e) {
+      debugPrint('❌ Error deleting notification: $e');
+      return false;
+    }
+  }
+
+  static Future<int> clearAllNotifications(String userId, String userRole) async {
     try {
       final docs = await _firestore
           .collection('notifications')
@@ -251,61 +240,61 @@ class NotificationService {
         deletedCount++;
       }
 
-      debugPrint('✅ [NotificationService] Cleared $deletedCount notifications');
+      debugPrint('✅ Cleared $deletedCount notifications');
       return deletedCount;
     } catch (e) {
-      debugPrint('❌ [NotificationService] Error clearing: $e');
+      debugPrint('❌ Error clearing notifications: $e');
       return 0;
     }
   }
 
-  /// ✅ Get current device FCM token
-  static Future<String?> getCurrentFCMToken() async {
+  // -------------------- Background Event Reminders --------------------
+  static Future<void> sendEventRemindersFromBackground() async {
     try {
-      final token = await _fcm.getToken();
-      debugPrint('📱 [NotificationService] Current FCM Token: $token');
-      return token;
+      final now = DateTime.now();
+      final startRange = now.add(const Duration(hours: 42));
+      final endRange = now.add(const Duration(hours: 54));
+
+      final eventsSnapshot = await _firestore
+          .collection('events')
+          .where('eventDate', isGreaterThanOrEqualTo: Timestamp.fromDate(startRange))
+          .where('eventDate', isLessThanOrEqualTo: Timestamp.fromDate(endRange))
+          .get();
+
+      for (var eventDoc in eventsSnapshot.docs) {
+        final eventData = eventDoc.data();
+        final eventId = eventDoc.id;
+        final eventName = eventData['eventName'] ?? 'Event';
+
+        final invitationsSnapshot = await _firestore
+            .collection('event_invitations')
+            .where('eventId', isEqualTo: eventId)
+            .where('status', isEqualTo: 'accepted')
+            .get();
+
+        for (var invitationDoc in invitationsSnapshot.docs) {
+          final attendeeId = invitationDoc.data()['attendeeId'];
+          final reminderSent = invitationDoc.data()['reminderSent'] ?? false;
+
+          if (attendeeId != null && !reminderSent) {
+            await sendNotification(
+              receiverId: attendeeId,
+              receiverRole: 'attendee',
+              title: '⏰ Event Reminder',
+              body: 'Your event "$eventName" is happening in 2 days!',
+              type: 'event_reminder',
+              data: {'eventId': eventId, 'eventName': eventName},
+            );
+
+            await invitationDoc.reference.update({
+              'reminderSent': true,
+              'reminderSentAt': Timestamp.now(),
+            });
+          }
+        }
+      }
     } catch (e) {
-      debugPrint('❌ [NotificationService] Error getting token: $e');
-      return null;
-    }
-  }
-
-  /// ✅ Show local notification directly (for testing or immediate display)
-  static Future<void> showLocalNotification({
-    required String title,
-    required String body,
-    int id = 999,
-  }) async {
-    try {
-      debugPrint(
-        '🔔 [NotificationService.showLocalNotification] Showing notification',
-      );
-      debugPrint('   Title: $title');
-      debugPrint('   Body: $body');
-
-      const AndroidNotificationDetails androidDetails =
-          AndroidNotificationDetails(
-            'plan_z_channel',
-            'PlanZ Notifications',
-            channelDescription:
-                'This channel is used for important PlanZ notifications.',
-            importance: Importance.max,
-            priority: Priority.high,
-            icon: '@drawable/ic_notification',
-          );
-
-      const NotificationDetails notificationDetails = NotificationDetails(
-        android: androidDetails,
-      );
-
-      await _localNotifications.show(id, title, body, notificationDetails);
-
-      debugPrint(
-        '✅ [NotificationService.showLocalNotification] Notification displayed',
-      );
-    } catch (e) {
-      debugPrint('❌ [NotificationService.showLocalNotification] Error: $e');
+      debugPrint('❌ [Background Notification] Error: $e');
     }
   }
 }

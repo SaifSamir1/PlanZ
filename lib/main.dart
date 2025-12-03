@@ -9,6 +9,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:intl/intl.dart' hide TextDirection;
 import 'dart:ui' as ui;
+import 'package:plan_z/core/services/notification_service.dart';
 
 // Your imports
 import 'package:plan_z/features/app_owner/cubit/app_owner_cubit.dart';
@@ -41,6 +42,10 @@ import 'package:plan_z/features/vendor_features/vendor_home/ui/screens/vendor_ho
 import 'package:plan_z/core/localization/vendor_asset_loader.dart';
 import 'package:plan_z/core/services/event_reminder_service.dart';
 import 'package:plan_z/firebase_options.dart';
+import 'package:workmanager/workmanager.dart';
+
+const String eventReminderTask = "eventReminderTask";
+
 
 // ✅ Local Notifications plugin instance
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
@@ -53,6 +58,21 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   print("🔔 تم استلام إشعار في الخلفية: ${message.notification?.title}");
 }
 
+@pragma('vm:entry-point')
+void callbackDispatcher() {
+  Workmanager().executeTask((task, inputData) async {
+    await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+    switch (task) {
+      case eventReminderTask:
+        await NotificationService.sendEventRemindersFromBackground();
+        break;
+    }
+
+    return Future.value(true);
+  });
+}
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -61,6 +81,18 @@ Future<void> main() async {
 
   // ✅ 2. Initialize Intl
   Intl.defaultLocale = 'ar';
+
+  Workmanager().initialize(
+    callbackDispatcher,
+    isInDebugMode: true, // set false for release
+  );
+
+  // Schedule periodic task (every 15 minutes minimum on Android)
+  Workmanager().registerPeriodicTask(
+    "1", // unique ID
+    eventReminderTask,
+    frequency: const Duration(hours: 1), // minimum 15 min on Android
+  );
 
   // ✅ 3. Initialize Firebase
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
@@ -115,6 +147,45 @@ Future<void> main() async {
       child: const PlanZ(),
     ),
   );
+}
+
+/// ✅ Update user's FCM token in Firestore when token refreshes
+Future<void> _updateUserFCMToken(String newToken) async {
+  final userManager = UserManager();
+  final userId = userManager.userId;
+  final userType = userManager.userType;
+
+  if (userId == null || userType == null) {
+    debugPrint('⚠️ Cannot update FCM token: User not logged in');
+    return;
+  }
+
+  try {
+    String collectionName;
+    switch (userType) {
+      case UserType.vendor:
+        collectionName = 'vendors';
+        break;
+      case UserType.eventOwner:
+        collectionName = 'event_owners';
+        break;
+      case UserType.attendee:
+        collectionName = 'attendees';
+        break;
+      case UserType.admin:
+        collectionName = 'admins';
+        break;
+    }
+
+    await FirebaseFirestore.instance
+        .collection(collectionName)
+        .doc(userId)
+        .update({'fcmToken': newToken, 'fcmTokenUpdatedAt': Timestamp.now()});
+
+    debugPrint('✅ FCM token updated in Firestore for user: $userId');
+  } catch (e) {
+    debugPrint('❌ Failed to update FCM token: $e');
+  }
 }
 
 class PlanZ extends StatefulWidget {
@@ -197,8 +268,8 @@ class _PlanZState extends State<PlanZ> {
     // ✅ Listen to Firestore notifications collection for real-time updates
     _listenToFirestoreNotifications();
 
-    // ✅ Check for upcoming events and send reminders (1 day before)
-    _checkEventReminders();
+    // ❌ REMOVED: Event reminders should be triggered by scheduled tasks, not on app open
+    // This was causing notifications to be sent to all users every time ANY user opened the app
 
     // ✅ Foreground messages (show local notifications when app is open)
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
@@ -310,27 +381,47 @@ class _PlanZState extends State<PlanZ> {
         .where('receiverId', isEqualTo: userId)
         .where('receiverRole', isEqualTo: userRole)
         .orderBy('createdAt', descending: true)
-        .limit(1)
         .snapshots()
         .skip(
           1,
         ) // ✅ Skip the first emission (current state) to avoid spam on open
         .listen(
           (snapshot) {
-            if (snapshot.docs.isNotEmpty) {
-              final notifData = snapshot.docs.first.data();
-              final title = notifData['title'] as String?;
-              final body = notifData['body'] as String?;
+            for (var change in snapshot.docChanges) {
+              // Only process new documents that were just added
+              if (change.type == DocumentChangeType.added) {
+                final notifData = change.doc.data();
+                if (notifData == null) continue;
 
-              debugPrint(
-                '🔔 [_listenToFirestoreNotifications] New notification from Firestore',
-              );
-              debugPrint('   Title: $title');
-              debugPrint('   Body: $body');
+                final notificationId = notifData['notificationId'] as String?;
+                final title = notifData['title'] as String?;
+                final body = notifData['body'] as String?;
 
-              // Show local notification
-              if (title != null && body != null) {
-                _showLocalNotification(title, body);
+                // Skip if we've already shown this notification
+                if (notificationId != null &&
+                    _shownNotificationIds.contains(notificationId)) {
+                  debugPrint(
+                    '⏭️ [_listenToFirestoreNotifications] Skipping already shown notification: $notificationId',
+                  );
+                  continue;
+                }
+
+                debugPrint(
+                  '🔔 [_listenToFirestoreNotifications] New notification from Firestore',
+                );
+                debugPrint('   Notification ID: $notificationId');
+                debugPrint('   Title: $title');
+                debugPrint('   Body: $body');
+
+                // Show local notification
+                if (title != null && body != null) {
+                  _showLocalNotification(title, body);
+
+                  // Mark as shown
+                  if (notificationId != null) {
+                    _shownNotificationIds.add(notificationId);
+                  }
+                }
               }
             }
           },
@@ -367,15 +458,19 @@ class _PlanZState extends State<PlanZ> {
     debugPrint('✅ [_showLocalNotification] Local notification displayed');
   }
 
-  /// ✅ Check for upcoming events and send reminders
-  Future<void> _checkEventReminders() async {
-    debugPrint('🔔 [_checkEventReminders] Checking for upcoming events...');
-    try {
-      await EventReminderService.checkAndSendReminders();
-    } catch (e) {
-      debugPrint('❌ [_checkEventReminders] Error: $e');
-    }
-  }
+  // ❌ REMOVED: This method was causing notifications to be sent every time the app opened
+  // Event reminders should be triggered by a scheduled background task or Cloud Functions,
+  // not on app initialization. Keeping this method commented for reference.
+  //
+  // /// ✅ Check for upcoming events and send reminders
+  // Future<void> _checkEventReminders() async {
+  //   debugPrint('🔔 [_checkEventReminders] Checking for upcoming events...');
+  //   try {
+  //     await EventReminderService.checkAndSendReminders();
+  //   } catch (e) {
+  //     debugPrint('❌ [_checkEventReminders] Error: $e');
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
