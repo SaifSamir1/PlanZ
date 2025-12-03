@@ -1,6 +1,7 @@
 // lib/features/attendee/presentation/widgets/my_events/event_filter_tabs.dart
 
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:plan_z/core/utils/app_colors.dart';
 import 'package:plan_z/features/attandee/ui/home/ui/screens/my_events_screen.dart';
 
@@ -32,18 +33,15 @@ class EventFilterTabs extends StatelessWidget {
         dividerColor: Colors.transparent,
         labelColor: Colors.white,
         unselectedLabelColor: Colors.grey[700],
-        labelStyle: const TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.w600,
-        ),
+        labelStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
         unselectedLabelStyle: const TextStyle(
           fontSize: 14,
           fontWeight: FontWeight.w500,
         ),
-        tabs: const [
-          Tab(text: "All Events"),
-          Tab(text: "Upcoming"),
-          Tab(text: "Past"),
+        tabs: [
+          Tab(text: 'attendee.events_filter_all_events'.tr()),
+          Tab(text: 'attendee.events_filter_upcoming'.tr()),
+          Tab(text: 'attendee.events_filter_past'.tr()),
         ],
       ),
     );

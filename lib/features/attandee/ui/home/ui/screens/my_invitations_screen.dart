@@ -1,6 +1,7 @@
 // lib/features/attendee/presentation/screens/my_invitations_screen.dart
 
 import 'package:animate_do/animate_do.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:plan_z/core/utils/app_colors.dart';
@@ -63,7 +64,7 @@ class _MyInvitationsScreenState extends State<MyInvitationsScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: CustomAppBar(
-        title: "My Invitations",
+        title: 'attendee.my_invitations_title'.tr(),
         actions: [
           IconButton(
             onPressed: () {
@@ -167,7 +168,7 @@ class _MyInvitationsScreenState extends State<MyInvitationsScreen> {
             Icon(Icons.error_outline_rounded, size: 64, color: Colors.red[300]),
             const SizedBox(height: 16),
             Text(
-              "Failed to load invitations",
+              'attendee.failed_load_invitation'.tr(),
               style: Theme.of(context).textTheme.titleLarge,
               textAlign: TextAlign.center,
             ),
@@ -183,7 +184,7 @@ class _MyInvitationsScreenState extends State<MyInvitationsScreen> {
             ElevatedButton.icon(
               onPressed: _loadInvitations,
               icon: const Icon(Icons.refresh),
-              label: const Text("Retry"),
+              label: Text('attendee.retry'.tr()),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.buttonPrimary,
               ),

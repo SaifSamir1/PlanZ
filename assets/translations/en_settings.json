@@ -1,0 +1,17 @@
+{
+    "title": "Settings",
+    "english": "English",
+    "arabic": "العربية",
+    "select_language": "Select Language",
+    "language": "Language",
+    "language_desc": "Choose your preferred language",
+    "change_password": "Change Password",
+    "change_password_desc": "Update your account password",
+    "current_password": "Current Password",
+    "password_changed": "Password changed successfully",
+    "all_fields_required": "All fields are required",
+    "notifications": "Notifications",
+    "push_notifications_desc": "Receive app notifications",
+    "notifications_enabled": "Notifications enabled",
+    "notifications_disabled": "Notifications disabled"
+}

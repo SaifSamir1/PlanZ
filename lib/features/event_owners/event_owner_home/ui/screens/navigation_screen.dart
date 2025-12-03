@@ -1,5 +1,6 @@
 import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_notch_bottom_bar.dart';
 import 'package:animate_do/animate_do.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:plan_z/features/event_owners/create_event_screen/ui/screens/select_event_type_screen.dart';
@@ -69,23 +70,22 @@ class _NavigationScreenState extends State<NavigationScreen> {
           borderRadius: BorderRadius.circular(24),
           child: AnimatedNotchBottomBar(
             notchBottomBarController: _controller,
-            
+
             // Colors & Style
             color: Colors.white,
             notchColor: AppColors.primaryGold,
             showBlurBottomBar: false,
             showShadow: false, // نستخدم shadow مخصص
-            
             // Spacing & Sizing
             kBottomRadius: 24,
             kIconSize: 24,
-            bottomBarHeight: 65,
+            bottomBarHeight: 20,
             removeMargins: true,
-            
+
             // Animation
             durationInMilliSeconds: 350,
             showLabel: true,
-            
+
             // Items
             bottomBarItems: [
               // 1. Home
@@ -99,12 +99,12 @@ class _NavigationScreenState extends State<NavigationScreen> {
                   color: Colors.white,
                   size: 26,
                 ),
-                itemLabelWidget: _buildLabel('Home', false),
+                itemLabelWidget: _buildLabel('navigation.home'.tr(), false),
               ),
-              
+
               // 2. Create (Center - Special)
               BottomBarItem(
-                inActiveItem:  Icon(
+                inActiveItem: Icon(
                   Icons.add_rounded,
                   color: AppColors.primaryDark.withOpacity(0.6),
                   size: 28,
@@ -115,20 +115,17 @@ class _NavigationScreenState extends State<NavigationScreen> {
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: Colors.white,
-                      width: 2,
-                    ),
+                    border: Border.all(color: Colors.white, width: 2),
                   ),
                   child: const Icon(
                     Icons.add_rounded,
-                  color: Colors.white,
+                    color: Colors.white,
                     size: 26,
                   ),
                 ),
-                itemLabelWidget: _buildLabel('Create',false),
+                itemLabelWidget: _buildLabel('navigation.create'.tr(), false),
               ),
-              
+
               // 3. Payment
               BottomBarItem(
                 inActiveItem: Icon(
@@ -140,9 +137,9 @@ class _NavigationScreenState extends State<NavigationScreen> {
                   color: Colors.white,
                   size: 26,
                 ),
-                itemLabelWidget: _buildLabel('Wallet', false),
+                itemLabelWidget: _buildLabel('navigation.wallet'.tr(), false),
               ),
-              
+
               // 4. Profile
               BottomBarItem(
                 inActiveItem: Icon(
@@ -154,10 +151,10 @@ class _NavigationScreenState extends State<NavigationScreen> {
                   color: Colors.white,
                   size: 26,
                 ),
-                itemLabelWidget: _buildLabel('Profile', false),
+                itemLabelWidget: _buildLabel('navigation.profile'.tr(), false),
               ),
             ],
-            
+
             onTap: (index) {
               setState(() {
                 _controller.index = index;
@@ -189,29 +186,24 @@ class _NavigationScreenState extends State<NavigationScreen> {
       backgroundColor: AppColors.primaryGold,
       foregroundColor: Colors.white,
       elevation: 8,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
-      tooltip: 'Chat with Assistant',
-      child: const Icon(
-        Icons.chat_bubble_rounded,
-        size: 26,
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      tooltip: 'attendee.chat_tooltip'.tr(),
+      child: const Icon(Icons.chat_bubble_rounded, size: 26),
     );
   }
 
   Widget _buildLabel(String text, bool isActive, {bool isSpecial = false}) {
     return Padding(
-      padding: const EdgeInsets.only(top: 4),
+      padding: const EdgeInsets.only(top: 3),
       child: Text(
         text,
         style: TextStyle(
           color: isSpecial
               ? AppColors.primaryGold
               : isActive
-                  ? AppColors.primaryDark
-                  : AppColors.primaryDark.withOpacity(0.5),
-          fontSize: isSpecial ? 13 : 12,
+              ? AppColors.primaryDark
+              : AppColors.primaryDark.withOpacity(0.5),
+          fontSize: isSpecial ? 11 : 9,
           fontWeight: isSpecial ? FontWeight.w700 : FontWeight.w600,
           letterSpacing: 0.3,
         ),

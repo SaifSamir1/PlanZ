@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:plan_z/core/theming/text_styles.dart';
 import 'package:plan_z/core/utils/app_colors.dart';
@@ -67,7 +68,7 @@ class StakeholderCard extends StatelessWidget {
                 );
               },
               label: Text(
-                "Get Statrted",
+                "onboarding.get_started".tr(),
                 style: TextStyle(color: Color(0xFF21225b)),
               ),
               icon: Icon(Icons.arrow_forward, color: Color(0xFF21225b)),

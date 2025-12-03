@@ -1,5 +1,6 @@
 // ignore_for_file: deprecated_member_use
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:plan_z/core/theming/text_styles.dart';
@@ -48,7 +49,7 @@ class _LoginRedirectState extends State<LoginRedirect>
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            'Already have an account? ',
+            'auth.already_have_account'.tr(),
             style: AppTextStyles.body.copyWith(
               color: AppColors.blue400,
               fontSize: 15,
@@ -86,7 +87,7 @@ class _LoginRedirectState extends State<LoginRedirect>
                           : Colors.transparent,
                     ),
                     child: Text(
-                      'Login',
+                      'auth.login_link'.tr(),
                       style: AppTextStyles.body.copyWith(
                         color: _isHovered
                             ? AppColors.primaryDark

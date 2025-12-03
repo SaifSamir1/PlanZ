@@ -1,0 +1,17 @@
+{
+    "title": "الإعدادات",
+    "english": "English",
+    "arabic": "العربية",
+    "select_language": "اختر اللغة",
+    "language": "اللغة",
+    "language_desc": "اختر لغتك المفضلة",
+    "change_password": "تغيير كلمة المرور",
+    "change_password_desc": "تحديث كلمة مرور حسابك",
+    "current_password": "كلمة المرور الحالية",
+    "password_changed": "تم تغيير كلمة المرور بنجاح",
+    "all_fields_required": "جميع الحقول مطلوبة",
+    "notifications": "الإشعارات",
+    "push_notifications_desc": "استقبال إشعارات التطبيق",
+    "notifications_enabled": "تم تفعيل الإشعارات",
+    "notifications_disabled": "تم تعطيل الإشعارات"
+}

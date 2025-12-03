@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:plan_z/core/theming/text_styles.dart';
@@ -23,28 +22,26 @@ class MainText extends StatelessWidget {
         children: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 5.0),
-            child: Text(currentTitle,
-                style: AppTextStyles.customSize(
-                  size: 20.sp,
-                  weight: FontWeight.w700,
-                )
-                    .copyWith(color: Colors.black)),
-          ),
-          SizedBox(
-            height: 16.h.clamp(13, 18),
-          ),
-          Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: 32.w,
+            child: Text(
+              currentTitle,
+              style: AppTextStyles.customSize(
+                size: 20.sp,
+                weight: FontWeight.w700,
+              ).copyWith(color: Colors.black),
             ),
+          ),
+          SizedBox(height: 16.h.clamp(13, 18)),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 32.w),
             child: Text(
               currentSubTitle,
               style: AppTextStyles.customSize(
-                  size: 14.sp,
-                  weight: FontWeight.normal,
-                )
-                  .copyWith(color: Colors.black.withValues(alpha: .8)),
+                size: 14.sp,
+                weight: FontWeight.normal,
+              ).copyWith(color: Colors.black.withValues(alpha: .8)),
               textAlign: TextAlign.center,
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],

@@ -1,6 +1,7 @@
 // lib/features/attendee/presentation/widgets/invitations/invitation_filter_chips.dart
 
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:plan_z/core/theming/text_styles.dart';
 import 'package:plan_z/core/utils/app_colors.dart';
 import 'package:plan_z/features/event_owners/create_event_screen/data/models/event_invitation_model.dart';
@@ -25,34 +26,34 @@ class InvitationFilterChips extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16),
         children: [
           _buildFilterChip(
-            label: "All",
+            label: 'attendee.invitation_filter_all'.tr(),
             isSelected: selectedStatus == null,
             onTap: () => onFilterChanged(null),
             icon: Icons.list_rounded,
           ),
           _buildFilterChip(
-            label: "Pending",
+            label: 'attendee.invitation_filter_pending'.tr(),
             isSelected: selectedStatus == InvitationStatus.pending,
             onTap: () => onFilterChanged(InvitationStatus.pending),
             icon: Icons.schedule_rounded,
             color: Colors.orange,
           ),
           _buildFilterChip(
-            label: "Accepted",
+            label: 'attendee.invitation_filter_accepted'.tr(),
             isSelected: selectedStatus == InvitationStatus.accepted,
             onTap: () => onFilterChanged(InvitationStatus.accepted),
             icon: Icons.check_circle_rounded,
             color: Colors.green,
           ),
           _buildFilterChip(
-            label: "Rejected",
+            label: 'attendee.invitation_filter_rejected'.tr(),
             isSelected: selectedStatus == InvitationStatus.rejected,
             onTap: () => onFilterChanged(InvitationStatus.rejected),
             icon: Icons.cancel_rounded,
             color: Colors.red,
           ),
           _buildFilterChip(
-            label: "Maybe",
+            label: 'attendee.invitation_filter_maybe'.tr(),
             isSelected: selectedStatus == InvitationStatus.maybeAttending,
             onTap: () => onFilterChanged(InvitationStatus.maybeAttending),
             icon: Icons.help_outline_rounded,
@@ -78,11 +79,7 @@ class InvitationFilterChips extends StatelessWidget {
         label: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              icon,
-              size: 16,
-              color: isSelected ? Colors.white : chipColor,
-            ),
+            Icon(icon, size: 16, color: isSelected ? Colors.white : chipColor),
             const SizedBox(width: 6),
             Text(
               label,

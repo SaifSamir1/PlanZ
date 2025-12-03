@@ -10,12 +10,14 @@ import 'package:plan_z/features/event_owners/create_event_screen/cubits/create_e
 import 'package:plan_z/features/event_owners/create_event_screen/cubits/create_event_cubit/create_event_state.dart';
 import 'package:plan_z/features/event_owners/event_owner_home/ui/screens/navigation_screen.dart';
 import 'package:plan_z/features/vendor_features/packages_mangment/data/models/package_model.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class EventReviewScreen extends StatefulWidget {
   final Map<String, dynamic> eventInfo;
   final Map<String, dynamic> budgetData;
   final Map<String, dynamic> servicesData;
-  final Map<String, PackageModel> selectedPackages; // ✅ معدّل - PackageModel Objects
+  final Map<String, PackageModel>
+  selectedPackages; // ✅ معدّل - PackageModel Objects
 
   const EventReviewScreen({
     super.key,
@@ -23,7 +25,6 @@ class EventReviewScreen extends StatefulWidget {
     required this.budgetData,
     required this.servicesData,
     required this.selectedPackages,
-    
   });
 
   @override
@@ -50,7 +51,9 @@ class _EventReviewScreenState extends State<EventReviewScreen> {
       final serviceId = entry.key;
       final package = entry.value; // ✅ عندك البيانات كاملة مباشرة!
 
-      debugPrint('✅ Service: $serviceId, Package: ${package.packageName}, Price: ${package.price}');
+      debugPrint(
+        '✅ Service: $serviceId, Package: ${package.packageName}, Price: ${package.price}',
+      );
       _totalServicePrice += package.price ?? 0.0;
     }
 
@@ -87,59 +90,64 @@ class _EventReviewScreenState extends State<EventReviewScreen> {
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
-          'Event Review',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        title: Text(
+          'event_review.title'.tr(),
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
       body: BlocListener<EventOwnerCubit, EventOwnerState>(
-  listener: (context, state) {
-    if (state is CreateEventSuccess) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Event created successfully! 🎉'),
-          backgroundColor: Colors.green,
-        ),
-      );
-      
-      // ✅ حدّث الـ Events قبل ما تروح
-      final ownerId = UserManager().userId;
-      if (ownerId != null) {
-        context.read<EventOwnerCubit>().getEventOwnerEvents(ownerId);
-      }
-      
-      // ✅ بعدها روح للـ Home Screen (مش Pop)
-      Future.delayed(const Duration(seconds: 1), () {
-        if (mounted) {
-          
-          Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(builder: (context) => const NavigationScreen()),
-            (route) => false,
-          );
-        }
-      });
-    }
+        listener: (context, state) {
+          if (state is CreateEventSuccess) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('event_review.success_message'.tr()),
+                backgroundColor: Colors.green,
+              ),
+            );
 
-    if (state is CreateEventError) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error: ${state.message}'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
+            // ✅ حدّث الـ Events قبل ما تروح
+            final ownerId = UserManager().userId;
+            if (ownerId != null) {
+              context.read<EventOwnerCubit>().getEventOwnerEvents(ownerId);
+            }
 
-    if (state is CreateEventLoading) {
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (context) => const Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
-    }
-  },
+            // ✅ بعدها روح للـ Home Screen (مش Pop)
+            Future.delayed(const Duration(seconds: 1), () {
+              if (mounted) {
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const NavigationScreen(),
+                  ),
+                  (route) => false,
+                );
+              }
+            });
+          }
+
+          if (state is CreateEventError) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  'event_review.error_prefix'.tr(args: [state.message]),
+                ),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+
+          if (state is CreateEventLoading) {
+            showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (context) =>
+                  const Center(child: CircularProgressIndicator()),
+            );
+          }
+        },
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(20),
           child: Column(
@@ -178,7 +186,7 @@ class _EventReviewScreenState extends State<EventReviewScreen> {
               Icon(Icons.event, color: AppColors.primaryGold, size: 24),
               const SizedBox(width: 12),
               Text(
-                'Event Information',
+                'event_review.event_info_title'.tr(),
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -188,17 +196,36 @@ class _EventReviewScreenState extends State<EventReviewScreen> {
             ],
           ),
           const SizedBox(height: 16),
-          _buildInfoRow('Event Name', _getString(widget.eventInfo['eventName'])),
-          _buildInfoRow('Event Type', _getString(widget.eventInfo['eventType'])),
-          _buildInfoRow('Date', _getString(widget.eventInfo['eventDate'])),
-          _buildInfoRow('Location', _getString(widget.eventInfo['location'])),
-          _buildInfoRow('City', _getString(widget.eventInfo['city'])),
           _buildInfoRow(
-            'Guest Count',
-            '${widget.eventInfo['guestCount'] ?? 0} guests',
+            'event_review.event_name'.tr(),
+            _getString(widget.eventInfo['eventName']),
           ),
-          if ((widget.eventInfo['additionalNotes'] as String?)?.isNotEmpty ?? false)
-            _buildInfoRow('Notes', _getString(widget.eventInfo['additionalNotes'])),
+          _buildInfoRow(
+            'event_review.event_type'.tr(),
+            _getString(widget.eventInfo['eventType']),
+          ),
+          _buildInfoRow(
+            'event_review.date'.tr(),
+            _getString(widget.eventInfo['eventDate']),
+          ),
+          _buildInfoRow(
+            'event_review.location'.tr(),
+            _getString(widget.eventInfo['location']),
+          ),
+          _buildInfoRow(
+            'event_review.city'.tr(),
+            _getString(widget.eventInfo['city']),
+          ),
+          _buildInfoRow(
+            'event_review.guest_count'.tr(),
+            '${widget.eventInfo['guestCount'] ?? 0} ${'event_review.guests_suffix'.tr()}',
+          ),
+          if ((widget.eventInfo['additionalNotes'] as String?)?.isNotEmpty ??
+              false)
+            _buildInfoRow(
+              'event_review.notes'.tr(),
+              _getString(widget.eventInfo['additionalNotes']),
+            ),
         ],
       ),
     );
@@ -208,7 +235,8 @@ class _EventReviewScreenState extends State<EventReviewScreen> {
   /// Budget Section
   /// ============================================
   Widget _buildBudgetSection() {
-    final totalBudget = (widget.budgetData['totalBudget'] as num?)?.toDouble() ?? 0.0;
+    final totalBudget =
+        (widget.budgetData['totalBudget'] as num?)?.toDouble() ?? 0.0;
     final remaining = totalBudget - _totalServicePrice;
 
     return Container(
@@ -226,7 +254,7 @@ class _EventReviewScreenState extends State<EventReviewScreen> {
               Icon(Icons.money, color: Colors.blue, size: 24),
               const SizedBox(width: 12),
               Text(
-                'Budget Overview',
+                'event_review.budget_overview'.tr(),
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -236,10 +264,14 @@ class _EventReviewScreenState extends State<EventReviewScreen> {
             ],
           ),
           const SizedBox(height: 16),
-          _buildBudgetRow('Total Budget', totalBudget),
-          _buildBudgetRow('Services Cost', _totalServicePrice, Colors.orange),
+          _buildBudgetRow('event_review.total_budget'.tr(), totalBudget),
           _buildBudgetRow(
-            'Remaining',
+            'event_review.services_cost'.tr(),
+            _totalServicePrice,
+            Colors.orange,
+          ),
+          _buildBudgetRow(
+            'event_review.remaining'.tr(),
             remaining,
             remaining >= 0 ? Colors.green : Colors.red,
           ),
@@ -260,7 +292,9 @@ class _EventReviewScreenState extends State<EventReviewScreen> {
             Icon(Icons.shopping_bag, color: AppColors.primaryGold, size: 24),
             const SizedBox(width: 12),
             Text(
-              'Selected Services (${widget.selectedPackages.length})',
+              'event_review.selected_services'.tr(
+                args: [widget.selectedPackages.length.toString()],
+              ),
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -270,7 +304,7 @@ class _EventReviewScreenState extends State<EventReviewScreen> {
           ],
         ),
         const SizedBox(height: 16),
-        
+
         // ✅ الآن حلقة بسيطة جداً
         ...widget.selectedPackages.entries.map((entry) {
           final serviceId = entry.key;
@@ -279,7 +313,8 @@ class _EventReviewScreenState extends State<EventReviewScreen> {
           // البحث عن معلومات الخدمة
           Map<String, dynamic>? serviceInfo;
           try {
-            final selectedServices = widget.servicesData['selectedServices'] as List? ?? [];
+            final selectedServices =
+                widget.servicesData['selectedServices'] as List? ?? [];
             final service = selectedServices.firstWhere(
               (s) => s['serviceId'] == serviceId,
               orElse: () => <String, dynamic>{},
@@ -289,7 +324,9 @@ class _EventReviewScreenState extends State<EventReviewScreen> {
             debugPrint('⚠️ Service not found: $serviceId - $e');
           }
 
-          final serviceName = _getString(serviceInfo?['serviceName'] ?? 'Unknown Service');
+          final serviceName = _getString(
+            serviceInfo?['serviceName'] ?? 'Unknown Service',
+          );
 
           return _buildPackageCard(serviceName, package);
         }).toList(),
@@ -299,11 +336,8 @@ class _EventReviewScreenState extends State<EventReviewScreen> {
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 20),
               child: Text(
-                'No packages selected',
-                style: TextStyle(
-                  color: AppColors.textSecondary,
-                  fontSize: 14,
-                ),
+                'event_review.no_packages_selected'.tr(),
+                style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
               ),
             ),
           ),
@@ -321,7 +355,10 @@ class _EventReviewScreenState extends State<EventReviewScreen> {
       decoration: BoxDecoration(
         color: AppColors.cardBackground,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.primaryGold.withOpacity(0.5), width: 1.5),
+        border: Border.all(
+          color: AppColors.primaryGold.withOpacity(0.5),
+          width: 1.5,
+        ),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
@@ -361,15 +398,11 @@ class _EventReviewScreenState extends State<EventReviewScreen> {
           // Vendor Name
           Row(
             children: [
-              Icon(
-                Icons.store,
-                size: 16,
-                color: AppColors.textSecondary,
-              ),
+              Icon(Icons.store, size: 16, color: AppColors.textSecondary),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  package.vendorName ,
+                  package.vendorName,
                   style: TextStyle(
                     fontSize: 13,
                     color: AppColors.textSecondary,
@@ -399,7 +432,7 @@ class _EventReviewScreenState extends State<EventReviewScreen> {
           // Features (إن وُجدت)
           if (package.features.isNotEmpty) ...[
             Text(
-              'Features:',
+              'event_review.features'.tr(),
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.bold,
@@ -407,29 +440,33 @@ class _EventReviewScreenState extends State<EventReviewScreen> {
               ),
             ),
             const SizedBox(height: 6),
-            ...package.features.take(2).map((feature) => Padding(
-              padding: const EdgeInsets.only(bottom: 4),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.check_circle,
-                    size: 14,
-                    color: Colors.green.withOpacity(0.7),
-                  ),
-                  const SizedBox(width: 6),
-                  Expanded(
-                    child: Text(
-                      feature,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: AppColors.textSecondary,
-                      ),
-                      overflow: TextOverflow.ellipsis,
+            ...package.features
+                .take(2)
+                .map(
+                  (feature) => Padding(
+                    padding: const EdgeInsets.only(bottom: 4),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.check_circle,
+                          size: 14,
+                          color: Colors.green.withOpacity(0.7),
+                        ),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: Text(
+                            feature,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: AppColors.textSecondary,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ],
-              ),
-            )),
+                ),
             const SizedBox(height: 12),
           ],
 
@@ -439,9 +476,7 @@ class _EventReviewScreenState extends State<EventReviewScreen> {
             decoration: BoxDecoration(
               color: AppColors.primaryGold.withOpacity(0.1),
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(
-                color: AppColors.primaryGold.withOpacity(0.2),
-              ),
+              border: Border.all(color: AppColors.primaryGold.withOpacity(0.2)),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -450,7 +485,7 @@ class _EventReviewScreenState extends State<EventReviewScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Price',
+                      'event_review.price'.tr(),
                       style: TextStyle(
                         fontSize: 11,
                         color: AppColors.textSecondary,
@@ -471,7 +506,7 @@ class _EventReviewScreenState extends State<EventReviewScreen> {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
-                      'Unit',
+                      'event_review.unit'.tr(),
                       style: TextStyle(
                         fontSize: 11,
                         color: AppColors.textSecondary,
@@ -500,7 +535,7 @@ class _EventReviewScreenState extends State<EventReviewScreen> {
                 const Icon(Icons.star, size: 16, color: Colors.amber),
                 const SizedBox(width: 6),
                 Text(
-                  '${package.rating} ⭐ (${package.reviewCount} reviews)',
+                  '${package.rating} ⭐ (${package.reviewCount} ${'event_review.reviews_suffix'.tr()})',
                   style: TextStyle(
                     fontSize: 12,
                     color: AppColors.textSecondary,
@@ -508,7 +543,7 @@ class _EventReviewScreenState extends State<EventReviewScreen> {
                 ),
                 const Spacer(),
                 Text(
-                  '${package.bookingCount} bookings',
+                  '${package.bookingCount} ${'event_review.bookings_suffix'.tr()}',
                   style: TextStyle(
                     fontSize: 12,
                     color: AppColors.textSecondary,
@@ -535,7 +570,7 @@ class _EventReviewScreenState extends State<EventReviewScreen> {
               padding: const EdgeInsets.symmetric(vertical: 14),
               side: BorderSide(color: AppColors.primaryGold),
             ),
-            child: const Text('Back'),
+            child: Text('event_review.back'.tr()),
           ),
         ),
         const SizedBox(width: 12),
@@ -546,9 +581,9 @@ class _EventReviewScreenState extends State<EventReviewScreen> {
               padding: const EdgeInsets.symmetric(vertical: 14),
               backgroundColor: AppColors.primaryGold,
             ),
-            child: const Text(
-              'Create Event',
-              style: TextStyle(
+            child: Text(
+              'event_review.create_event'.tr(),
+              style: const TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
               ),
@@ -601,10 +636,7 @@ class _EventReviewScreenState extends State<EventReviewScreen> {
         children: [
           Text(
             label,
-            style: TextStyle(
-              fontSize: 14,
-              color: AppColors.textSecondary,
-            ),
+            style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
           ),
           Text(
             '${widget.budgetData['currency'] ?? 'SAR'} ${_formatNumber(value.toInt())}',
@@ -627,21 +659,26 @@ class _EventReviewScreenState extends State<EventReviewScreen> {
     debugPrint('   Total packages: ${widget.selectedPackages.length}');
 
     for (var entry in widget.selectedPackages.entries) {
-      final package = entry.value;  // PackageModel
+      final package = entry.value; // PackageModel
 
-      debugPrint('📤 [EventReviewScreen] Sending to vendor: ${package.vendorName}');
+      debugPrint(
+        '📤 [EventReviewScreen] Sending to vendor: ${package.vendorName}',
+      );
       debugPrint('   Vendor ID: ${package.vendorId}');
       debugPrint('   FCM Token: ${package.vendorFcmToken}');
       debugPrint('   Package: ${package.packageName}');
 
       // إرسال الـ notification فقط إذا كان هناك FCM token
-      if (package.vendorFcmToken != null && package.vendorFcmToken!.isNotEmpty) {
+      if (package.vendorFcmToken != null &&
+          package.vendorFcmToken!.isNotEmpty) {
         try {
           await NotificationService.sendNotification(
             receiverId: package.vendorId,
             receiverRole: 'vendor',
-            title: '📦 New Package Request',
-            body: 'Event Owner selected your package: ${package.packageName}',
+            title: 'event_review.notification_title'.tr(),
+            body: 'event_review.notification_body'.tr(
+              args: [package.packageName],
+            ),
             type: 'package_request',
             data: {
               'packageId': package.packageId,
@@ -655,16 +692,22 @@ class _EventReviewScreenState extends State<EventReviewScreen> {
 
           // عرض local notification فوراً
           await NotificationService.showLocalNotification(
-            title: '📦 New Package Request',
-            body: 'Event Owner selected your package: ${package.packageName}',
+            title: 'event_review.notification_title'.tr(),
+            body: 'event_review.notification_body'.tr(
+              args: [package.packageName],
+            ),
           );
 
-          debugPrint('✅ [EventReviewScreen] Notification sent to ${package.vendorName}');
+          debugPrint(
+            '✅ [EventReviewScreen] Notification sent to ${package.vendorName}',
+          );
         } catch (e) {
           debugPrint('❌ [EventReviewScreen] Error sending notification: $e');
         }
       } else {
-        debugPrint('⚠️ [EventReviewScreen] No FCM token for vendor: ${package.vendorName}');
+        debugPrint(
+          '⚠️ [EventReviewScreen] No FCM token for vendor: ${package.vendorName}',
+        );
       }
     }
 
@@ -679,7 +722,7 @@ class _EventReviewScreenState extends State<EventReviewScreen> {
       final user = FirebaseAuth.instance.currentUser;
       if (user == null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('❌ User not authenticated')),
+          SnackBar(content: Text('event_review.user_not_authenticated'.tr())),
         );
         return;
       }
@@ -687,12 +730,15 @@ class _EventReviewScreenState extends State<EventReviewScreen> {
       final eventOwnerId = user.uid;
       final eventOwnerName = user.displayName ?? 'Unknown';
       final eventOwnerEmail = user.email ?? '';
-      
+
       // ✅ Get date and combine with time FIRST
       DateTime eventDate = widget.eventInfo['eventDate'] ?? DateTime.now();
       final eventTime = widget.eventInfo['eventTime'] as TimeOfDay?;
       if (eventTime != null) {
-        eventDate = eventDate.copyWith(hour: eventTime.hour, minute: eventTime.minute);
+        eventDate = eventDate.copyWith(
+          hour: eventTime.hour,
+          minute: eventTime.minute,
+        );
       }
       debugPrint(' [EventReviewScreen] Combined eventDate: $eventDate');
 
@@ -707,29 +753,39 @@ class _EventReviewScreenState extends State<EventReviewScreen> {
           debugPrint('   $key: $value');
         }
       });
-      
+
       // Get all data WITHOUT using _getString (to preserve null/empty values)
-      debugPrint(' [EventReviewScreen] eventType: ${widget.eventInfo['eventType']}');
-      
-      final eventTypeId = widget.eventInfo['eventType']?['eventTypeId'] ?? 
-          widget.eventInfo['eventTypeId'] ?? '';
-      final eventTypeName = widget.eventInfo['eventType']?['eventTypeName'] ?? 
-          widget.eventInfo['eventTypeName'] ?? 'Unknown';
+      debugPrint(
+        ' [EventReviewScreen] eventType: ${widget.eventInfo['eventType']}',
+      );
+
+      final eventTypeId =
+          widget.eventInfo['eventType']?['eventTypeId'] ??
+          widget.eventInfo['eventTypeId'] ??
+          '';
+      final eventTypeName =
+          widget.eventInfo['eventType']?['eventTypeName'] ??
+          widget.eventInfo['eventTypeName'] ??
+          'Unknown';
       final eventName = widget.eventInfo['eventName'] ?? '';
       final description = widget.eventInfo['description'] ?? '';
-      
+
       // Location, Address, Phone - get directly without _getString
       final location = widget.eventInfo['location']?.toString().trim() ?? '';
       final city = widget.eventInfo['city']?.toString().trim() ?? '';
       final address = widget.eventInfo['address']?.toString().trim() ?? '';
-      final eventOwnerPhone = widget.eventInfo['phone']?.toString().trim() ?? '';
+      final eventOwnerPhone =
+          widget.eventInfo['phone']?.toString().trim() ?? '';
       final guestCount = widget.eventInfo['guestCount'];
-      
-      final totalBudget = (widget.budgetData['totalBudget'] as num?)?.toDouble() ?? 0.0;
+
+      final totalBudget =
+          (widget.budgetData['totalBudget'] as num?)?.toDouble() ?? 0.0;
       final expectedGuestCount = int.tryParse('${guestCount ?? 0}') ?? 0;
-      
+
       debugPrint(' [EventReviewScreen] Data extracted:');
-      debugPrint('   location: $location (type: ${widget.eventInfo['location'].runtimeType})');
+      debugPrint(
+        '   location: $location (type: ${widget.eventInfo['location'].runtimeType})',
+      );
       debugPrint('   city: $city');
       debugPrint('   address: $address');
       debugPrint('   phone: $eventOwnerPhone');
@@ -738,68 +794,80 @@ class _EventReviewScreenState extends State<EventReviewScreen> {
 
       // معدّل - حفظ بيانات الـ Packages كاملة مع معلومات الخدمة
       debugPrint(' [EventReviewScreen] Preparing customRequirements');
-      debugPrint('   selectedPackages count: ${widget.selectedPackages.length}');
-      
-      final selectedServicesFromWidget = widget.servicesData['selectedServices'] as List?;
-      debugPrint('   selectedServices type: ${selectedServicesFromWidget.runtimeType}');
-      debugPrint('   selectedServices count: ${selectedServicesFromWidget?.length}');
+      debugPrint(
+        '   selectedPackages count: ${widget.selectedPackages.length}',
+      );
+
+      final selectedServicesFromWidget =
+          widget.servicesData['selectedServices'] as List?;
+      debugPrint(
+        '   selectedServices type: ${selectedServicesFromWidget.runtimeType}',
+      );
+      debugPrint(
+        '   selectedServices count: ${selectedServicesFromWidget?.length}',
+      );
       debugPrint('   selectedServices: $selectedServicesFromWidget');
-      
+
       final customRequirements = {
         'selectedServices': widget.servicesData['selectedServices'],
         'selectedPackagesIds': widget.selectedPackages.entries
             .map((e) => {'serviceId': e.key, 'packageId': e.value.packageId})
             .toList(),
-        'selectedPackagesData': widget.selectedPackages.entries
-            .map((e) {
+        'selectedPackagesData': widget.selectedPackages.entries.map((e) {
+          try {
+            debugPrint('   🔎 Processing package for serviceId: ${e.key}');
+
+            // Get service info from selectedServices
+            final selectedServices =
+                widget.servicesData['selectedServices'] as List?;
+
+            Map<String, dynamic>? serviceInfo;
+            if (selectedServices != null) {
               try {
-                debugPrint('   🔎 Processing package for serviceId: ${e.key}');
-                
-                // Get service info from selectedServices
-                final selectedServices = widget.servicesData['selectedServices'] as List?;
-                
-                Map<String, dynamic>? serviceInfo;
-                if (selectedServices != null) {
-                  try {
-                    final service = selectedServices.firstWhere(
-                      (s) => s['serviceId'] == e.key,
-                      orElse: () => <String, dynamic>{},
-                    );
-                    serviceInfo = service is Map<String, dynamic> ? service : null;
-                  } catch (err) {
-                    debugPrint('      ⚠️ Error finding service: $err');
-                  }
-                }
-                
-                final packageData = {
-                  'serviceId': e.key,
-                  'serviceName': serviceInfo?['serviceName'] ?? '',
-                  'serviceNameAr': serviceInfo?['serviceNameAr'],
-                  'isRequired': serviceInfo?['required'] ?? true,
-                  'packageId': e.value.packageId,
-                  'packageName': e.value.packageName,
-                  'vendorId': e.value.vendorId,
-                  'vendorName': e.value.vendorName,
-                  'price': e.value.price,
-                };
-                
-                debugPrint('      ✅ Created packageData: ${packageData['serviceName']} -> ${packageData['packageName']}');
-                return packageData;
-              } catch (error) {
-                debugPrint('      ❌ Error processing package ${e.key}: $error');
-                rethrow;
+                final service = selectedServices.firstWhere(
+                  (s) => s['serviceId'] == e.key,
+                  orElse: () => <String, dynamic>{},
+                );
+                serviceInfo = service is Map<String, dynamic> ? service : null;
+              } catch (err) {
+                debugPrint('      ⚠️ Error finding service: $err');
               }
-            })
-            .toList(),
+            }
+
+            final packageData = {
+              'serviceId': e.key,
+              'serviceName': serviceInfo?['serviceName'] ?? '',
+              'serviceNameAr': serviceInfo?['serviceNameAr'],
+              'isRequired': serviceInfo?['required'] ?? true,
+              'packageId': e.value.packageId,
+              'packageName': e.value.packageName,
+              'vendorId': e.value.vendorId,
+              'vendorName': e.value.vendorName,
+              'price': e.value.price,
+            };
+
+            debugPrint(
+              '      ✅ Created packageData: ${packageData['serviceName']} -> ${packageData['packageName']}',
+            );
+            return packageData;
+          } catch (error) {
+            debugPrint('      ❌ Error processing package ${e.key}: $error');
+            rethrow;
+          }
+        }).toList(),
         'totalServicePrice': _totalServicePrice,
       };
-      
-      debugPrint('✅ [EventReviewScreen] customRequirements ready: ${customRequirements['selectedPackagesData']?.length} packages');
+
+      debugPrint(
+        '✅ [EventReviewScreen] customRequirements ready: ${customRequirements['selectedPackagesData']?.length} packages',
+      );
 
       if (!mounted) return;
 
       // ✅ إرسال notifications للـ vendors قبل إنشاء الـ event
-      debugPrint('📢 [EventReviewScreen._submitEvent] Sending vendor notifications...');
+      debugPrint(
+        '📢 [EventReviewScreen._submitEvent] Sending vendor notifications...',
+      );
       await _sendVendorNotifications();
 
       context.read<EventOwnerCubit>().createEvent(
@@ -821,9 +889,9 @@ class _EventReviewScreenState extends State<EventReviewScreen> {
         customRequirements: customRequirements,
       );
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('❌ Error: ${e.toString()}')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('❌ Error: ${e.toString()}')));
     }
   }
 }

@@ -1,5 +1,6 @@
 // lib/features/attendee/presentation/widgets/invitation_details/invitation_action_buttons.dart
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:plan_z/features/attandee/cubit/attendee_cubit.dart';
@@ -46,11 +47,17 @@ class InvitationActionButtons extends StatelessWidget {
                         height: 20,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.white,
+                          ),
                         ),
                       )
                     : const Icon(Icons.check_circle_rounded),
-                label: Text(isLoading ? "Sending..." : "Accept Invitation"),
+                label: Text(
+                  isLoading
+                      ? 'attendee.invitation_accept_sending'.tr()
+                      : 'attendee.invitation_accept_button'.tr(),
+                ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green,
                   foregroundColor: Colors.white,
@@ -74,7 +81,7 @@ class InvitationActionButtons extends StatelessWidget {
                     child: OutlinedButton.icon(
                       onPressed: isLoading ? null : onReject,
                       icon: const Icon(Icons.cancel_rounded),
-                      label: const Text("Reject"),
+                      label: Text('attendee.invitation_reject_button'.tr()),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: Colors.red,
                         side: const BorderSide(color: Colors.red, width: 1.5),
@@ -95,7 +102,7 @@ class InvitationActionButtons extends StatelessWidget {
                     child: OutlinedButton.icon(
                       onPressed: isLoading ? null : onMaybe,
                       icon: const Icon(Icons.help_outline_rounded),
-                      label: const Text("Maybe"),
+                      label: Text('attendee.invitation_maybe_button'.tr()),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: Colors.blue,
                         side: const BorderSide(color: Colors.blue, width: 1.5),
@@ -122,18 +129,11 @@ class InvitationActionButtons extends StatelessWidget {
       decoration: BoxDecoration(
         color: config.color.withOpacity(0.1),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: config.color.withOpacity(0.3),
-          width: 2,
-        ),
+        border: Border.all(color: config.color.withOpacity(0.3), width: 2),
       ),
       child: Column(
         children: [
-          Icon(
-            config.icon,
-            color: config.color,
-            size: 48,
-          ),
+          Icon(config.icon, color: config.color, size: 48),
           const SizedBox(height: 12),
           Text(
             config.title,
@@ -146,10 +146,7 @@ class InvitationActionButtons extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             config.message,
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey[700],
-            ),
+            style: TextStyle(fontSize: 14, color: Colors.grey[700]),
             textAlign: TextAlign.center,
           ),
           if (invitation.responseMessage != null &&
@@ -163,11 +160,7 @@ class InvitationActionButtons extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  Icon(
-                    Icons.message_rounded,
-                    size: 16,
-                    color: config.color,
-                  ),
+                  Icon(Icons.message_rounded, size: 16, color: config.color),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
@@ -193,29 +186,29 @@ class InvitationActionButtons extends StatelessWidget {
         return _ResponseStatusConfig(
           icon: Icons.check_circle_rounded,
           color: Colors.green,
-          title: "Invitation Accepted",
-          message: "You have confirmed your attendance to this event",
+          title: 'attendee.invitation_status_accepted_title'.tr(),
+          message: 'attendee.invitation_status_accepted_message'.tr(),
         );
       case InvitationStatus.rejected:
         return _ResponseStatusConfig(
           icon: Icons.cancel_rounded,
           color: Colors.red,
-          title: "Invitation Rejected",
-          message: "You have declined this invitation",
+          title: 'attendee.invitation_status_rejected_title'.tr(),
+          message: 'attendee.invitation_status_rejected_message'.tr(),
         );
       case InvitationStatus.maybeAttending:
         return _ResponseStatusConfig(
           icon: Icons.help_outline_rounded,
           color: Colors.blue,
-          title: "Maybe Attending",
-          message: "You marked this invitation as maybe",
+          title: 'attendee.invitation_status_maybe_title'.tr(),
+          message: 'attendee.invitation_status_maybe_message'.tr(),
         );
       case InvitationStatus.pending:
         return _ResponseStatusConfig(
           icon: Icons.schedule_rounded,
           color: Colors.orange,
-          title: "Pending Response",
-          message: "Please respond to this invitation",
+          title: 'attendee.invitation_status_pending_title'.tr(),
+          message: 'attendee.invitation_status_pending_message'.tr(),
         );
     }
   }

@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -20,13 +21,19 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     final difference = now.difference(dateTime);
 
     if (difference.inDays > 0) {
-      return '${difference.inDays} day${difference.inDays > 1 ? "s" : ""} ago';
+      return difference.inDays == 1
+          ? 'attendee.day_ago'.tr()
+          : 'attendee.days_ago'.tr(args: [difference.inDays.toString()]);
     } else if (difference.inHours > 0) {
-      return '${difference.inHours} hour${difference.inHours > 1 ? "s" : ""} ago';
+      return difference.inHours == 1
+          ? 'attendee.hour_ago'.tr()
+          : 'attendee.hours_ago'.tr(args: [difference.inHours.toString()]);
     } else if (difference.inMinutes > 0) {
-      return '${difference.inMinutes} minute${difference.inMinutes > 1 ? "s" : ""} ago';
+      return difference.inMinutes == 1
+          ? 'attendee.minute_ago'.tr()
+          : 'attendee.minutes_ago'.tr(args: [difference.inMinutes.toString()]);
     } else {
-      return 'Just now';
+      return 'attendee.just_now'.tr();
     }
   }
 
@@ -65,9 +72,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       await batch.commit();
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('All notifications cleared')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('attendee.all_cleared'.tr())));
       }
     } catch (e) {
       debugPrint('Error clearing notifications: $e');
@@ -80,8 +87,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
     if (attendeeId == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Notifications')),
-        body: const Center(child: Text('Please log in to view notifications')),
+        appBar: AppBar(title: Text('attendee.notifications_title'.tr())),
+        body: Center(child: Text('attendee.please_login'.tr())),
       );
     }
 
@@ -120,7 +127,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       ),
       title: FadeInDown(
         duration: const Duration(milliseconds: 700),
-        child: Text("Notifications", style: AppTextStyles.headline2),
+        child: Text(
+          "attendee.notifications_title".tr(),
+          style: AppTextStyles.headline2,
+        ),
       ),
       actions: [
         SlideInRight(
@@ -213,7 +223,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                         ),
                         const SizedBox(width: 6),
                         Text(
-                          'Clear All',
+                          'attendee.clear_all'.tr(),
                           style: TextStyle(
                             color: Colors.red.shade400,
                             fontSize: 13,
@@ -248,7 +258,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           }
 
           if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
+            return Center(
+              child: Text('${'attendee.error_prefix'.tr()}${snapshot.error}'),
+            );
           }
 
           var notifications = snapshot.data?.docs ?? [];
@@ -273,7 +285,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'No Notifications',
+                    'attendee.no_notifications'.tr(),
                     style: AppTextStyles.title.copyWith(
                       color: AppColors.textSecondary,
                     ),
