@@ -16,6 +16,45 @@ class NotificationService {
   static final FlutterLocalNotificationsPlugin _localNotifications =
       FlutterLocalNotificationsPlugin();
 
+  // -------------------- Initialization --------------------
+  static Future<void> initLocalNotifications() async {
+    const AndroidInitializationSettings androidSettings =
+        AndroidInitializationSettings('@drawable/ic_notification');
+
+    const InitializationSettings initSettings = InitializationSettings(
+      android: androidSettings,
+    );
+
+    await _localNotifications.initialize(initSettings);
+
+    // Create notification channel (Android)
+    const AndroidNotificationChannel channel = AndroidNotificationChannel(
+      'plan_z_channel',
+      'PlanZ Notifications',
+      description: 'This channel is used for important PlanZ notifications.',
+      importance: Importance.high,
+    );
+
+    await _localNotifications
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >()
+        ?.createNotificationChannel(channel);
+  }
+
+  // -------------------- Current Device Token --------------------
+  static Future<String?> getCurrentFCMToken() async {
+    try {
+      final token = await _fcm.getToken();
+      debugPrint('📱 [NotificationService] Current FCM Token: $token');
+      return token;
+    } catch (e) {
+      debugPrint('❌ [NotificationService] Error getting token: $e');
+      return null;
+    }
+  }
+
+  // -------------------- Send Single Notification --------------------
   static Future<bool> sendNotification({
     required String receiverId,
     required String receiverRole,
@@ -27,7 +66,9 @@ class NotificationService {
   }) async {
     try {
       debugPrint('📤 [NotificationService] Sending notification...');
-      debugPrint('   receiverId: $receiverId, role: $receiverRole, title: $title');
+      debugPrint(
+        '   receiverId: $receiverId, role: $receiverRole, title: $title',
+      );
 
       // Get FCM token if not provided
       String? token = fcmToken;
@@ -59,11 +100,15 @@ class NotificationService {
             .doc(receiverId)
             .get();
 
-        if (userDoc.exists) {
-          token = userDoc.data()?['fcmToken'];
-          debugPrint('   ✅ Found FCM token in Firestore: $token');
-        } else {
-          debugPrint('   ⚠️ User document not found in $collectionName');
+          final userDoc = await _firestore
+              .collection(collectionName)
+              .doc(receiverId)
+              .get();
+          token = userDoc.data()?['fcmToken'] as String?;
+          debugPrint('   Fetched FCM token: $token');
+        } catch (e) {
+          debugPrint('❌ Error fetching FCM token: $e');
+          return false;
         }
       }
 
@@ -95,16 +140,16 @@ class NotificationService {
       try {
         await _firestore.collection('notifications').add(notificationData);
         debugPrint('✅ Notification saved to Firestore');
+        debugPrint(
+          '   Firestore listener will display notification on all open devices',
+        );
       } catch (e) {
         debugPrint('⚠️ Firestore save failed: $e');
+        return false;
       }
 
-      // Show local notification on current device
-      try {
-        await showLocalNotification(title: title, body: body, id: notificationId.hashCode.abs() % 2147483647);
-      } catch (e) {
-        debugPrint('⚠️ Local notification error: $e');
-      }
+      // ✅ Don't show local notification here - let Firestore listener handle it
+      // This prevents duplicate notifications and ensures all devices get notified equally
 
       return true;
     } catch (e) {
@@ -147,23 +192,29 @@ class NotificationService {
     required String body,
     int id = 999,
   }) async {
-    const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
-      'plan_z_channel',
-      'PlanZ Notifications',
-      channelDescription: 'Important notifications for PlanZ users.',
-      importance: Importance.max,
-      priority: Priority.high,
-      icon: '@drawable/ic_notification',
-    );
+    const AndroidNotificationDetails androidDetails =
+        AndroidNotificationDetails(
+          'plan_z_channel',
+          'PlanZ Notifications',
+          channelDescription: 'Important notifications for PlanZ users.',
+          importance: Importance.max,
+          priority: Priority.high,
+          icon: '@drawable/ic_notification',
+        );
 
-    const NotificationDetails platformDetails = NotificationDetails(android: androidDetails);
+    const NotificationDetails platformDetails = NotificationDetails(
+      android: androidDetails,
+    );
 
     await _localNotifications.show(id, title, body, platformDetails);
     debugPrint('✅ Local notification displayed: $title');
   }
 
   // -------------------- Firestore Streams --------------------
-  static Stream<List<Map<String, dynamic>>> getUserNotifications(String userId, String userRole) {
+  static Stream<List<Map<String, dynamic>>> getUserNotifications(
+    String userId,
+    String userRole,
+  ) {
     return _firestore
         .collection('notifications')
         .where('receiverId', isEqualTo: userId)
@@ -226,7 +277,10 @@ class NotificationService {
     }
   }
 
-  static Future<int> clearAllNotifications(String userId, String userRole) async {
+  static Future<int> clearAllNotifications(
+    String userId,
+    String userRole,
+  ) async {
     try {
       final docs = await _firestore
           .collection('notifications')
@@ -257,7 +311,10 @@ class NotificationService {
 
       final eventsSnapshot = await _firestore
           .collection('events')
-          .where('eventDate', isGreaterThanOrEqualTo: Timestamp.fromDate(startRange))
+          .where(
+            'eventDate',
+            isGreaterThanOrEqualTo: Timestamp.fromDate(startRange),
+          )
           .where('eventDate', isLessThanOrEqualTo: Timestamp.fromDate(endRange))
           .get();
 

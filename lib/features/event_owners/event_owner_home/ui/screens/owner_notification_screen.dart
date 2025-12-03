@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:plan_z/core/theming/text_styles.dart';
 import 'package:plan_z/features/auth/data/models/user_manager.dart';
+
 import '../../../../../../core/utils/app_colors.dart';
 
 class OwnerNotificationScreen extends StatefulWidget {
@@ -138,7 +139,7 @@ class _OwnerNotificationScreenState extends State<OwnerNotificationScreen> {
               color: AppColors.primaryDark.withOpacity(0.7),
               size: 24,
             ),
-            onPressed: () {},
+            onPressed: () {}
           ),
         ),
         SlideInRight(
