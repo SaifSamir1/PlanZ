@@ -1,12 +1,9 @@
-
-
 // lib/core/widgets/custom_elevated_app_bar.dart
 
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
@@ -52,7 +49,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       centerTitle: centerTitle,
       automaticallyImplyLeading: false,
       backgroundColor: Colors.transparent,
-      
+
       // Flexible Space with Gradient
       flexibleSpace: Container(
         decoration: BoxDecoration(
@@ -101,10 +98,10 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           ],
         ),
       ),
-      
+
       // Leading
       leading: _buildLeading(context, textColorFinal),
-      
+
       // Title
       title: Text(
         title,
@@ -115,17 +112,15 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           letterSpacing: 0.5,
         ),
       ),
-      
+
       // Actions
       actions: actions,
-      
+
       // Bottom (TabBar, etc.)
       bottom: bottom,
-      
+
       // Custom Shape (Curved Bottom)
-      shape: showBottomCurve
-          ? const _CustomAppBarShape()
-          : null,
+      shape: showBottomCurve ? const _CustomAppBarShape() : null,
     );
   }
 
@@ -133,7 +128,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     if (leading != null) {
       return leading;
     }
-    
+
     if (showBackButton) {
       return IconButton(
         icon: Icon(
@@ -144,14 +139,16 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         onPressed: onBackPressed ?? () => Navigator.pop(context),
       );
     }
-    
+
     return null;
   }
 
   @override
   Size get preferredSize => Size.fromHeight(
-        toolbarHeight + (bottom?.preferredSize.height ?? 0) + (showBottomCurve ? 20 : 0),
-      );
+    toolbarHeight +
+        (bottom?.preferredSize.height ?? 0) +
+        (showBottomCurve ? 20 : 0),
+  );
 }
 
 // Custom Shape for Curved Bottom
@@ -161,9 +158,9 @@ class _CustomAppBarShape extends ContinuousRectangleBorder {
   @override
   Path getOuterPath(Rect rect, {TextDirection? textDirection}) {
     final path = Path();
-    
+
     path.lineTo(0, rect.height - 20);
-    
+
     // Create smooth curve at the bottom
     path.quadraticBezierTo(
       rect.width / 2, // control point x
@@ -171,16 +168,16 @@ class _CustomAppBarShape extends ContinuousRectangleBorder {
       rect.width, // end point x
       rect.height - 20, // end point y
     );
-    
+
     path.lineTo(rect.width, 0);
     path.close();
-    
+
     return path;
   }
 }
 
-
-class CustomElevatedAppBar extends StatelessWidget implements PreferredSizeWidget {
+class CustomElevatedAppBar extends StatelessWidget
+    implements PreferredSizeWidget {
   final String title;
   final List<Widget>? actions;
   final Widget? leading;
@@ -237,7 +234,7 @@ class CustomElevatedAppBar extends StatelessWidget implements PreferredSizeWidge
                       ),
                       onPressed: onBackPressed ?? () => Navigator.pop(context),
                     ),
-              
+
               // Title
               Expanded(
                 child: Text(
@@ -253,7 +250,7 @@ class CustomElevatedAppBar extends StatelessWidget implements PreferredSizeWidge
                       : TextAlign.center,
                 ),
               ),
-              
+
               // Actions
               if (actions != null) ...actions!,
             ],
@@ -267,9 +264,8 @@ class CustomElevatedAppBar extends StatelessWidget implements PreferredSizeWidge
   Size get preferredSize => const Size.fromHeight(70);
 }
 
-
-
-class CustomFloatingAppBar extends StatelessWidget implements PreferredSizeWidget {
+class CustomFloatingAppBar extends StatelessWidget
+    implements PreferredSizeWidget {
   final String title;
   final List<Widget>? actions;
   final bool showBackButton;
@@ -293,10 +289,7 @@ class CustomFloatingAppBar extends StatelessWidget implements PreferredSizeWidge
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [
-              const Color(0xff21225b),
-              const Color(0xff2d2f70),
-            ],
+            colors: [const Color(0xff21225b), const Color(0xff2d2f70)],
           ),
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
@@ -329,9 +322,9 @@ class CustomFloatingAppBar extends StatelessWidget implements PreferredSizeWidge
                     ),
                   ),
                 ),
-              
+
               if (showBackButton) const SizedBox(width: 12),
-              
+
               // Title
               Expanded(
                 child: Text(
@@ -343,7 +336,7 @@ class CustomFloatingAppBar extends StatelessWidget implements PreferredSizeWidge
                   ),
                 ),
               ),
-              
+
               // Actions
               if (actions != null) ...actions!,
             ],
@@ -356,8 +349,6 @@ class CustomFloatingAppBar extends StatelessWidget implements PreferredSizeWidge
   @override
   Size get preferredSize => const Size.fromHeight(80);
 }
-
-
 
 class CustomGlassAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
@@ -411,9 +402,10 @@ class CustomGlassAppBar extends StatelessWidget implements PreferredSizeWidget {
                           color: Colors.white,
                           size: 20,
                         ),
-                        onPressed: onBackPressed ?? () => Navigator.pop(context),
+                        onPressed:
+                            onBackPressed ?? () => Navigator.pop(context),
                       ),
-                    
+
                     // Title
                     Expanded(
                       child: Text(
@@ -425,7 +417,7 @@ class CustomGlassAppBar extends StatelessWidget implements PreferredSizeWidget {
                         ),
                       ),
                     ),
-                    
+
                     // Actions
                     if (actions != null) ...actions!,
                   ],

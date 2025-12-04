@@ -95,11 +95,7 @@ class NotificationService {
             collectionName = 'attendees'; // Default fallback
         }
 
-        final userDoc = await _firestore
-            .collection(collectionName)
-            .doc(receiverId)
-            .get();
-
+        try {
           final userDoc = await _firestore
               .collection(collectionName)
               .doc(receiverId)

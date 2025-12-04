@@ -148,7 +148,14 @@
             "content_type_label": "نوع المحتوى",
             "add_proof_link": "إضافة رابط إثبات",
             "no_proof_links_yet": "لم تُضف روابط إثبات بعد",
-            "add_links_to_showcase_your_work": "أضف روابط لعرض أعمالك السابقة"
+            "add_links_to_showcase_your_work": "أضف روابط لعرض أعمالك السابقة",
+            "suggested_keywords_label": "كلمات مقترحة",
+            "added_keywords_label": "كلمات مضافة",
+            "keyword_added_success": "تم إضافة الكلمة المفتاحية بنجاح",
+            "remove_feature_tooltip": "حذف",
+            "proof_added_success": "تم إضافة رابط الإثبات بنجاح",
+            "proof_link_default": "رابط الإثبات",
+            "valid_url_error": "الرابط غير صحيح"
         }
     }
 }
