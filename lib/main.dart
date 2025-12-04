@@ -21,6 +21,7 @@ import 'package:plan_z/features/attandee/data/attandee_repo_impl.dart';
 import 'package:plan_z/features/attandee/ui/home/ui/screens/attandee_notification.dart';
 import 'package:plan_z/features/attandee/ui/home/ui/screens/attendee_home_screen.dart';
 import 'package:plan_z/features/attandee/ui/home/ui/screens/my_invitations_screen.dart';
+import 'package:plan_z/features/vendor_features/vendor_home/ui/screens/notification_screen.dart';
 import 'package:plan_z/features/auth/data/auth_repo/auth_repo_impl.dart';
 import 'package:plan_z/features/auth/data/models/user_manager.dart';
 import 'package:plan_z/features/auth/data/models/user_model.dart';
@@ -40,7 +41,6 @@ import 'package:plan_z/features/vendor_features/vendor_home/ui/screens/vendor_ea
 import 'package:plan_z/features/vendor_features/vendor_home/ui/screens/vendor_home_screen.dart';
 
 import 'package:plan_z/core/localization/vendor_asset_loader.dart';
-import 'package:plan_z/core/services/event_reminder_service.dart';
 import 'package:plan_z/firebase_options.dart';
 import 'package:workmanager/workmanager.dart';
 
@@ -251,6 +251,9 @@ class PlanZ extends StatefulWidget {
 
 class _PlanZState extends State<PlanZ> {
   Key _key = UniqueKey();
+
+  // ✅ Track shown notification IDs to prevent duplicates
+  final Set<String> _shownNotificationIds = <String>{};
 
   void restartApp() {
     setState(() {
@@ -526,14 +529,14 @@ class _PlanZState extends State<PlanZ> {
           home: widget.getHomeScreen(),
           routes: {
             '/create_event': (_) => SelectEventTypeScreen(),
-            '/notifications': (_) => NotificationsScreen(),
+            '/notifications': (_) => NotificationScreen(),
             '/vendor_dashboard': (_) => VendorHomeScreen(),
             '/attendee_dashboard': (_) => AttendeeHomeScreen(),
             '/owner_overview': (_) => FinancialOverviewScreen(),
             '/chat_bot': (_) => ChatScreen(),
             '/vendor_financial': (_) => VendorEarningsScreen(),
             '/vendor_requests': (_) => VendorHomeScreen(),
-            '/add_paackage': (_) => CreatePackageScreen(),
+            '/add_package': (_) => CreatePackageScreen(),
             '/invitation': (_) => MyInvitationsScreen(),
           },
         ),

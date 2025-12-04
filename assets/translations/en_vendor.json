@@ -148,7 +148,14 @@
             "content_type_label": "Content Type",
             "add_proof_link": "Add Proof Link",
             "no_proof_links_yet": "No proof links added yet",
-            "add_links_to_showcase_your_work": "Add links to showcase your work"
+            "add_links_to_showcase_your_work": "Add links to showcase your work",
+            "suggested_keywords_label": "Suggested Keywords",
+            "added_keywords_label": "Added Keywords",
+            "keyword_added_success": "Keyword added successfully",
+            "remove_feature_tooltip": "Remove",
+            "proof_added_success": "Proof link added successfully",
+            "proof_link_default": "Proof Link",
+            "valid_url_error": "Invalid URL"
         }
     }
 }

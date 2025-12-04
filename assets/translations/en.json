@@ -10,6 +10,13 @@
         "invalid_code": "Invalid access code",
         "get_started": "Get Started"
     },
+    "admin_access": {
+        "title": "Admin Access",
+        "subtitle": "Enter admin access code",
+        "hint": "Admin access code",
+        "cancel": "Cancel",
+        "access": "Access"
+    },
     "welcome": {
         "welcome_to": "Welcome to",
         "app_name": "PlanZ",
@@ -667,7 +674,6 @@
             "budget_breakdown": "Budget Breakdown",
             "budget_percentage_of_total": "{}% of Total",
             "description": "Description",
-            "price": "Price",
             "features": "Features",
             "status": "Status",
             "active": "Active",

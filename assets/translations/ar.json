@@ -121,7 +121,8 @@
         "password": "كلمة المرور",
         "show_password": "عرض كلمة المرور",
         "dont_have_account": "ليس لديك حساب؟",
-        "sign_up_link": "إنشاء حساب"
+        "sign_up_link": "إنشاء حساب",
+        "login_link": "تسجيل الدخول"
     },
     "select_event_type_screen": {
         "title": "اختر نوع المناسبة",

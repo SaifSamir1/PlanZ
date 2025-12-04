@@ -4,6 +4,8 @@
         "logout_confirmation": "Logout Confirmation",
         "logout_message": "Are you sure you want to logout?",
         "cancel": "Cancel",
+        "clear_all": "Clear All",
+        "no_notifications": "No notifications",
         "days_ago": "{} days ago",
         "hours_ago": "{} hours ago",
         "minutes_ago": "{} minutes ago",
@@ -12,7 +14,10 @@
         "notifications_title": "Notifications",
         "please_login_notifications": "Please log in to view notifications",
         "services_screen": {
-            "title": "Services"
+            "title": "Services",
+            "price_range_format": "{} - {} ج.م",
+            "description": "service description",
+            "description_ar": "service description in arabic"
         },
         "select_event_type_screen": {
             "loading": "Loading event types...",
@@ -146,7 +151,10 @@
             "try_search": "Try searching for users",
             "select_msg": "Select guests to invite",
             "sending": "Sending...",
+            "send_in_app": "Send in App",
+            "selected_count": "Selected ({})",
             "send_whatsapp_direct": "Send WhatsApp Direct",
+            "send_whatsapp": "Send WhatsApp",
             "skipped": "Skipped",
             "skip": "Skip"
         },

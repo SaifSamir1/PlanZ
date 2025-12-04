@@ -150,9 +150,14 @@ class LogoutButtonWidget extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 12),
-            Text(
-              'event_owner.logout_confirmation'.tr(),
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            Expanded(
+              child: Text(
+                'event_owner.logout_confirmation'.tr(),
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
           ],
         ),
