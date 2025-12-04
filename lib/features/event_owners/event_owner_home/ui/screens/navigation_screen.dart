@@ -27,7 +27,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
   final List<Widget> _screens = [
     const OwnerHomeScreen(),
     const SelectEventTypeScreen(),
-    const PaymentHistory(),
+    // const PaymentHistory(),
     const ProfileScreen(),
   ];
 
@@ -125,21 +125,21 @@ class _NavigationScreenState extends State<NavigationScreen> {
                 ),
                 itemLabelWidget: _buildLabel('navigation.create'.tr(), false),
               ),
-
-              // 3. Payment
-              BottomBarItem(
-                inActiveItem: Icon(
-                  Icons.account_balance_wallet_outlined,
-                  color: AppColors.primaryDark.withOpacity(0.6),
-                ),
-                activeItem: const Icon(
-                  Icons.account_balance_wallet_rounded,
-                  color: Colors.white,
-                  size: 26,
-                ),
-                itemLabelWidget: _buildLabel('navigation.wallet'.tr(), false),
-              ),
-
+              
+              // // 3. Payment
+              // BottomBarItem(
+              //   inActiveItem: Icon(
+              //     Icons.account_balance_wallet_outlined,
+              //     color: AppColors.primaryDark.withOpacity(0.6),
+              //   ),
+              //   activeItem: const Icon(
+              //     Icons.account_balance_wallet_rounded,
+              //     color: Colors.white,
+              //     size: 26,
+              //   ),
+              //   itemLabelWidget: _buildLabel('Wallet', false),
+              // ),
+              
               // 4. Profile
               BottomBarItem(
                 inActiveItem: Icon(

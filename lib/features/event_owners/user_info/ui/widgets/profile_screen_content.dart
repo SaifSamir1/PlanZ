@@ -95,9 +95,23 @@ class _ProfileScreenContentState extends State<ProfileScreenContent> {
         ),
         const SizedBox(height: 16),
 
-        // ✅ Notifications
-        _buildNotificationCard(delay: 200),
-        const SizedBox(height: 16),
+        // // ✅ Payment Methods
+        // SlideInRight(
+        //   duration: const Duration(milliseconds: 700),
+        //   delay: const Duration(milliseconds: 200),
+        //   child: ProfileSettingWidget(
+        //     icon: Icons.payment_outlined,
+        //     title: "Payment Methods",
+        //     onTap: () {
+        //       Navigator.push(
+        //         context,
+        //         MaterialPageRoute(
+        //           builder: (context) => const PaymentAndInvitationsScreen(),
+        //         ),
+        //       );
+        //     },
+        //   ),
+        // ),
 
         // ✅ Language
         _buildLanguageCard(delay: 300),
