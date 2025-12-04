@@ -4,6 +4,8 @@
         "logout_confirmation": "Logout Confirmation",
         "logout_message": "Are you sure you want to logout?",
         "cancel": "Cancel",
+        "clear_all": "Clear All",
+        "no_notifications": "No notifications",
         "days_ago": "{} days ago",
         "hours_ago": "{} hours ago",
         "minutes_ago": "{} minutes ago",

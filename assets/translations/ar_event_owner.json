@@ -9,6 +9,8 @@
         "minutes_ago": "منذ {} دقيقة",
         "just_now": "الآن",
         "all_notifications_cleared": "تم مسح جميع الإشعارات",
+        "clear_all":"مسح الكل",
+        "no_notifications":"لا يوجد إشعارات",
         "notifications_title": "الإشعارات",
         "please_login_notifications": "الرجاء تسجيل الدخول لعرض الإشعارات",
         "services_screen": {
