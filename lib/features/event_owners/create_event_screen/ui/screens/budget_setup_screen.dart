@@ -303,25 +303,7 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
             ),
           ),
           
-          // ✅ Option 2: 2 في صف (Alternative)
-          // Wrap(
-          //   spacing: 12,
-          //   runSpacing: 12,
-          //   children: [
-          //     SizedBox(
-          //       width: (MediaQuery.of(context).size.width - 72) / 2,
-          //       child: _buildBudgetOption('Minimum', min, currency, Colors.orange),
-          //     ),
-          //     SizedBox(
-          //       width: (MediaQuery.of(context).size.width - 72) / 2,
-          //       child: _buildBudgetOption('Average', average, currency, Colors.green),
-          //     ),
-          //     SizedBox(
-          //       width: (MediaQuery.of(context).size.width - 72) / 2,
-          //       child: _buildBudgetOption('Maximum', max, currency, Colors.blue),
-          //     ),
-          //   ],
-          // ),
+          
         ],
       ),
     );

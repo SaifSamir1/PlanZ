@@ -47,23 +47,23 @@ class ProfileScreenContent extends StatelessWidget {
           ),
         ),
 
-        // ✅ Payment Methods
-        SlideInRight(
-          duration: const Duration(milliseconds: 700),
-          delay: const Duration(milliseconds: 200),
-          child: ProfileSettingWidget(
-            icon: Icons.payment_outlined,
-            title: "Payment Methods",
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const PaymentAndInvitationsScreen(),
-                ),
-              );
-            },
-          ),
-        ),
+        // // ✅ Payment Methods
+        // SlideInRight(
+        //   duration: const Duration(milliseconds: 700),
+        //   delay: const Duration(milliseconds: 200),
+        //   child: ProfileSettingWidget(
+        //     icon: Icons.payment_outlined,
+        //     title: "Payment Methods",
+        //     onTap: () {
+        //       Navigator.push(
+        //         context,
+        //         MaterialPageRoute(
+        //           builder: (context) => const PaymentAndInvitationsScreen(),
+        //         ),
+        //       );
+        //     },
+        //   ),
+        // ),
 
         const SizedBox(height: 32),
 
