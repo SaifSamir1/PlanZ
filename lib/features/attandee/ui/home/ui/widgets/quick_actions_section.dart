@@ -1,6 +1,7 @@
 // lib/features/attendee/presentation/widgets/home/quick_actions_section.dart
 
 import 'package:animate_do/animate_do.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:plan_z/core/theming/text_styles.dart';
 import 'package:plan_z/core/utils/app_colors.dart';
@@ -20,7 +21,10 @@ class QuickActionsSection extends StatelessWidget {
         // Section Title
         Padding(
           padding: const EdgeInsets.only(bottom: 16),
-          child: Text("Quick Actions", style: AppTextStyles.headline3),
+          child: Text(
+            'attendee.quick_actions_title'.tr(),
+            style: AppTextStyles.headline3,
+          ),
         ),
 
         // Actions Grid
@@ -38,8 +42,8 @@ class QuickActionsSection extends StatelessWidget {
               delay: const Duration(milliseconds: 200),
               child: _QuickActionCard(
                 icon: Icons.mail_outline_rounded,
-                title: "My Invitations",
-                subtitle: "View & respond to invites",
+                title: 'attendee.quick_actions_my_invitations_title'.tr(),
+                subtitle: 'attendee.quick_actions_my_invitations_subtitle'.tr(),
                 onTap: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
@@ -56,8 +60,8 @@ class QuickActionsSection extends StatelessWidget {
               delay: const Duration(milliseconds: 300),
               child: _QuickActionCard(
                 icon: Icons.event_rounded,
-                title: "My Events",
-                subtitle: "See accepted events",
+                title: 'attendee.quick_actions_my_events_title'.tr(),
+                subtitle: 'attendee.quick_actions_my_events_subtitle'.tr(),
                 onTap: () {
                   // Navigate to My Events Screen
                   Navigator.of(context).push(
@@ -75,8 +79,9 @@ class QuickActionsSection extends StatelessWidget {
               delay: const Duration(milliseconds: 200),
               child: _QuickActionCard(
                 icon: Icons.notifications_active,
-                title: "Test Notification",
-                subtitle: "Send test notification",
+                title: 'attendee.quick_actions_test_notification_title'.tr(),
+                subtitle: 'attendee.quick_actions_test_notification_subtitle'
+                    .tr(),
                 onTap: () => _testNotification(context),
               ),
             ),
@@ -93,9 +98,11 @@ class QuickActionsSection extends StatelessWidget {
     final userId = UserManager().userId;
 
     if (userId == null) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('❌ User ID not found')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('attendee.test_notification_user_not_found'.tr()),
+        ),
+      );
       return;
     }
 
@@ -104,13 +111,13 @@ class QuickActionsSection extends StatelessWidget {
       context: context,
       barrierDismissible: false,
       builder: (ctx) => AlertDialog(
-        title: const Text('📤 Sending Test Notification'),
-        content: const Column(
+        title: Text('attendee.test_notification_sending_title'.tr()),
+        content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            CircularProgressIndicator(),
-            SizedBox(height: 16),
-            Text('Sending notification to your account...'),
+            const CircularProgressIndicator(),
+            const SizedBox(height: 16),
+            Text('attendee.test_notification_sending_body'.tr()),
           ],
         ),
       ),
@@ -121,8 +128,8 @@ class QuickActionsSection extends StatelessWidget {
       await NotificationService.sendNotification(
         receiverId: userId,
         receiverRole: 'attendee',
-        title: '✅ Test Notification',
-        body: 'This is a test notification from PlanZ app!',
+        title: 'attendee.test_notification_title'.tr(),
+        body: 'attendee.test_notification_body'.tr(),
         type: 'test',
         data: {
           'testId': DateTime.now().millisecondsSinceEpoch.toString(),
@@ -143,10 +150,10 @@ class QuickActionsSection extends StatelessWidget {
       // Show success snackbar
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('✅ Notification sent successfully!'),
+          SnackBar(
+            content: Text('attendee.test_notification_success_snackbar'.tr()),
             backgroundColor: Colors.green,
-            duration: Duration(seconds: 3),
+            duration: const Duration(seconds: 3),
           ),
         );
       }
@@ -159,7 +166,9 @@ class QuickActionsSection extends StatelessWidget {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('❌ Error: $e'),
+            content: Text(
+              'attendee.test_notification_error_prefix'.tr() + e.toString(),
+            ),
             backgroundColor: Colors.red,
             duration: const Duration(seconds: 3),
           ),
@@ -221,7 +230,7 @@ class _QuickActionCard extends StatelessWidget {
                   title,
                   style: AppTextStyles.subtitle.copyWith(
                     fontWeight: FontWeight.w600,
-                    fontSize: 12
+                    fontSize: 12,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -233,7 +242,7 @@ class _QuickActionCard extends StatelessWidget {
                   subtitle,
                   style: AppTextStyles.caption.copyWith(
                     color: Colors.grey[600],
-                    fontSize: 10
+                    fontSize: 10,
                   ),
                   textAlign: TextAlign.center,
                   maxLines: 2,

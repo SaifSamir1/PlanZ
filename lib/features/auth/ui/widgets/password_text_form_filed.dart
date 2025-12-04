@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:plan_z/core/utils/app_colors.dart';
 import 'package:plan_z/core/widgets/custom_text_form.dart';
@@ -70,7 +71,7 @@ class _AppPasswordTextFieldState extends State<AppPasswordTextField>
   @override
   Widget build(BuildContext context) {
     return AppTextField(
-      hintText: widget.hintText ?? 'Password',
+      hintText: widget.hintText ?? 'auth.password'.tr(),
       labelText: widget.labelText,
       errorText: widget.errorText,
       controller: widget.controller,
@@ -102,7 +103,9 @@ class _AppPasswordTextFieldState extends State<AppPasswordTextField>
             ),
             onPressed: _togglePasswordVisibility,
             splashRadius: 20,
-            tooltip: _obscureText ? 'Show password' : 'Hide password',
+            tooltip: _obscureText
+                ? 'auth.show_password'.tr()
+                : 'auth.hide_password'.tr(),
           );
         },
       ),

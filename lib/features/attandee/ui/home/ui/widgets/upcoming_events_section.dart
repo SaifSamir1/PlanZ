@@ -1,5 +1,6 @@
 // lib/features/attendee/presentation/widgets/home/upcoming_events_section.dart
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:plan_z/core/theming/text_styles.dart';
@@ -14,10 +15,7 @@ import 'package:plan_z/features/attandee/ui/home/ui/widgets/loading_shimmer_home
 class UpcomingEventsSection extends StatelessWidget {
   final String attendeeId;
 
-  const UpcomingEventsSection({
-    super.key,
-    required this.attendeeId,
-  });
+  const UpcomingEventsSection({super.key, required this.attendeeId});
 
   @override
   Widget build(BuildContext context) {
@@ -28,9 +26,13 @@ class UpcomingEventsSection extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              "Upcoming Events",
-              style: AppTextStyles.headline3,
+            Expanded(
+              child: Text(
+                'attendee.upcoming_events_title'.tr(),
+                style: AppTextStyles.headline3,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
             TextButton(
               onPressed: () {
@@ -40,7 +42,7 @@ class UpcomingEventsSection extends StatelessWidget {
                   ),
                 );
               },
-              child: const Text("See All"),
+              child: Text('events.see_all'.tr()),
             ),
           ],
         ),
@@ -70,16 +72,19 @@ class UpcomingEventsSection extends StatelessWidget {
 
               return Column(
                 children: displayEvents
-                    .map((event) => AttendeeEventCard(
-                      event: event,
-                      onTap: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => EventDetailsScreen(event: event),
-                          ),
-                        );
-                      },
-                    ))
+                    .map(
+                      (event) => AttendeeEventCard(
+                        event: event,
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  EventDetailsScreen(event: event),
+                            ),
+                          );
+                        },
+                      ),
+                    )
                     .toList(),
               );
             }
@@ -103,17 +108,11 @@ class UpcomingEventsSection extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.error_outline_rounded,
-              color: Colors.red[300],
-              size: 40,
-            ),
+            Icon(Icons.error_outline_rounded, color: Colors.red[300], size: 40),
             const SizedBox(height: 8),
             Text(
-              "Failed to load events",
-              style: AppTextStyles.subtitle.copyWith(
-                color: Colors.red[700],
-              ),
+              'attendee.upcoming_events_failed'.tr(),
+              style: AppTextStyles.subtitle.copyWith(color: Colors.red[700]),
             ),
             const SizedBox(height: 8),
             TextButton.icon(
@@ -121,7 +120,7 @@ class UpcomingEventsSection extends StatelessWidget {
                 context.read<AttendeeCubit>().getUpcomingEvents(attendeeId);
               },
               icon: const Icon(Icons.refresh),
-              label: const Text("Retry"),
+              label: Text('attendee.retry'.tr()),
             ),
           ],
         ),

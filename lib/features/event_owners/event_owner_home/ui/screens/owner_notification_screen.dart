@@ -1,8 +1,10 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:plan_z/core/theming/text_styles.dart';
 import 'package:plan_z/features/auth/data/models/user_manager.dart';
+
 import '../../../../../../core/utils/app_colors.dart';
 
 class OwnerNotificationScreen extends StatefulWidget {
@@ -21,13 +23,15 @@ class _OwnerNotificationScreenState extends State<OwnerNotificationScreen> {
     final difference = now.difference(dateTime);
 
     if (difference.inDays > 0) {
-      return '${difference.inDays} day${difference.inDays > 1 ? "s" : ""} ago';
+      return "event_owner.days_ago".tr(args: [difference.inDays.toString()]);
     } else if (difference.inHours > 0) {
-      return '${difference.inHours} hour${difference.inHours > 1 ? "s" : ""} ago';
+      return "event_owner.hours_ago".tr(args: [difference.inHours.toString()]);
     } else if (difference.inMinutes > 0) {
-      return '${difference.inMinutes} minute${difference.inMinutes > 1 ? "s" : ""} ago';
+      return "event_owner.minutes_ago".tr(
+        args: [difference.inMinutes.toString()],
+      );
     } else {
-      return 'Just now';
+      return "event_owner.just_now".tr();
     }
   }
 
@@ -65,7 +69,7 @@ class _OwnerNotificationScreenState extends State<OwnerNotificationScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('All notifications cleared')),
+          SnackBar(content: Text("event_owner.all_notifications_cleared".tr())),
         );
       }
     } catch (e) {
@@ -79,8 +83,10 @@ class _OwnerNotificationScreenState extends State<OwnerNotificationScreen> {
 
     if (ownerId == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Notifications')),
-        body: const Center(child: Text('Please log in to view notifications')),
+        appBar: AppBar(title: Text("event_owner.notifications_title".tr())),
+        body: Center(
+          child: Text("event_owner.please_login_notifications".tr()),
+        ),
       );
     }
 
@@ -119,7 +125,10 @@ class _OwnerNotificationScreenState extends State<OwnerNotificationScreen> {
       ),
       title: FadeInDown(
         duration: const Duration(milliseconds: 700),
-        child: Text("Notifications", style: AppTextStyles.headline2),
+        child: Text(
+          "event_owner.notifications_title".tr(),
+          style: AppTextStyles.headline2,
+        ),
       ),
       actions: [
         SlideInRight(
@@ -130,7 +139,7 @@ class _OwnerNotificationScreenState extends State<OwnerNotificationScreen> {
               color: AppColors.primaryDark.withOpacity(0.7),
               size: 24,
             ),
-            onPressed: () {},
+            onPressed: () {}
           ),
         ),
         SlideInRight(
@@ -212,7 +221,7 @@ class _OwnerNotificationScreenState extends State<OwnerNotificationScreen> {
                         ),
                         const SizedBox(width: 6),
                         Text(
-                          'Clear All',
+                          "event_owner.clear_all".tr(),
                           style: TextStyle(
                             color: Colors.red.shade400,
                             fontSize: 13,
@@ -247,7 +256,13 @@ class _OwnerNotificationScreenState extends State<OwnerNotificationScreen> {
           }
 
           if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
+            return Center(
+              child: Text(
+                "event_owner.error_prefix".tr(
+                  args: [snapshot.error.toString()],
+                ),
+              ),
+            );
           }
 
           var notifications = snapshot.data?.docs ?? [];
@@ -272,7 +287,7 @@ class _OwnerNotificationScreenState extends State<OwnerNotificationScreen> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'No Notifications',
+                    "event_owner.no_notifications".tr(),
                     style: AppTextStyles.title.copyWith(
                       color: AppColors.textSecondary,
                     ),

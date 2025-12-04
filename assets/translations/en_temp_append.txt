@@ -1,0 +1,19 @@
+﻿            "notifications_disabled": "Notifications disabled",
+            "username_updated": "Username updated successfully!",
+            "error": "Error: {}",
+            "current_password": "Current Password",
+            "all_fields_required": "All fields are required",
+            "password_changed": "Password changed successfully!",
+            "select_language": "Select Language",
+            "language_changed_english": "Language changed to English",
+            "language_changed_arabic": "تم تغيير اللغة إلى العربية"
+        },
+        "admin_access": {
+            "title": "Admin Access",
+            "subtitle": "Enter admin access code to continue",
+            "hint": "Access Code",
+            "cancel": "Cancel",
+            "access": "Access"
+        }
+    }
+}

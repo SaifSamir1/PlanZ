@@ -11,6 +11,7 @@ import 'package:plan_z/features/vendor_features/packages_mangment/cubit/vendor_c
 import 'package:plan_z/features/vendor_features/packages_mangment/cubit/vendor_state.dart';
 import 'package:plan_z/features/vendor_features/packages_mangment/data/models/package_model.dart';
 import 'package:plan_z/features/vendor_features/packages_mangment/ui/screens/create_package_screen.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class AllPackagesScreen extends StatefulWidget {
   const AllPackagesScreen({super.key});
@@ -35,32 +36,29 @@ class _AllPackagesScreenState extends State<AllPackagesScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: 
-      CustomAppBar(title: 'My Packages',
-      showBackButton: true,
-      actions: [
-        
+      appBar: CustomAppBar(
+        title: 'vendor.packages.title'.tr(),
+        showBackButton: true,
+        actions: [
           IconButton(
-            icon: const Icon(Icons.refresh_rounded,color: Colors.white,),
+            icon: const Icon(Icons.refresh_rounded, color: Colors.white),
             onPressed: _loadPackages,
             tooltip: 'Refresh',
           ),
           IconButton(
-            icon: const Icon(Icons.add_circle_outline, color: Colors.white,),
+            icon: const Icon(Icons.add_circle_outline, color: Colors.white),
             onPressed: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const CreatePackageScreen(
-                    isEdit: false,
-                  ),
+                  builder: (context) =>
+                      const CreatePackageScreen(isEdit: false),
                 ),
               );
             },
             tooltip: 'Add Package',
           ),
-        
-      ]
+        ],
       ),
       body: BlocConsumer<VendorCubit, VendorState>(
         listener: (context, state) {
@@ -113,9 +111,7 @@ class _AllPackagesScreenState extends State<AllPackagesScreen> {
           // Loading State
           if (state is GetVendorPackagesLoading) {
             return const Center(
-              child: CircularProgressIndicator(
-                color: AppColors.primaryGold,
-              ),
+              child: CircularProgressIndicator(color: AppColors.primaryGold),
             );
           }
 
@@ -132,7 +128,7 @@ class _AllPackagesScreenState extends State<AllPackagesScreen> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'Error Loading Packages',
+                    'vendor.packages.error_loading'.tr(),
                     style: AppTextStyles.headline3.copyWith(
                       color: AppColors.primaryDark,
                     ),
@@ -152,7 +148,7 @@ class _AllPackagesScreenState extends State<AllPackagesScreen> {
                   ElevatedButton.icon(
                     onPressed: _loadPackages,
                     icon: const Icon(Icons.refresh_rounded),
-                    label: const Text('Retry'),
+                    label: Text('vendor.packages.retry'.tr()),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primaryGold,
                       foregroundColor: Colors.white,
@@ -180,9 +176,8 @@ class _AllPackagesScreenState extends State<AllPackagesScreen> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const CreatePackageScreen(
-                        isEdit: false,
-                      ),
+                      builder: (context) =>
+                          const CreatePackageScreen(isEdit: false),
                     ),
                   );
                 },
@@ -221,30 +216,25 @@ class _EmptyPackagesWidget extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            'No Packages Yet',
+            'vendor.packages.no_packages'.tr(),
             style: AppTextStyles.headline3.copyWith(
               color: AppColors.primaryDark,
             ),
           ),
           const SizedBox(height: 8),
           Text(
-            'Start by creating your first package',
-            style: AppTextStyles.body.copyWith(
-              color: AppColors.textSecondary,
-            ),
+            'vendor.packages.create_first'.tr(),
+            style: AppTextStyles.body.copyWith(color: AppColors.textSecondary),
           ),
           const SizedBox(height: 32),
           ElevatedButton.icon(
             onPressed: onAddPackage,
             icon: const Icon(Icons.add_circle_outline),
-            label: const Text('Create Package'),
+            label: Text('vendor.packages.create_package'.tr()),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primaryGold,
               foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(
-                horizontal: 32,
-                vertical: 16,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
@@ -261,10 +251,7 @@ class _PackagesListWidget extends StatelessWidget {
   final List<PackageModel> packages;
   final VoidCallback onRefresh;
 
-  const _PackagesListWidget({
-    required this.packages,
-    required this.onRefresh,
-  });
+  const _PackagesListWidget({required this.packages, required this.onRefresh});
 
   @override
   Widget build(BuildContext context) {
@@ -279,10 +266,7 @@ class _PackagesListWidget extends StatelessWidget {
           return FadeInUp(
             delay: Duration(milliseconds: 100 * index),
             duration: const Duration(milliseconds: 500),
-            child: _PackageCard(
-              package: package,
-              onRefresh: onRefresh,
-            ),
+            child: _PackageCard(package: package, onRefresh: onRefresh),
           );
         },
       ),
@@ -295,10 +279,7 @@ class _PackageCard extends StatelessWidget {
   final PackageModel package;
   final VoidCallback onRefresh;
 
-  const _PackageCard({
-    required this.package,
-    required this.onRefresh,
-  });
+  const _PackageCard({required this.package, required this.onRefresh});
 
   @override
   Widget build(BuildContext context) {
@@ -307,18 +288,15 @@ class _PackageCard extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-             AppColors.primaryDark.withOpacity(0.08),
-                AppColors.primaryDark.withOpacity(0.008),
-                
+            AppColors.primaryDark.withOpacity(0.08),
+            AppColors.primaryDark.withOpacity(0.008),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: AppColors.primaryGold.withOpacity(0.1),
-        ),
+        border: Border.all(color: AppColors.primaryGold.withOpacity(0.1)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
@@ -341,7 +319,7 @@ class _PackageCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        package.packageName ,
+                        package.packageName,
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -388,7 +366,7 @@ class _PackageCard extends StatelessWidget {
                         children: [
                           const Icon(Icons.edit_outlined, size: 20),
                           const SizedBox(width: 8),
-                          const Text('Edit'),
+                          Text('vendor.packages.edit'.tr()),
                         ],
                       ),
                     ),
@@ -396,9 +374,16 @@ class _PackageCard extends StatelessWidget {
                       value: 'delete',
                       child: Row(
                         children: [
-                          const Icon(Icons.delete_outline, size: 20, color: Colors.red),
+                          const Icon(
+                            Icons.delete_outline,
+                            size: 20,
+                            color: Colors.red,
+                          ),
                           const SizedBox(width: 8),
-                          const Text('Delete', style: TextStyle(color: Colors.red)),
+                          Text(
+                            'vendor.packages.delete'.tr(),
+                            style: const TextStyle(color: Colors.red),
+                          ),
                         ],
                       ),
                     ),
@@ -410,10 +395,7 @@ class _PackageCard extends StatelessWidget {
             ),
           ),
           // Divider
-          Divider(
-            height: 1,
-            color: AppColors.primaryGold.withOpacity(0.1),
-          ),
+          Divider(height: 1, color: AppColors.primaryGold.withOpacity(0.1)),
           // Package Details
           Padding(
             padding: const EdgeInsets.all(16),
@@ -424,7 +406,7 @@ class _PackageCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Price:',
+                      'vendor.packages.price'.tr(),
                       style: TextStyle(
                         fontSize: 14,
                         color: AppColors.textSecondary,
@@ -446,7 +428,7 @@ class _PackageCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Features:',
+                      'vendor.packages.features'.tr(),
                       style: TextStyle(
                         fontSize: 14,
                         color: AppColors.textSecondary,
@@ -478,7 +460,7 @@ class _PackageCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Status:',
+                      'vendor.packages.status'.tr(),
                       style: TextStyle(
                         fontSize: 14,
                         color: AppColors.textSecondary,
@@ -509,7 +491,9 @@ class _PackageCard extends StatelessWidget {
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            (package.isActive ?? false) ? 'Active' : 'Inactive',
+                            (package.isActive ?? false)
+                                ? 'vendor.packages.active'.tr()
+                                : 'vendor.packages.inactive'.tr(),
                             style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
@@ -546,13 +530,12 @@ class _PackageCard extends StatelessWidget {
           ),
           TextButton(
             onPressed: () {
-              context.read<VendorCubit>().deletePackage(package.packageId ?? '');
+              context.read<VendorCubit>().deletePackage(
+                package.packageId ?? '',
+              );
               Navigator.pop(context);
             },
-            child: const Text(
-              'Delete',
-              style: TextStyle(color: Colors.red),
-            ),
+            child: const Text('Delete', style: TextStyle(color: Colors.red)),
           ),
         ],
       ),

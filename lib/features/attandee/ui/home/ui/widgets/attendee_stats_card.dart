@@ -1,5 +1,6 @@
 // lib/features/attendee/presentation/widgets/home/attendee_stats_card.dart
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:plan_z/core/theming/text_styles.dart';
@@ -11,10 +12,7 @@ import 'package:shimmer/shimmer.dart';
 class AttendeeStatsCard extends StatelessWidget {
   final String attendeeId;
 
-  const AttendeeStatsCard({
-    super.key,
-    required this.attendeeId,
-  });
+  const AttendeeStatsCard({super.key, required this.attendeeId});
 
   @override
   Widget build(BuildContext context) {
@@ -59,24 +57,21 @@ class AttendeeStatsCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 // Total Invitations
-                Text(
-                  "$totalInvitations",
-                  style: AppTextStyles.headline1,
-                ),
+                Text("$totalInvitations", style: AppTextStyles.headline1),
                 const SizedBox(width: 20),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        "Total Invitations",
+                        'attendee.stats_total_invitations_label'.tr(),
                         style: AppTextStyles.subtitle.copyWith(
                           fontWeight: FontWeight.w600,
                         ),
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        "All events you've been invited to",
+                        'attendee.stats_total_invitations_caption'.tr(),
                         style: AppTextStyles.caption.copyWith(
                           color: Colors.grey[600],
                         ),
@@ -90,10 +85,7 @@ class AttendeeStatsCard extends StatelessWidget {
             const SizedBox(height: 20),
 
             // Divider
-            Divider(
-              color: Colors.grey[200],
-              thickness: 1,
-            ),
+            Divider(color: Colors.grey[200], thickness: 1),
 
             const SizedBox(height: 16),
 
@@ -104,34 +96,26 @@ class AttendeeStatsCard extends StatelessWidget {
                   child: _buildStatItem(
                     icon: Icons.schedule_rounded,
                     value: "$pendingInvitations",
-                    label: "Pending",
+                    label: 'attendee.stats_pending_label'.tr(),
                     color: Colors.orange,
                     hasBadge: pendingInvitations > 0,
                   ),
                 ),
-                Container(
-                  height: 40,
-                  width: 1,
-                  color: Colors.grey[200],
-                ),
+                Container(height: 40, width: 1, color: Colors.grey[200]),
                 Expanded(
                   child: _buildStatItem(
                     icon: Icons.check_circle_outline_rounded,
                     value: "$acceptedInvitations",
-                    label: "Accepted",
+                    label: 'attendee.stats_accepted_label'.tr(),
                     color: Colors.green,
                   ),
                 ),
-                Container(
-                  height: 40,
-                  width: 1,
-                  color: Colors.grey[200],
-                ),
+                Container(height: 40, width: 1, color: Colors.grey[200]),
                 Expanded(
                   child: _buildStatItem(
                     icon: Icons.event_rounded,
                     value: "$upcomingEvents",
-                    label: "Upcoming",
+                    label: 'attendee.stats_upcoming_label'.tr(),
                     color: AppColors.buttonPrimary,
                   ),
                 ),
@@ -181,16 +165,12 @@ class AttendeeStatsCard extends StatelessWidget {
         const SizedBox(height: 8),
         Text(
           value,
-          style: AppTextStyles.headline3.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+          style: AppTextStyles.headline3.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 2),
         Text(
           label,
-          style: AppTextStyles.caption.copyWith(
-            color: Colors.grey[600],
-          ),
+          style: AppTextStyles.caption.copyWith(color: Colors.grey[600]),
           textAlign: TextAlign.center,
         ),
       ],
@@ -200,9 +180,7 @@ class AttendeeStatsCard extends StatelessWidget {
   Widget _buildLoadingShimmer() {
     return Card(
       elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Container(
         height: 180,
         padding: const EdgeInsets.all(20),
@@ -232,11 +210,7 @@ class AttendeeStatsCard extends StatelessWidget {
                           color: Colors.white,
                         ),
                         const SizedBox(height: 8),
-                        Container(
-                          width: 150,
-                          height: 12,
-                          color: Colors.white,
-                        ),
+                        Container(width: 150, height: 12, color: Colors.white),
                       ],
                     ),
                   ),
@@ -252,23 +226,17 @@ class AttendeeStatsCard extends StatelessWidget {
   Widget _buildErrorCard(String message, BuildContext context) {
     return Card(
       elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Container(
         height: 180,
         padding: const EdgeInsets.all(20),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.error_outline_rounded,
-              color: Colors.red[300],
-              size: 48,
-            ),
+            Icon(Icons.error_outline_rounded, color: Colors.red[300], size: 48),
             const SizedBox(height: 12),
             Text(
-              "Failed to load stats",
+              'attendee.stats_failed'.tr(),
               style: AppTextStyles.subtitle.copyWith(
                 fontWeight: FontWeight.w600,
               ),
@@ -279,7 +247,7 @@ class AttendeeStatsCard extends StatelessWidget {
                 context.read<AttendeeCubit>().getAttendeeStats(attendeeId);
               },
               icon: const Icon(Icons.refresh),
-              label: const Text("Retry"),
+              label: Text('attendee.retry'.tr()),
             ),
           ],
         ),

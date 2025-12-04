@@ -1,5 +1,6 @@
 // lib/features/event_owner/presentation/screens/owner_home_screen.dart
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/material.dart';
@@ -40,7 +41,7 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: CustomAppBar(
-        title: 'Home',
+        title: "event_owner.home_title".tr(),
         actions: [
           // Notification Icon
           SlideInRight(
@@ -139,12 +140,12 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Hello, $userName! 👋',
+                    "event_owner.hello_user".tr(args: [userName]),
                     style: AppTextStyles.headline3,
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    'Welcome back to PlanZ.',
+                    "event_owner.welcome_back_planz".tr(),
                     style: TextStyle(
                       color: AppColors.primaryDark.withOpacity(0.6),
                       fontSize: 15,
@@ -210,7 +211,7 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
               child: AnimatedTextKit(
                 animatedTexts: [
                   TyperAnimatedText(
-                    'Welcome to Event Owner Dashboard',
+                    "event_owner.dashboard_welcome".tr(),
                     textStyle: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -226,7 +227,7 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
             const SizedBox(height: 12),
             // Description
             Text(
-              'Manage your events, track payments, and coordinate with vendors all in one place. Create memorable events with ease.',
+              "event_owner.dashboard_desc".tr(),
               style: TextStyle(
                 fontSize: 13,
                 color: AppColors.primaryDark.withOpacity(0.7),
@@ -243,10 +244,22 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
               mainAxisSpacing: 12,
               childAspectRatio: 2.2,
               children: [
-                _buildFeatureItem(Icons.event_note, 'Create Events'),
-                _buildFeatureItem(Icons.payment, 'Track Payments'),
-                _buildFeatureItem(Icons.people, 'Manage Vendors'),
-                _buildFeatureItem(Icons.analytics, 'View Analytics'),
+                _buildFeatureItem(
+                  Icons.event_note,
+                  "event_owner.create_events".tr(),
+                ),
+                _buildFeatureItem(
+                  Icons.payment,
+                  "event_owner.track_payments".tr(),
+                ),
+                _buildFeatureItem(
+                  Icons.people,
+                  "event_owner.manage_vendors".tr(),
+                ),
+                _buildFeatureItem(
+                  Icons.analytics,
+                  "event_owner.view_analytics".tr(),
+                ),
               ],
             ),
           ],
@@ -264,17 +277,11 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.6),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(
-          color: AppColors.primaryGold.withOpacity(0.2),
-        ),
+        border: Border.all(color: AppColors.primaryGold.withOpacity(0.2)),
       ),
       child: Row(
         children: [
-          Icon(
-            icon,
-            size: 18,
-            color: AppColors.primaryGold,
-          ),
+          Icon(icon, size: 18, color: AppColors.primaryGold),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
@@ -302,7 +309,10 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
       children: [
         FadeInUp(
           duration: const Duration(milliseconds: 600),
-          child: Text("Quick Actions", style: AppTextStyles.headline3),
+          child: Text(
+            "event_owner.quick_actions".tr(),
+            style: AppTextStyles.headline3,
+          ),
         ),
         const SizedBox(height: 16),
         GridView.count(
@@ -328,8 +338,8 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
                 delay: const Duration(milliseconds: 100),
                 child: _quickAction(
                   Icons.calendar_month_outlined,
-                  "My Events",
-                  "View and manage all your events",
+                  "event_owner.my_events".tr(),
+                  "event_owner.my_events_desc".tr(),
                 ),
               ),
             ),
@@ -348,8 +358,8 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
                 delay: const Duration(milliseconds: 100),
                 child: _quickAction(
                   Icons.miscellaneous_services_outlined,
-                  "Services",
-                  "Browse available services",
+                  "event_owner.services".tr(),
+                  "event_owner.services_desc".tr(),
                 ),
               ),
             ),
@@ -361,8 +371,8 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
                 delay: const Duration(milliseconds: 200),
                 child: _quickAction(
                   Icons.notifications_active,
-                  "Test Notification",
-                  "Send test notification",
+                  "event_owner.test_notification".tr(),
+                  "event_owner.send_test_notification".tr(),
                 ),
               ),
             ),
@@ -377,10 +387,10 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
   /// ============================================
   Future<void> _testNotification(BuildContext context) async {
     final userId = UserManager().userId;
-    
+
     if (userId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('❌ User ID not found')),
+        SnackBar(content: Text("event_owner.user_id_not_found".tr())),
       );
       return;
     }
@@ -390,13 +400,13 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
       context: context,
       barrierDismissible: false,
       builder: (ctx) => AlertDialog(
-        title: const Text('📤 Sending Test Notification'),
-        content: const Column(
+        title: Text("event_owner.sending_test_notification".tr()),
+        content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             CircularProgressIndicator(),
             SizedBox(height: 16),
-            Text('Sending notification to your account...'),
+            Text("event_owner.sending_notification_to_account".tr()),
           ],
         ),
       ),
@@ -407,20 +417,21 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
       await NotificationService.sendNotification(
         receiverId: userId,
         receiverRole: 'event_owner',
-        title: '✅ Test Notification',
-        body: 'This is a test notification from PlanZ app!',
+        title: "event_owner.test_notification_title".tr(),
+        body: "event_owner.test_notification_body".tr(),
         type: 'test',
         data: {
           'testId': DateTime.now().millisecondsSinceEpoch.toString(),
-          'message': 'Test notification successfully sent!',
+          'message': "event_owner.test_notification_sent".tr(),
         },
-        fcmToken: 'cwcBijL2RGK20WFfNM38JW:APA91bHlZA6i8BPUAJPZudhp9_ZULvC8f7aGgYdMa1YBj9wekAa0Eck78wnVf8HkAfkeeOm-YxfEp6mBkWvpsvTOJeI5wzGMAsQt05WtrYXPCyESUfjAiow',
+        fcmToken:
+            'cwcBijL2RGK20WFfNM38JW:APA91bHlZA6i8BPUAJPZudhp9_ZULvC8f7aGgYdMa1YBj9wekAa0Eck78wnVf8HkAfkeeOm-YxfEp6mBkWvpsvTOJeI5wzGMAsQt05WtrYXPCyESUfjAiow',
       );
 
       // 2. Show local notification immediately (for instant feedback)
       await NotificationService.showLocalNotification(
-        title: '✅ Test Notification',
-        body: 'This is a test notification from PlanZ app!',
+        title: "event_owner.test_notification_title".tr(),
+        body: "event_owner.test_notification_body".tr(),
       );
 
       // Close loading dialog
@@ -429,8 +440,8 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
       // Show success snackbar
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('✅ Notification sent successfully!'),
+          SnackBar(
+            content: Text("event_owner.notification_sent_success".tr()),
             backgroundColor: Colors.green,
             duration: Duration(seconds: 3),
           ),
@@ -445,7 +456,7 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('❌ Error: $e'),
+            content: Text("event_owner.error_prefix".tr(args: [e.toString()])),
             backgroundColor: Colors.red,
             duration: const Duration(seconds: 3),
           ),
@@ -455,7 +466,6 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
     }
   }
 
-
   /// ============================================
   /// Quick Action Card Widget
   /// ============================================
@@ -463,7 +473,7 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
     return Material(
       color: Colors.transparent,
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
@@ -478,10 +488,11 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
             // ✅ Icon with gradient background
             Container(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
@@ -496,20 +507,16 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
                   color: AppColors.primaryGold.withOpacity(0.2),
                 ),
               ),
-              child: Icon(
-                icon,
-                color: AppColors.primaryGold,
-                size: 28,
-              ),
+              child: Icon(icon, color: AppColors.primaryGold, size: 26),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 10),
             // ✅ Label
             Text(
               label,
               style: const TextStyle(
                 fontWeight: FontWeight.w600,
                 color: AppColors.primaryDark,
-                fontSize: 14,
+                fontSize: 13,
               ),
               textAlign: TextAlign.center,
               maxLines: 2,
@@ -517,13 +524,13 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
             ),
             // ✅ Description (optional)
             if (description != null) ...[
-              const SizedBox(height: 6),
+              const SizedBox(height: 4),
               Text(
                 description,
                 style: TextStyle(
                   fontWeight: FontWeight.w400,
                   color: AppColors.primaryDark.withOpacity(0.6),
-                  fontSize: 11,
+                  fontSize: 10,
                 ),
                 textAlign: TextAlign.center,
                 maxLines: 2,
@@ -535,7 +542,6 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
       ),
     );
   }
-
 
   /// ============================================
   /// Helper Methods
@@ -562,19 +568,19 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
   String _getStatusLabel(EventStatus status) {
     switch (status) {
       case EventStatus.draft:
-        return 'Draft';
+        return "event_owner.status_draft".tr();
       case EventStatus.pending:
-        return 'Pending';
+        return "event_owner.status_pending".tr();
       case EventStatus.approved:
-        return 'Approved';
+        return "event_owner.status_approved".tr();
       case EventStatus.partiallyPaid:
-        return 'Partial';
+        return "event_owner.status_partial".tr();
       case EventStatus.confirmed:
-        return 'Confirmed';
+        return "event_owner.status_confirmed".tr();
       case EventStatus.cancelled:
-        return 'Cancelled';
+        return "event_owner.status_cancelled".tr();
       case EventStatus.completed:
-        return 'Completed';
+        return "event_owner.status_completed".tr();
     }
   }
 }

@@ -1,6 +1,7 @@
 // lib/features/attendee/presentation/widgets/invitations/invitation_card.dart
 
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:intl/intl.dart';
 import 'package:plan_z/core/theming/text_styles.dart';
 import 'package:plan_z/core/utils/app_colors.dart';
@@ -59,7 +60,9 @@ class InvitationCard extends StatelessWidget {
                 // Event Owner
                 _buildInfoRow(
                   icon: Icons.person_outline_rounded,
-                  text: "Hosted by ${invitation.eventOwnerName}",
+                  text: 'attendee.invitation_card_hosted_by'.tr(
+                    args: [invitation.eventOwnerName],
+                  ),
                 ),
 
                 const SizedBox(height: 6),
@@ -67,7 +70,9 @@ class InvitationCard extends StatelessWidget {
                 // Sent Date
                 _buildInfoRow(
                   icon: Icons.access_time_rounded,
-                  text: "Sent ${_formatDate(invitation.sentAt)}",
+                  text: 'attendee.invitation_card_sent_prefix'.tr(
+                    args: [_formatDate(invitation.sentAt)],
+                  ),
                 ),
 
                 // Personal Message (if exists)
@@ -119,18 +124,12 @@ class InvitationCard extends StatelessWidget {
   Widget _buildInfoRow({required IconData icon, required String text}) {
     return Row(
       children: [
-        Icon(
-          icon,
-          size: 16,
-          color: Colors.grey[600],
-        ),
+        Icon(icon, size: 16, color: Colors.grey[600]),
         const SizedBox(width: 8),
         Expanded(
           child: Text(
             text,
-            style: AppTextStyles.caption.copyWith(
-              color: Colors.grey[600],
-            ),
+            style: AppTextStyles.caption.copyWith(color: Colors.grey[600]),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
@@ -139,22 +138,29 @@ class InvitationCard extends StatelessWidget {
     );
   }
 
-
   String _formatDate(DateTime date) {
     final now = DateTime.now();
     final difference = now.difference(date);
 
     if (difference.inDays == 0) {
       if (difference.inHours == 0) {
-        return "${difference.inMinutes} minutes ago";
+        return 'attendee.invitation_time_minutes_ago'.tr(
+          args: [difference.inMinutes.toString()],
+        );
       }
-      return "${difference.inHours} hours ago";
+      return 'attendee.invitation_time_hours_ago'.tr(
+        args: [difference.inHours.toString()],
+      );
     } else if (difference.inDays == 1) {
-      return "Yesterday";
+      return 'attendee.invitation_time_yesterday'.tr();
     } else if (difference.inDays < 7) {
-      return "${difference.inDays} days ago";
+      return 'attendee.invitation_time_days_ago'.tr(
+        args: [difference.inDays.toString()],
+      );
     } else {
-      return DateFormat('MMM d, y').format(date);
+      return DateFormat(
+        'attendee.invitation_time_date_format'.tr(),
+      ).format(date);
     }
   }
 }

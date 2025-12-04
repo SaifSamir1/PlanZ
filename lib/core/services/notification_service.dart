@@ -37,7 +37,8 @@ class NotificationService {
 
     await _localNotifications
         .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>()
+          AndroidFlutterLocalNotificationsPlugin
+        >()
         ?.createNotificationChannel(channel);
   }
 
@@ -65,34 +66,40 @@ class NotificationService {
   }) async {
     try {
       debugPrint('📤 [NotificationService] Sending notification...');
-      debugPrint('   receiverId: $receiverId, role: $receiverRole, title: $title');
+      debugPrint(
+        '   receiverId: $receiverId, role: $receiverRole, title: $title',
+      );
 
-      // Get receiver token if not provided
+      // Get FCM token if not provided
       String? token = fcmToken;
       if (token == null) {
-        try {
-          String collectionName;
-          switch (receiverRole) {
-            case 'vendor':
-              collectionName = 'vendors';
-              break;
-            case 'eventOwner':
-            case 'event_owner':
-              collectionName = 'event_owners';
-              break;
-            case 'attendee':
-              collectionName = 'attendees';
-              break;
-            case 'admin':
-            case 'app_owner':
-              collectionName = 'admins';
-              break;
-            default:
-              debugPrint('❌ Unknown receiver role: $receiverRole');
-              return false;
-          }
+        debugPrint(
+          '🔍 [NotificationService] FCM token not provided, fetching from Firestore...',
+        );
+        // Determine collection based on role
+        String collectionName;
+        switch (receiverRole) {
+          case 'vendor':
+            collectionName = 'vendors';
+            break;
+          case 'eventOwner':
+            collectionName = 'event_owners';
+            break;
+          case 'attendee':
+            collectionName = 'attendees';
+            break;
+          case 'admin':
+            collectionName = 'admins';
+            break;
+          default:
+            collectionName = 'attendees'; // Default fallback
+        }
 
-          final userDoc = await _firestore.collection(collectionName).doc(receiverId).get();
+        try {
+          final userDoc = await _firestore
+              .collection(collectionName)
+              .doc(receiverId)
+              .get();
           token = userDoc.data()?['fcmToken'] as String?;
           debugPrint('   Fetched FCM token: $token');
         } catch (e) {
@@ -102,8 +109,10 @@ class NotificationService {
       }
 
       if (token == null) {
-        debugPrint('❌ No FCM token available for receiver.');
-        return false;
+        debugPrint(
+          '❌ [NotificationService] No FCM token available for receiver - Notification will be saved but not sent via FCM',
+        );
+        // We still continue to save to Firestore so the user sees it in their in-app list
       }
 
       // Notification ID
@@ -118,7 +127,7 @@ class NotificationService {
         'body': body,
         'type': type,
         'data': data ?? {},
-        'fcmTokens': [token],
+        'fcmTokens': token != null ? [token] : [],
         'isRead': false,
         'createdAt': Timestamp.now(),
         'updatedAt': Timestamp.now(),
@@ -127,16 +136,16 @@ class NotificationService {
       try {
         await _firestore.collection('notifications').add(notificationData);
         debugPrint('✅ Notification saved to Firestore');
+        debugPrint(
+          '   Firestore listener will display notification on all open devices',
+        );
       } catch (e) {
         debugPrint('⚠️ Firestore save failed: $e');
+        return false;
       }
 
-      // Show local notification on current device
-      try {
-        await showLocalNotification(title: title, body: body, id: notificationId.hashCode.abs() % 2147483647);
-      } catch (e) {
-        debugPrint('⚠️ Local notification error: $e');
-      }
+      // ✅ Don't show local notification here - let Firestore listener handle it
+      // This prevents duplicate notifications and ensures all devices get notified equally
 
       return true;
     } catch (e) {
@@ -179,23 +188,29 @@ class NotificationService {
     required String body,
     int id = 999,
   }) async {
-    const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
-      'plan_z_channel',
-      'PlanZ Notifications',
-      channelDescription: 'Important notifications for PlanZ users.',
-      importance: Importance.max,
-      priority: Priority.high,
-      icon: '@drawable/ic_notification',
-    );
+    const AndroidNotificationDetails androidDetails =
+        AndroidNotificationDetails(
+          'plan_z_channel',
+          'PlanZ Notifications',
+          channelDescription: 'Important notifications for PlanZ users.',
+          importance: Importance.max,
+          priority: Priority.high,
+          icon: '@drawable/ic_notification',
+        );
 
-    const NotificationDetails platformDetails = NotificationDetails(android: androidDetails);
+    const NotificationDetails platformDetails = NotificationDetails(
+      android: androidDetails,
+    );
 
     await _localNotifications.show(id, title, body, platformDetails);
     debugPrint('✅ Local notification displayed: $title');
   }
 
   // -------------------- Firestore Streams --------------------
-  static Stream<List<Map<String, dynamic>>> getUserNotifications(String userId, String userRole) {
+  static Stream<List<Map<String, dynamic>>> getUserNotifications(
+    String userId,
+    String userRole,
+  ) {
     return _firestore
         .collection('notifications')
         .where('receiverId', isEqualTo: userId)
@@ -258,7 +273,10 @@ class NotificationService {
     }
   }
 
-  static Future<int> clearAllNotifications(String userId, String userRole) async {
+  static Future<int> clearAllNotifications(
+    String userId,
+    String userRole,
+  ) async {
     try {
       final docs = await _firestore
           .collection('notifications')
@@ -289,7 +307,10 @@ class NotificationService {
 
       final eventsSnapshot = await _firestore
           .collection('events')
-          .where('eventDate', isGreaterThanOrEqualTo: Timestamp.fromDate(startRange))
+          .where(
+            'eventDate',
+            isGreaterThanOrEqualTo: Timestamp.fromDate(startRange),
+          )
           .where('eventDate', isLessThanOrEqualTo: Timestamp.fromDate(endRange))
           .get();
 

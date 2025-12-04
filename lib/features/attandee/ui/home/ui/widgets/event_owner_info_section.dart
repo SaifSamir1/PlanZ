@@ -1,5 +1,6 @@
 // lib/features/attendee/presentation/widgets/invitation_details/event_owner_info_section.dart
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:plan_z/core/theming/text_styles.dart';
 import 'package:plan_z/core/utils/app_colors.dart';
@@ -8,10 +9,7 @@ import 'package:plan_z/features/event_owners/create_event_screen/data/models/eve
 class EventOwnerInfoSection extends StatelessWidget {
   final EventInvitationModel invitation;
 
-  const EventOwnerInfoSection({
-    super.key,
-    required this.invitation,
-  });
+  const EventOwnerInfoSection({super.key, required this.invitation});
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +42,7 @@ class EventOwnerInfoSection extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Hosted by",
+                    'attendee.invitations_owner_hosted_by'.tr(),
                     style: AppTextStyles.caption.copyWith(
                       color: Colors.grey[600],
                     ),
@@ -124,6 +122,4 @@ class EventOwnerInfoSection extends StatelessWidget {
   //     ),
   //   );
   // }
-
-
 }

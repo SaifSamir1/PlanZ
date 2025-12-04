@@ -90,6 +90,8 @@ class AuthRepositoryImpl implements AuthRepository {
     required String password,
   }) async {
     try {
+      print('🔐 [AuthRepo.signIn] Starting login for email: $email');
+
       // تسجيل الدخول في Firebase Auth
       final credential = await _firebaseAuth.signInWithEmailAndPassword(
         email: email,
@@ -97,62 +99,117 @@ class AuthRepositoryImpl implements AuthRepository {
       );
 
       if (credential.user == null) {
+        print('❌ [AuthRepo.signIn] Firebase Auth credential.user is null');
         return const Left(AuthFailure('Failed to sign in'));
       }
 
+      print(
+        '✅ [AuthRepo.signIn] Firebase Auth successful for: ${credential.user!.email}',
+      );
+
       // البحث عن المستخدم في جميع الكولكشنز
       UserModel? userModel;
+      String?
+      actualCollectionName; // ✅ Track the actual collection where user was found
 
       for (final userType in UserType.values) {
         final collectionName = _getCollectionName(userType);
+        print(
+          '🔍 [AuthRepo.signIn] Searching in collection: $collectionName for email: $email',
+        );
+
         final querySnapshot = await _firestore
             .collection(collectionName)
             .where('email', isEqualTo: email)
             .limit(1)
             .get();
 
+        print(
+          '📊 [AuthRepo.signIn] Found ${querySnapshot.docs.length} document(s) in $collectionName',
+        );
+
         if (querySnapshot.docs.isNotEmpty) {
-          userModel = UserModel.fromJson(querySnapshot.docs.first.data());
-          break;
+          try {
+            final docData = querySnapshot.docs.first.data();
+            print(
+              '📄 [AuthRepo.signIn] Document data from $collectionName: $docData',
+            );
+
+            userModel = UserModel.fromJson(docData);
+            actualCollectionName =
+                collectionName; // ✅ Store the actual collection name
+            print(
+              '✅ [AuthRepo.signIn] Successfully parsed UserModel: ${userModel.toString()}',
+            );
+            print(
+              '📍 [AuthRepo.signIn] User found in collection: $actualCollectionName',
+            );
+            break;
+          } catch (e) {
+            print(
+              '❌ [AuthRepo.signIn] Error parsing UserModel from $collectionName: $e',
+            );
+            throw e;
+          }
         }
       }
 
-      if (userModel == null) {
+      if (userModel == null || actualCollectionName == null) {
+        print(
+          '❌ [AuthRepo.signIn] User data not found in any collection for email: $email',
+        );
         await _firebaseAuth.signOut();
         return const Left(AuthFailure('User data not found'));
       }
 
       // التحقق من أن المستخدم نشط
       if (!userModel.isActive) {
+        print(
+          '❌ [AuthRepo.signIn] User account is deactivated: ${userModel.id}',
+        );
         await _firebaseAuth.signOut();
         return const Left(AuthFailure('Account is deactivated'));
       }
+
+      print('✅ [AuthRepo.signIn] User is active, proceeding with login');
 
       // حفظ جلسة المستخدم محلياً
       await AuthHiveService.saveUserSession(
         userId: userModel.id,
         userType: userModel.userType.name,
       );
+      print('✅ [AuthRepo.signIn] User session saved to Hive');
 
-      // ✅ Update FCM token on sign-in
+      // ✅ Update FCM token using the ACTUAL collection where user was found
       try {
         final fcmToken = await FirebaseMessaging.instance.getToken();
         if (fcmToken != null) {
-          final collectionName = _getCollectionName(userModel.userType);
-          await _firestore.collection(collectionName).doc(userModel.id).update({
-            'fcmToken': fcmToken,
-            'fcmTokenUpdatedAt': Timestamp.now(),
-          });
+          print(
+            '🔄 [AuthRepo.signIn] Updating FCM token in collection: $actualCollectionName',
+          );
+          await _firestore
+              .collection(actualCollectionName)
+              .doc(userModel.id)
+              .update({
+                'fcmToken': fcmToken,
+                'fcmTokenUpdatedAt': Timestamp.now(),
+              });
+          print('✅ [AuthRepo.signIn] FCM token updated successfully');
         }
       } catch (e) {
         // Don't fail login if FCM token update fails
-        print('⚠️ Failed to update FCM token on login: $e');
+        print('⚠️ [AuthRepo.signIn] Failed to update FCM token: $e');
       }
 
+      print('🎉 [AuthRepo.signIn] Login successful for user: ${userModel.id}');
       return Right(userModel);
     } on FirebaseAuthException catch (e) {
+      print(
+        '❌ [AuthRepo.signIn] FirebaseAuthException: ${e.code} - ${e.message}',
+      );
       return Left(AuthFailure(_getAuthErrorMessage(e.code)));
     } catch (e) {
+      print('❌ [AuthRepo.signIn] Unexpected error: $e');
       return Left(ServerFailure('Failed to sign in: ${e.toString()}'));
     }
   }

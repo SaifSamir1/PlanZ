@@ -1,5 +1,6 @@
 // lib/features/events/presentation/screens/select_event_type_screen.dart
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:plan_z/core/services/json_service.dart';
@@ -52,26 +53,24 @@ class _SelectEventTypeScreenState extends State<SelectEventTypeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: const CustomAppBar(
-        title: 'Select Event Type',
+      appBar: CustomAppBar(
+        title: "event_owner.select_event_type_screen.title".tr(),
       ),
       body: _isLoading
           ? _buildLoadingView()
           : _errorMessage != null
-              ? _buildErrorView()
-              : Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildIntroSection(),
-                      const SizedBox(height: 10),
-                      Expanded(
-                        child: _buildEventTypesGrid(context),
-                      ),
-                    ],
-                  ),
-                ),
+          ? _buildErrorView()
+          : Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildIntroSection(),
+                  const SizedBox(height: 10),
+                  Expanded(child: _buildEventTypesGrid(context)),
+                ],
+              ),
+            ),
     );
   }
 
@@ -100,8 +99,8 @@ class _SelectEventTypeScreenState extends State<SelectEventTypeScreen> {
           ),
           const SizedBox(height: 20),
           Text(
-            'Loading event types...',
-            style: TextStyle(
+            "event_owner.select_event_type_screen.loading".tr(),
+            style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
               color: AppColors.textPrimary,
@@ -109,8 +108,8 @@ class _SelectEventTypeScreenState extends State<SelectEventTypeScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Please wait while we prepare your options',
-            style: TextStyle(
+            "event_owner.select_event_type_screen.wait_message".tr(),
+            style: const TextStyle(
               fontSize: 13,
               color: AppColors.textSecondary,
             ),
@@ -142,9 +141,9 @@ class _SelectEventTypeScreenState extends State<SelectEventTypeScreen> {
             ),
             const SizedBox(height: 20),
             Text(
-              'Oops! Something went wrong',
+              "event_owner.select_event_type_screen.error_title".tr(),
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
                 color: AppColors.textPrimary,
@@ -152,9 +151,12 @@ class _SelectEventTypeScreenState extends State<SelectEventTypeScreen> {
             ),
             const SizedBox(height: 12),
             Text(
-              _errorMessage ?? 'An error occurred while loading event types',
+              _errorMessage ??
+                  "event_owner.select_event_type_screen.error_message".tr(
+                    args: [''],
+                  ),
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 14,
                 color: AppColors.textSecondary,
                 height: 1.5,
@@ -164,7 +166,9 @@ class _SelectEventTypeScreenState extends State<SelectEventTypeScreen> {
             ElevatedButton.icon(
               onPressed: _loadEventTypes,
               icon: const Icon(Icons.refresh),
-              label: const Text('Try Again'),
+              label: Text(
+                "event_owner.select_event_type_screen.try_again".tr(),
+              ),
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 32,
@@ -189,8 +193,8 @@ class _SelectEventTypeScreenState extends State<SelectEventTypeScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'What type of event are you planning?',
-          style: TextStyle(
+          "event_owner.select_event_type_screen.intro_title".tr(),
+          style: const TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.w600,
             color: AppColors.textPrimary,
@@ -209,8 +213,8 @@ class _SelectEventTypeScreenState extends State<SelectEventTypeScreen> {
             ),
           ),
           child: Text(
-            'Choose your event type to get started with customized planning',
-            style: TextStyle(
+            "event_owner.select_event_type_screen.intro_desc".tr(),
+            style: const TextStyle(
               fontSize: 12,
               color: AppColors.textSecondary,
               height: 1.5,
@@ -256,6 +260,14 @@ class _SelectEventTypeScreenState extends State<SelectEventTypeScreen> {
       }
     }
 
+    // Determine the localized name based on current locale
+    final isArabic = context.locale.languageCode == 'ar';
+    final eventTypeName = isArabic
+        ? (eventType['eventTypeNameAr'] ??
+              eventType['eventTypeName'] ??
+              'Event')
+        : (eventType['eventTypeName'] ?? 'Event');
+
     return GestureDetector(
       onTap: () => _onEventTypeSelected(context, eventType),
       child: MouseRegion(
@@ -264,10 +276,7 @@ class _SelectEventTypeScreenState extends State<SelectEventTypeScreen> {
           duration: const Duration(milliseconds: 300),
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [
-                cardColor,
-                cardColor.withOpacity(0.75),
-              ],
+              colors: [cardColor, cardColor.withOpacity(0.75)],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
@@ -279,10 +288,7 @@ class _SelectEventTypeScreenState extends State<SelectEventTypeScreen> {
                 offset: const Offset(0, 6),
               ),
             ],
-            border: Border.all(
-              color: Colors.white.withOpacity(0.1),
-              width: 1,
-            ),
+            border: Border.all(color: Colors.white.withOpacity(0.1), width: 1),
           ),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
@@ -302,7 +308,7 @@ class _SelectEventTypeScreenState extends State<SelectEventTypeScreen> {
                 const SizedBox(height: 14),
                 // ✅ Event Type Name
                 Text(
-                  eventType['eventTypeName'] ?? 'Event',
+                  eventTypeName,
                   textAlign: TextAlign.center,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
@@ -315,6 +321,9 @@ class _SelectEventTypeScreenState extends State<SelectEventTypeScreen> {
                 ),
                 const SizedBox(height: 8),
                 // ✅ Description
+                // Note: Description might not be localized in the JSON yet,
+                // but if it were, we would handle it similarly.
+                // For now, we just show what's available.
                 Flexible(
                   child: Text(
                     eventType['description'] ?? '',
@@ -361,10 +370,7 @@ class _SelectEventTypeScreenState extends State<SelectEventTypeScreen> {
     }
 
     // Otherwise, it's an emoji
-    return Text(
-      iconStr,
-      style: const TextStyle(fontSize: 42),
-    );
+    return Text(iconStr, style: const TextStyle(fontSize: 42));
   }
 
   /// Handle Event Type Selection
@@ -373,17 +379,15 @@ class _SelectEventTypeScreenState extends State<SelectEventTypeScreen> {
     Map<String, dynamic> eventType,
   ) {
     context.read<EventCreationCubit>().setEventType(
-          eventTypeId: eventType['eventTypeId'],
-          eventTypeName: eventType['eventTypeName'],
-          eventTypeNameAr: eventType['eventTypeNameAr'],
-        );
+      eventTypeId: eventType['eventTypeId'],
+      eventTypeName: eventType['eventTypeName'],
+      eventTypeNameAr: eventType['eventTypeNameAr'],
+    );
 
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => BasicEventInfoScreen(
-          eventType: eventType,
-        ),
+        builder: (context) => BasicEventInfoScreen(eventType: eventType),
       ),
     );
   }
