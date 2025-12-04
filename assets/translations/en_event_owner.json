@@ -12,7 +12,10 @@
         "notifications_title": "Notifications",
         "please_login_notifications": "Please log in to view notifications",
         "services_screen": {
-            "title": "Services"
+            "title": "Services",
+            "price_range_format": "{} - {} ج.م",
+            "description": "service description",
+            "description_ar": "service description in arabic"
         },
         "select_event_type_screen": {
             "loading": "Loading event types...",
