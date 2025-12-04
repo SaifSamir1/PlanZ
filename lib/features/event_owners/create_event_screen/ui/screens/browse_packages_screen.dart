@@ -2,12 +2,11 @@
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:plan_z/core/utils/app_colors.dart';
 import 'package:plan_z/features/event_owners/create_event_screen/cubits/create_event_cubit/create_event_cubit.dart';
 import 'package:plan_z/features/event_owners/create_event_screen/cubits/create_event_cubit/create_event_state.dart';
-
 import 'package:plan_z/features/event_owners/create_event_screen/ui/screens/event_review_screen.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:plan_z/features/event_owners/create_event_screen/ui/widgets/browse_packages_content.dart';
 import 'package:plan_z/features/vendor_features/packages_mangment/data/models/package_model.dart';
 
@@ -126,46 +125,37 @@ class _BrowsePackagesScreenState extends State<BrowsePackagesScreen> {
                   });
                 } else if (state is GetPackagesByServiceError) {
                   setState(() => _isLoadingPackages = false);
-                  ScaffoldMessenger.of(
-                    context,
-                  ).showSnackBar(SnackBar(content: Text(state.message)));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(state.message)),
+                  );
                 }
-              }
-            });
-            _applyFilters();
-          } else if (state is GetPackagesByServiceError) {
-            setState(() => _isLoadingPackages = false);
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Error: ${state.message}')),
-            );
-          }
-        },
-        child: currentService == null
-            ? const Center(child: Text('No services available'))
-            : BrowsePackagesContent(
-                currentService: currentService,
-                services: services,
-                isLoadingPackages: _isLoadingPackages,
-                filteredPackages: _filteredPackages,
-                allPackages: _allPackages,
-                selectedPackages: _selectedPackages,
-                sortBy: _sortBy,
-                minPrice: _minPrice,
-                maxPrice: _maxPrice,
-                currentServiceIndex: _currentServiceIndex,
-                onSelectPackage: _selectPackage,
-                onShowFilterDialog: _showFilterDialog,
-                onShowPackageDetails: _showPackageDetails,
-                onSkipService: _skipService,
-                onNextService: _nextService,
-                onFinishSelection: _finishSelection,
-                onSortChanged: (value) => setState(() {
-                  _sortBy = value!;
-                  _applyFilters();
-                }),
-                onApplyFilters: _applyFilters,
-              ),
-      ),
+              },
+              builder: (context, state) {
+                return BrowsePackagesContent(
+                  currentService: currentService,
+                  services: services,
+                  isLoadingPackages: _isLoadingPackages,
+                  filteredPackages: _filteredPackages,
+                  allPackages: _allPackages,
+                  selectedPackages: _selectedPackages,
+                  sortBy: _sortBy,
+                  minPrice: _minPrice,
+                  maxPrice: _maxPrice,
+                  currentServiceIndex: _currentServiceIndex,
+                  onSelectPackage: _selectPackage,
+                  onShowFilterDialog: _showFilterDialog,
+                  onShowPackageDetails: _showPackageDetails,
+                  onSkipService: _skipService,
+                  onNextService: _nextService,
+                  onFinishSelection: _finishSelection,
+                  onSortChanged: (value) => setState(() {
+                    _sortBy = value!;
+                    _applyFilters();
+                  }),
+                  onApplyFilters: _applyFilters,
+                );
+              },
+            ),
     );
   }
 
@@ -173,15 +163,14 @@ class _BrowsePackagesScreenState extends State<BrowsePackagesScreen> {
     final currentService = _getCurrentService();
     if (currentService == null) return;
 
-void _selectPackage(PackageModel package) {
-  final serviceId = _getCurrentService()!['serviceId'];
-  debugPrint('📦 [_selectPackage] Selected: $serviceId -> ${package.packageName} (${package.price})');
-  
-  setState(() {
-    _selectedPackages[serviceId] = package; // ✅ خزّن الـ Object كاملة
-    debugPrint('   Total selected packages now: ${_selectedPackages.length}');
-  });
-}
+    final serviceId = currentService['serviceId'];
+    debugPrint('📦 [_selectPackage] Selected: $serviceId -> ${package.packageName} (${package.price})');
+
+    setState(() {
+      _selectedPackages[serviceId] = package; // ✅ خزّن الـ Object كاملة
+      debugPrint('   Total selected packages now: ${_selectedPackages.length}');
+    });
+  }
 
   void _skipService() {
     _nextService();

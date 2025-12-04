@@ -112,127 +112,134 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: CustomAppBar(
-        title: 'vendor.home.title'.tr(),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16),
-            child: GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const VendorSettingsScreen(),
-                  ),
-                );
-              },
-              child: CircleAvatar(
-                radius: 18,
-                backgroundColor: Colors.white,
-                child: Text(
-                  _userManager.getUserInitials(),
-                  style: AppTextStyles.body.copyWith(
-                    color: AppColors.primaryDark,
-                    fontWeight: FontWeight.bold,
+    return WillPopScope(
+      onWillPop: () async {
+        // ✅ منع الرجوع للـ login - البقاء في الـ home screen
+        debugPrint('🔒 [VendorHomeScreen] Back button pressed - staying in home');
+        return false; // ❌ لا تسمح بالـ pop
+      },
+      child: Scaffold(
+        backgroundColor: AppColors.background,
+        appBar: CustomAppBar(
+          title: 'vendor.home.title'.tr(),
+          actions: [
+            Padding(
+              padding: const EdgeInsets.only(right: 16),
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const VendorSettingsScreen(),
+                    ),
+                  );
+                },
+                child: CircleAvatar(
+                  radius: 18,
+                  backgroundColor: Colors.white,
+                  child: Text(
+                    _userManager.getUserInitials(),
+                    style: AppTextStyles.body.copyWith(
+                      color: AppColors.primaryDark,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-        ],
-      ),
-      floatingActionButton: _buildChatFAB(),
-      body: BlocListener<AuthCubit, AuthState>(
-        listenWhen: (previous, current) => current is AuthSignOutSuccess,
-        listener: (context, state) {
-          if (state is AuthSignOutSuccess) {
-            debugPrint(
-              '✅ [BlocListener] Logout successful, navigating to OnBoarding',
-            );
-            Navigator.of(context).pushAndRemoveUntil(
-              MaterialPageRoute(builder: (context) => const OnBoardingScreen()),
-              (route) => false,
-            );
-          }
-        },
-        child: BlocListener<VendorCubit, VendorState>(
-          listenWhen: (previous, current) {
-            // ✅ Listen to balance, requests, and packages updates
-            return current is GetVendorBalanceSuccess ||
-                current is GetVendorRequestsSuccess ||
-                current is GetVendorPackagesSuccess;
-          },
+          ],
+        ),
+        floatingActionButton: _buildChatFAB(),
+        body: BlocListener<AuthCubit, AuthState>(
+          listenWhen: (previous, current) => current is AuthSignOutSuccess,
           listener: (context, state) {
-            // ✅ Cache balance when it arrives
-            if (state is GetVendorBalanceSuccess) {
-              setState(() {
-                _cachedBalance = state.balance;
-              });
-              debugPrint('💰 [BlocListener] Cached balance: $_cachedBalance');
-            }
-
-            // ✅ Cache requests stats when they arrive
-            if (state is GetVendorRequestsSuccess) {
-              setState(() {
-                _cachedPendingRequests = state.requests
-                    .where((r) => r.status == RequestStatus.pending)
-                    .length;
-                _cachedActiveJobs = state.requests
-                    .where((r) => r.status == RequestStatus.accepted)
-                    .length;
-              });
+            if (state is AuthSignOutSuccess) {
               debugPrint(
-                '📊 [BlocListener] Cached stats - Active: $_cachedActiveJobs, Pending: $_cachedPendingRequests',
+                '✅ [BlocListener] Logout successful, navigating to OnBoarding',
               );
-            }
-
-            // ✅ Cache packages count when they arrive
-            if (state is GetVendorPackagesSuccess) {
-              setState(() {
-                _cachedTotalPackages = state.packages.length;
-              });
-              debugPrint(
-                '📦 [BlocListener] Cached packages: $_cachedTotalPackages',
+              Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(builder: (context) => const OnBoardingScreen()),
+                (route) => false,
               );
             }
           },
-          child: RefreshIndicator(
-            onRefresh: _refreshData,
-            color: AppColors.primaryGold,
-            child: SingleChildScrollView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Welcome Message
-                  _buildWelcomeMessage(),
-                  const SizedBox(height: 20),
+          child: BlocListener<VendorCubit, VendorState>(
+            listenWhen: (previous, current) {
+              // ✅ Listen to balance, requests, and packages updates
+              return current is GetVendorBalanceSuccess ||
+                  current is GetVendorRequestsSuccess ||
+                  current is GetVendorPackagesSuccess;
+            },
+            listener: (context, state) {
+              // ✅ Cache balance when it arrives
+              if (state is GetVendorBalanceSuccess) {
+                setState(() {
+                  _cachedBalance = state.balance;
+                });
+                debugPrint('💰 [BlocListener] Cached balance: $_cachedBalance');
+              }
 
-                  // Earnings Summary Card
-                  _buildEarningsSummaryCard(),
-                  const SizedBox(height: 20),
+              // ✅ Cache requests stats when they arrive
+              if (state is GetVendorRequestsSuccess) {
+                setState(() {
+                  _cachedPendingRequests = state.requests
+                      .where((r) => r.status == RequestStatus.pending)
+                      .length;
+                  _cachedActiveJobs = state.requests
+                      .where((r) => r.status == RequestStatus.accepted)
+                      .length;
+                });
+                debugPrint(
+                  '📊 [BlocListener] Cached stats - Active: $_cachedActiveJobs, Pending: $_cachedPendingRequests',
+                );
+              }
 
-                  // Quick Stats
-                  _buildQuickStats(),
-                  const SizedBox(height: 20),
+              // ✅ Cache packages count when they arrive
+              if (state is GetVendorPackagesSuccess) {
+                setState(() {
+                  _cachedTotalPackages = state.packages.length;
+                });
+                debugPrint(
+                  '📦 [BlocListener] Cached packages: $_cachedTotalPackages',
+                );
+              }
+            },
+            child: RefreshIndicator(
+              onRefresh: _refreshData,
+              color: AppColors.primaryGold,
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Welcome Message
+                    _buildWelcomeMessage(),
+                    const SizedBox(height: 20),
 
-                  // Quick Actions
-                  _buildQuickActions(),
-                  const SizedBox(height: 24),
+                    // Earnings Summary Card
+                    _buildEarningsSummaryCard(),
+                    const SizedBox(height: 20),
 
-                  // Tabs
-                  _buildTabs(),
-                  const SizedBox(height: 16),
+                    // Quick Stats
+                    _buildQuickStats(),
+                    const SizedBox(height: 20),
 
-                  // Requests List (separate builder)
-                  if (selectedTab == 0) _buildRequestsListWidget(),
+                    // Quick Actions
+                    _buildQuickActions(),
+                    const SizedBox(height: 24),
 
-                  // Notifications List
-                  if (selectedTab == 1) _buildNotificationsList(),
-                ],
+                    // Tabs
+                    _buildTabs(),
+                    const SizedBox(height: 16),
+
+                    // Requests List (separate builder)
+                    if (selectedTab == 0) _buildRequestsListWidget(),
+
+                    // Notifications List
+                    if (selectedTab == 1) _buildNotificationsList(),
+                  ],
+                ),
               ),
             ),
           ),

@@ -8,10 +8,10 @@ import 'package:plan_z/core/widgets/custom_app_bar.dart';
 import 'package:plan_z/features/event_owners/create_event_screen/cubits/create_event_cubit/create_event_cubit.dart';
 import 'package:plan_z/features/event_owners/create_event_screen/cubits/create_event_cubit/create_event_state.dart';
 import 'package:plan_z/features/event_owners/create_event_screen/data/models/event_model.dart';
+import 'package:plan_z/features/event_owners/create_event_screen/ui/screens/browse_packages_screen.dart';
 import 'package:plan_z/features/vendor_features/packages_mangment/data/models/package_request_model.dart';
 import 'package:plan_z/features/vendor_features/packages_mangment/data/models/package_model.dart';
-import 'package:plan_z/features/event_owners/create_event_screen/ui/screens/browse_packages_screen.dart';
-
+ 
 class EventPackagesScreen extends StatefulWidget {
   final String eventId;
 

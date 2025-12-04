@@ -129,10 +129,16 @@ class _AttendeeHomeScreenState extends State<AttendeeHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      floatingActionButton: _buildChatFAB(),
-      appBar: CustomAppBar(
+    return WillPopScope(
+      onWillPop: () async {
+        // ✅ منع الرجوع للـ login - البقاء في الـ home screen
+        debugPrint('🔒 [AttendeeHomeScreen] Back button pressed - staying in home');
+        return false; // ❌ لا تسمح بالـ pop
+      },
+      child: Scaffold(
+        backgroundColor: AppColors.background,
+        floatingActionButton: _buildChatFAB(),
+        appBar: CustomAppBar(
         title: 'attendee.home_app_bar_title'.tr(),
         actions: [
           // Notification Icon
@@ -245,6 +251,7 @@ class _AttendeeHomeScreenState extends State<AttendeeHomeScreen> {
             ),
           ),
         ),
+      ),
       ),
     );
   }

@@ -39,13 +39,19 @@ class _NavigationScreenState extends State<NavigationScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      extendBody: true, // هام: يخلي الـ body يمتد تحت الـ BottomBar
-      body: PageView(
-        controller: _pageController,
-        physics: const NeverScrollableScrollPhysics(),
-        children: _screens,
-      ),
+    return WillPopScope(
+      onWillPop: () async {
+        // ✅ منع الرجوع للـ login - البقاء في الـ home screen
+        debugPrint('🔒 [NavigationScreen] Back button pressed - staying in home');
+        return false; // ❌ لا تسمح بالـ pop
+      },
+      child: Scaffold(
+        extendBody: true, // هام: يخلي الـ body يمتد تحت الـ BottomBar
+        body: PageView(
+          controller: _pageController,
+          physics: const NeverScrollableScrollPhysics(),
+          children: _screens,
+        ),
       floatingActionButton: _buildChatFAB(),
       bottomNavigationBar: Container(
         margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -163,6 +169,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
             },
           ),
         ),
+      ),
       ),
     );
   }

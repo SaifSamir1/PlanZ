@@ -90,8 +90,8 @@ class _OwnerDashboardScreenState extends State<OwnerDashboardScreen> {
                 const SizedBox(height: 24),
 
                 // ✅ Financial Overview Card
-                _buildFinancialCard(context, state),
-                const SizedBox(height: 20),
+                // _buildFinancialCard(context, state),
+                // const SizedBox(height: 20),
 
                 // ✅ Owner Profits Card
                 _buildOwnerProfitsCard(state),
